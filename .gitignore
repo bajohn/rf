@@ -1,0 +1,4 @@
+out/
+terraform/.*
+terraform/terraform.tfstate.backup*
+.DS_Store
