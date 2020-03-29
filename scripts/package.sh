@@ -8,7 +8,6 @@ TEMP=$DIR/temp/python$SITE_PACKAGES_REL
 cd $DIR/lambdas 
 
 SITE_PACKAGES=$(pipenv --venv)
-# /Users/bjohn/.local/share/virtualenvs/lambdas-ktw4rDs8/lib/python3.7/site-packages
 PACKAGE_ZIP='rf_lib.zip'
 
 OUTDIR=$DIR/out
@@ -33,10 +32,6 @@ do
         zip -r9g $OUTDIR/$shortfile.zip $file_inner
     done
 
-    # aws s3 cp  $OUTDIR/$shortfile.zip s3://$S3_BUCKET_NAME/$shortfile.zip
 done
 
 rm -r $DIR/temp
-
-
-# aws s3 cp $OUTDIR/$PACKAGE_ZIP s3://$S3_BUCKET_NAME/$PACKAGE_ZIP
