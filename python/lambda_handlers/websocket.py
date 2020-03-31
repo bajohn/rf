@@ -1,4 +1,4 @@
 import requests
 
 def handler(event, context):
-    return True
+    return {"statusCode": 200}

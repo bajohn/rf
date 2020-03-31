@@ -21,17 +21,22 @@ export class AppComponent implements OnInit {
   async initws() {
 
     const url = 'wss://acyiae8dc2.execute-api.us-east-1.amazonaws.com/dev'
-    const ws = new WebSocket(url);
-    console.log(ws);
-    //const myWebSocket: WebSocketSubject<any> = webSocket(url);
-    //myWebSocket.asObservable().subscribe(dataFromServer => {console.log(dataFromServer)});
-    //myWebSocket.next({action: 'connect'});
-    //console.log(myWebSocket);
+
+    // const ws = new WebSocket(url);
+    // console.log(ws);
+
+
+
+
+    const myWebSocket: WebSocketSubject<any> = webSocket(url);
+    myWebSocket.asObservable().subscribe(dataFromServer => {console.log(dataFromServer)});
+    myWebSocket.next({action: 'connect'});
+    console.log(myWebSocket);
   }
   async inithttp(){
     console.log('ON');
     const reqBody = {
-      action: '$connect'
+      action: 'subcribe-to-message'
     }
     const req: RequestInit =  {
       method: 'POST', // *GET, POST, PUT, DELETE, etc.

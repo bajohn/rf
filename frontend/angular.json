@@ -15,6 +15,7 @@
           "options": {
             "outputPath": "dist",
             "index": "src/index.html",
+            "outputHashing": "all",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "tsconfig.app.json",

@@ -4,13 +4,13 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "code_bucket" {
-  region =  "us-east-1"
+  region = "us-east-1"
   bucket = "rf-lambda-bucket"
   acl    = "private"
 }
 
 resource "aws_s3_bucket" "website_bucket" {
-  region =  "us-east-1"
+  region = "us-east-1"
   bucket = "rf-website-artifacts-bucket"
   acl    = "private"
   policy = <<EOF
@@ -41,9 +41,9 @@ resource "aws_s3_bucket" "website_bucket" {
 resource "aws_s3_bucket_public_access_block" "website_bucket_public_access" {
   bucket = aws_s3_bucket.website_bucket.id
 
-  block_public_acls   = false
-  ignore_public_acls = false
-  block_public_policy = false
+  block_public_acls       = false
+  ignore_public_acls      = false
+  block_public_policy     = false
   restrict_public_buckets = false
 }
 
@@ -57,18 +57,18 @@ resource "aws_lambda_layer_version" "lib_layer" {
 
 resource "aws_lambda_function" "websocket_lambda" {
   source_code_hash = filebase64sha256("../out/websocket.zip")
-  filename      = "../out/websocket.zip"
-  function_name = "websocket-handler"
-  role          = aws_iam_role.iam_for_rf_lambda.arn
-  handler       = "websocket.handler"
+  filename         = "../out/websocket.zip"
+  function_name    = "websocket-handler"
+  role             = aws_iam_role.iam_for_rf_role.arn
+  handler          = "websocket.handler"
 
   layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
   runtime = "python3.7"
 
-} 
+}
 
-resource "aws_iam_role" "iam_for_rf_lambda" {
-  name = "iam_for_rf_lambda"
+resource "aws_iam_role" "iam_for_rf_role" {
+  name = "iam_for_rf"
 
   assume_role_policy = <<EOF
 {
@@ -85,12 +85,64 @@ resource "aws_iam_role" "iam_for_rf_lambda" {
   ]
 }
 EOF
+
 }
+
+
+resource "aws_iam_policy" "iam_for_rf_policy" {
+  name        = "rf-lambda-policy"
+  description = "A policy for the rf websocket lambda"
+
+  policy = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "execute-api:Invoke",
+                "execute-api:ManageConnections"
+            ],
+            "Resource": "arn:aws:execute-api:*:*:*"
+        },
+        {
+                    "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+EOF
+}
+
+resource "aws_iam_policy_attachment" "iam_for_rf_attach" {
+  name       = "IAM for RF policy attachment"
+  roles      = [aws_iam_role.iam_for_rf_role.name]
+  policy_arn = aws_iam_policy.iam_for_rf_policy.arn
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 resource "aws_cloudfront_distribution" "website_distribution" {
   origin {
     domain_name = aws_s3_bucket.website_bucket.bucket_domain_name
-    origin_id   =  "${aws_s3_bucket.website_bucket.id}-s3-origin" 
+    origin_id   = "${aws_s3_bucket.website_bucket.id}-s3-origin"
   }
   # aliases = [ var.domain-name]
   viewer_certificate {
@@ -101,7 +153,7 @@ resource "aws_cloudfront_distribution" "website_distribution" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id =  "${aws_s3_bucket.website_bucket.id}-s3-origin" 
+    target_origin_id = "${aws_s3_bucket.website_bucket.id}-s3-origin"
 
     forwarded_values {
       query_string = false
