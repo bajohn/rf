@@ -8,4 +8,4 @@ Really Fun card game implemented on AWS.
 - Start testing websocket connections from browser
 
 ## Notes
-Credit: favicon.ico from [(icons8.com)](icons8.com)
+Credit: favicon.ico from [icons8.com](icons8.com)
