@@ -5,7 +5,7 @@ DIR=`pwd`
 SITE_PACKAGES_REL=/lib/python3.7/site-packages
 mkdir -p temp/python$SITE_PACKAGES_REL
 TEMP=$DIR/temp/python$SITE_PACKAGES_REL
-cd $DIR/lambdas 
+cd $DIR/python 
 
 SITE_PACKAGES=$(pipenv --venv)
 PACKAGE_ZIP='rf_lib.zip'
@@ -20,7 +20,7 @@ cd $TEMP
 cd ../../../../
 zip -r9 $OUTDIR/$PACKAGE_ZIP *
 
-cd $DIR/lambdas/handlers
+cd $DIR/python/lambda_handlers
 for file_inner in ./** #separate zip for each lambda
 do
     len=${#file_inner}
