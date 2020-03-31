@@ -2,9 +2,9 @@
 Really Fun card game implemented on AWS. 
 
 ## TODO
-- Working on websocket API Gateway. I think it needs an SSL host, so trying to host on Cloudfront
 - Double check website artifact bucket permissions
 - Create make scripts to standardize running of deployment
+- Start testing websocket connections from browser
 ## Notes
 Credit: favicon.ico fromicons8.com 
 
