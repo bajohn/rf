@@ -30,7 +30,7 @@ export class AppComponent implements OnInit {
 
     const myWebSocket: WebSocketSubject<any> = webSocket(url);
     myWebSocket.asObservable().subscribe(dataFromServer => {console.log(dataFromServer)});
-    myWebSocket.next({action: 'connect'});
+    myWebSocket.next({action: 'subscribe_to_message', message: 'hello world!'});
     console.log(myWebSocket);
   }
   async inithttp(){

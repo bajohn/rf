@@ -1,7 +1,6 @@
 import os
 import sys
 import boto3
-from helpers import find_api, initialize, OUT_DIR, ENVIRON_DIR, TEMP_FILE_NAME
 
 API_NAME = 'rf-website-artifacts-bucket'
 OUT_DIR = '../frontend/dist/'
