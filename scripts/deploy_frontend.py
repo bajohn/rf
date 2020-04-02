@@ -3,7 +3,7 @@ import sys
 import boto3
 
 API_NAME = 'rf-website-artifacts-bucket'
-OUT_DIR = '../frontend/dist/'
+OUT_DIR = 'frontend/dist/'
 URL = 'https://d155q41ienh9f7.cloudfront.net/'
 BUCKET = 'rf-website-artifacts-bucket'
 
