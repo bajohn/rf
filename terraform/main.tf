@@ -193,6 +193,22 @@ resource "aws_cloudfront_distribution" "website_distribution" {
 }
 
 
+
+# dynamo: Connections Table: hit once for all connections to a game.
+# partition key: game id (0,1,2,3)
+# sort key: connection id (0,1,2,3)
+# attribute: [
+#  {
+#    action: string 
+#    time: string
+#  }
+#]r
+
+# dynamo: websocket table
+# partition key: connection id
+# sort key
+
+
 # Add this to lambda permissions:
 # {
 #   "Version": "2012-10-17",
