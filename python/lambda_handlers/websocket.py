@@ -1,13 +1,34 @@
 import requests
 import logging
 import json 
+from datetime import datetime
+
+import boto3
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def handler(event, context):
     logger.log(logging.INFO, 'hellowwwww')
     logger.log(logging.INFO, json.dumps(event))
-    
+
+    request_id = event['requestContext']['requestId']
+    timestamp = datetime.now().isoformat()
+    client.put_item(
+    TableName='rf_game',
+    Item={
+        "game_id": {
+            "S": insert_key
+        }, 
+        "connection_id":{
+            "S": "d1d21d1"
+        },
+        "date": {
+            "S": "2020-04-07"
+        }
+
+    })
+
     return {"statusCode": 200}
 
 # interesting paart of log json dumps(event):

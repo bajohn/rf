@@ -195,6 +195,11 @@ resource "aws_cloudfront_distribution" "website_distribution" {
 
 
 # dynamo: Connections Table: hit once for all connections to a game.
+# partition key: room id: string
+# attribute: connection_ids: array of strings 
+# attribute: time: start_time
+
+
 # partition key: game id (0,1,2,3)
 # sort key: connection id (0,1,2,3)
 # attribute: [
