@@ -10,3 +10,7 @@ Really Fun card game implemented on AWS.
     - then transmit to all connections. If transmit fails, delete connection from table
 ## Notes
 Credit: favicon.ico from [icons8.com](icons8.com)
+
+
+Pull cards from here:
+https://commons.wikimedia.org/wiki/Category:SVG_playing_cards

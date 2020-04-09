@@ -1,35 +1,73 @@
 import requests
 import logging
-import json 
+import json
 from datetime import datetime
 
 import boto3
+import time
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
 
 def handler(event, context):
     logger.log(logging.INFO, 'hellowwwww')
     logger.log(logging.INFO, json.dumps(event))
 
     request_id = event['requestContext']['requestId']
-    timestamp = datetime.now().isoformat()
-    client.put_item(
-    TableName='rf_game',
-    Item={
-        "game_id": {
-            "S": insert_key
-        }, 
-        "connection_id":{
-            "S": "d1d21d1"
-        },
-        "date": {
-            "S": "2020-04-07"
-        }
 
-    })
+    client = boto3.client('dynamodb')
 
+    game_id = 'g123'
+
+    get_resp = client.get_item(
+        TableName='rf_game',
+        Key={
+            "game_id": {
+                "S": game_id
+            }
+        })
+
+    if 'Item' in get_resp:
+        get_item = get_resp['Item']
+        if 'connection_ids' in get_item:
+            conn_ids = get_item['connection_ids']['L']
+            conn_ids.append({'S': request_id})
+            put_resp = put_conn_ids(client, game_id, conn_ids)
+        else:
+            raise Exception('Missing connection ids?!')
+    else:
+        put_resp = put_conn_ids(client, game_id, [{"S": request_id}])
+
+    time.sleep(2)
     return {"statusCode": 200}
+
+
+def post_to_connection(connection_id):
+    gatewayapi = boto3.client("apigatewaymanagementapi")
+    data = 'Hello from backend'
+    resp = gatewayapi.post_to_connection(ConnectionId=connection_id,
+                                         Data=data.encode('utf-8'))
+    return resp
+
+
+def put_conn_ids(client, game_id, conn_ids):
+    put_resp = client.put_item(
+        TableName='rf_game',
+        Item={
+            "game_id": {
+                "S": game_id
+            },
+            "connection_ids": {
+                "L": conn_ids
+            },
+            "date": {
+                "S": datetime.now().isoformat()
+            }
+
+        })
+    return put_resp
+
 
 # interesting paart of log json dumps(event):
 # {

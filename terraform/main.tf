@@ -106,12 +106,17 @@ resource "aws_iam_policy" "iam_for_rf_policy" {
             "Resource": "arn:aws:execute-api:*:*:*"
         },
         {
-                    "Effect": "Allow",
+            "Effect": "Allow",
             "Action": [
                 "logs:CreateLogGroup",
                 "logs:CreateLogStream",
                 "logs:PutLogEvents"
             ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "dynamodb:*",
             "Resource": "*"
         }
     ]

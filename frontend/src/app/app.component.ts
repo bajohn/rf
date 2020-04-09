@@ -47,7 +47,7 @@ export class AppComponent implements OnInit {
         'Content-Type': 'application/json'
         // 'Content-Type': 'application/x-www-form-urlencoded',
       },
-      redirect: 'follow', // manual, *follow, error
+      redirect: 'follow', // manual, *follow, error // what the fuck does this do? http request upgrade?
       referrerPolicy: 'no-referrer', // no-referrer, *client
       body: JSON.stringify(reqBody) // body data type must match "Content-Type" header
     };
