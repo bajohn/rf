@@ -14,8 +14,8 @@ def handler(event, context):
     logger.log(logging.INFO, 'hellowwwww')
     logger.log(logging.INFO, json.dumps(event))
 
-    request_id = event['requestContext']['requestId']
-
+    connection_id = event['requestContext']['connectionId']
+    logger.log(logging.INFO, f'CONN ID {connection_id}')
     client = boto3.client('dynamodb')
 
     game_id = 'g123'
@@ -32,19 +32,28 @@ def handler(event, context):
         get_item = get_resp['Item']
         if 'connection_ids' in get_item:
             conn_ids = get_item['connection_ids']['L']
-            conn_ids.append({'S': request_id})
+            conn_ids.append({'S': connection_id})
             put_resp = put_conn_ids(client, game_id, conn_ids)
         else:
             raise Exception('Missing connection ids?!')
     else:
-        put_resp = put_conn_ids(client, game_id, [{"S": request_id}])
+        put_resp = put_conn_ids(client, game_id, [{"S": connection_id}])
 
-    time.sleep(2)
+    # time.sleep(2)
+
+    # post_to_connection(connection_id, event)
+
     return {"statusCode": 200}
 
 
-def post_to_connection(connection_id):
-    gatewayapi = boto3.client("apigatewaymanagementapi")
+def post_to_connection(connection_id, event):
+    domain = event['requestContext']['domainName']
+    stage = event['requestContext']['stage']
+    endpoint = f'https://{domain}/{stage}'
+    logger.log(logging.INFO, 'ENDPOINTTT')
+    logger.log(logging.INFO, endpoint)
+
+    gatewayapi = boto3.client("apigatewaymanagementapi", endpoint_url=endpoint)
     data = 'Hello from backend'
     resp = gatewayapi.post_to_connection(ConnectionId=connection_id,
                                          Data=data.encode('utf-8'))
