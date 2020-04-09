@@ -32,7 +32,7 @@ from datetime import datetime
 
 
 def main():
-    connection_id = 'Ks7uPeiwIAMCF0g='
+    connection_id = 'Ks9Xddl5IAMCFhA=' # hard copied from dynamo db
     api = 'https://acyiae8dc2.execute-api.us-east-1.amazonaws.com/dev'
     post_to_connection(connection_id, api)
 
@@ -57,6 +57,7 @@ def post_to_connection(connection_id, api):
 
     gatewayapi = boto3.client("apigatewaymanagementapi", endpoint_url=api)
     data = {'message': 'Hello from backend'}
+    print(datetime.now().isoformat()) # latency ~50-100 ms to cloudfront
     resp = gatewayapi.post_to_connection(ConnectionId=connection_id,
                                          Data=json.dumps(data))
     return resp
