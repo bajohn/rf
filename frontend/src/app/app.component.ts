@@ -9,7 +9,8 @@ import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 })
 export class AppComponent implements OnInit {
 
-  ws: WebSocketSubject<any>
+  ws: WebSocketSubject<any>;
+  apiId = '9owex9co2e';
   game_id = 'jjjj'
   constructor() {
     this.initws();
@@ -29,12 +30,12 @@ export class AppComponent implements OnInit {
 
   click_clear() {
     console.log('delete');
-    this.ws.next({ action: 'clear_connections', message: '' });
+    this.ws.next({ action: 'clear-connections', message: '' });
 
   }
 
   async initws() {
-    const url = 'wss://9owex9co2e.execute-api.us-east-1.amazonaws.com/dev';
+    const url = `wss://${this.apiId}.execute-api.us-east-1.amazonaws.com/dev`;
     this.ws = webSocket(url);
     this.ws.asObservable().subscribe(dataFromServer => { console.log(dataFromServer) });
   }

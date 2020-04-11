@@ -71,6 +71,19 @@ resource "aws_lambda_function" "ws_connect_lambda" {
 
 }
 
+resource "aws_lambda_function" "ws_clear_conns_lambda" {
+  source_code_hash = filebase64sha256("../out/websocket.zip")
+  filename         = "../out/websocket.zip"
+  function_name    = "ws-clear-conns-lambda"
+  role             = aws_iam_role.iam_for_rf_role.arn
+  handler          = "clear_connections.handler"
+
+  layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
+  runtime = "python3.7"
+
+}
+
+
 
 resource "aws_iam_role" "iam_for_rf_role" {
   name = "iam_for_rf"
