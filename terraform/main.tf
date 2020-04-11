@@ -1,6 +1,8 @@
 provider "aws" {
   profile = "default"
   region  = "us-east-1"
+  version = "2.57.0"
+
 }
 
 resource "aws_s3_bucket" "code_bucket" {
@@ -55,17 +57,20 @@ resource "aws_lambda_layer_version" "lib_layer" {
 }
 
 
-resource "aws_lambda_function" "websocket_lambda" {
+
+
+resource "aws_lambda_function" "ws_connect_lambda" {
   source_code_hash = filebase64sha256("../out/websocket.zip")
   filename         = "../out/websocket.zip"
-  function_name    = "websocket-handler"
+  function_name    = "ws-connect-lambda"
   role             = aws_iam_role.iam_for_rf_role.arn
-  handler          = "websocket.handler"
+  handler          = "connect.handler"
 
   layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
   runtime = "python3.7"
 
 }
+
 
 resource "aws_iam_role" "iam_for_rf_role" {
   name = "iam_for_rf"
@@ -132,18 +137,6 @@ resource "aws_iam_policy_attachment" "iam_for_rf_attach" {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 resource "aws_cloudfront_distribution" "website_distribution" {
   origin {
     domain_name = aws_s3_bucket.website_bucket.bucket_domain_name
@@ -196,6 +189,23 @@ resource "aws_cloudfront_distribution" "website_distribution" {
     }
   }
 }
+
+# aws apigatewayv2 get-integrations --api-id acyiae8dc2
+# terraform import aws_api_gateway_rest_api.rf-api 
+# aws apigatewayv2 get-integration --api-id acyiae8dc2 --integration-id 5axmhhq
+
+# NOTE: Terraform has not yet added full support
+# for api gateway v2. Integrations were only added 2020-04-09 (v2.57.0).
+# Therefore, most configuration was done on AWS console.
+# Hopefully support will be added soon and we can import
+resource "aws_apigatewayv2_api" "rf-api" {
+  name = "RF WS API"
+  protocol_type = "WEBSOCKET"
+  route_selection_expression = "$request.body.action"
+  description = "RF Websocket API. Pull 'action' out of request JSON body."
+
+}
+
 
 
 

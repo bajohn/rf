@@ -32,6 +32,8 @@ def handler(event, context):
         get_item = get_resp['Item']
         if 'connection_ids' in get_item:
             conn_ids = get_item['connection_ids']['L']
+            for conn_id in conn_ids:
+                dostuff
 
 
     return {"statusCode": 200}

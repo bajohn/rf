@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
+import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 
 
 @Component({
@@ -9,54 +9,35 @@ import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
 })
 export class AppComponent implements OnInit {
 
-
+  ws: WebSocketSubject<any>
+  game_id = 'jjjj'
   constructor() {
-
-  }
-
-  ngOnInit(){
     this.initws();
   }
 
+  ngOnInit() {
+    this.initws();
+  }
+
+  click_broadcast() {
+    console.log('broadcast');
+    this.ws.next({ action: 'send_message', message: {
+      game_id: this.game_id,
+      msg: 'Hello world'
+    } });
+  }
+
+  click_clear() {
+    console.log('delete');
+    this.ws.next({ action: 'clear_connections', message: '' });
+
+  }
+
   async initws() {
-
-    const url = 'wss://acyiae8dc2.execute-api.us-east-1.amazonaws.com/dev'
-
-    // const ws = new WebSocket(url);
-    // console.log(ws);
-
-
-
-
-    const myWebSocket: WebSocketSubject<any> = webSocket(url);
-    myWebSocket.asObservable().subscribe(dataFromServer => {console.log(dataFromServer)});
-    myWebSocket.next({action: 'subscribe_to_message', message: 'hello world!'});
-    console.log(myWebSocket);
+    const url = 'wss://9owex9co2e.execute-api.us-east-1.amazonaws.com/dev';
+    this.ws = webSocket(url);
+    this.ws.asObservable().subscribe(dataFromServer => { console.log(dataFromServer) });
   }
-  async inithttp(){
-    console.log('ON');
-    const reqBody = {
-      action: 'subcribe-to-message'
-    }
-    const req: RequestInit =  {
-      method: 'POST', // *GET, POST, PUT, DELETE, etc.
-      mode: 'cors', // no-cors, *cors, same-origin
-      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-      credentials: 'same-origin', // include, *same-origin, omit
-      headers: {
-        'Content-Type': 'application/json'
-        // 'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      redirect: 'follow', // manual, *follow, error // what the fuck does this do? http request upgrade?
-      referrerPolicy: 'no-referrer', // no-referrer, *client
-      body: JSON.stringify(reqBody) // body data type must match "Content-Type" header
-    };
-    const url = 'https://acyiae8dc2.execute-api.us-east-1.amazonaws.com/dev/@connections';
-    const resp = await fetch(url, req);
 
-    console.log('resp', resp);
-
-    
-  }
 
 }
