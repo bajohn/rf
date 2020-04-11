@@ -32,7 +32,7 @@ from datetime import datetime
 
 
 def main():
-    connection_id = 'Ks9Xddl5IAMCFhA=' # hard copied from dynamo db
+    connection_id = 'K1EcHeDToAMCIyQ=' # hard copied from dynamo db
     api = 'https://acyiae8dc2.execute-api.us-east-1.amazonaws.com/dev'
     post_to_connection(connection_id, api)
 
