@@ -11,9 +11,8 @@ export class AppComponent implements OnInit {
 
   ws: WebSocketSubject<any>;
   apiId = '9owex9co2e';
-  game_id = 'jjjj'
+  game_id = 'cccc'
   constructor() {
-    this.initws();
   }
 
   ngOnInit() {
@@ -22,7 +21,7 @@ export class AppComponent implements OnInit {
 
   click_broadcast() {
     console.log('broadcast');
-    this.ws.next({ action: 'send_message', message: {
+    this.ws.next({ action: 'send-message', message: {
       game_id: this.game_id,
       msg: 'Hello world'
     } });
@@ -30,7 +29,7 @@ export class AppComponent implements OnInit {
 
   click_clear() {
     console.log('delete');
-    this.ws.next({ action: 'clear-connections', message: '' });
+    this.ws.next({ action: 'clear-connections', message: {game_id: this.game_id} });
 
   }
 

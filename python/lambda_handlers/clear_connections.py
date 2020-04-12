@@ -10,11 +10,11 @@ def handler(event, context):
     logger.log(logging.INFO, 'connecting...')
     logger.log(logging.INFO, json.dumps(event))
 
-    connection_id = event['requestContext']['connectionId']
-    logger.log(logging.INFO, f'CONN ID {connection_id}')
-    client = boto3.client('dynamodb')
+    body_obj = json.loads(event['body'])
+    game_id = body_obj['message']['game_id']
 
-    game_id = 'cccc'
+    logger.log(logging.INFO, f'game id  {game_id}')
+    client = boto3.client('dynamodb')
 
     put_conn_ids(client, game_id, [])
 
