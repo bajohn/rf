@@ -64,7 +64,7 @@ resource "aws_lambda_function" "ws_connect_lambda" {
   filename         = "../out/websocket.zip"
   function_name    = "ws-connect-lambda"
   role             = aws_iam_role.iam_for_rf_role.arn
-  handler          = "connect.handler"
+  handler          = "rf_python.lambda_handlers.connect.handler"
 
   layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
   runtime = "python3.7"
@@ -76,7 +76,7 @@ resource "aws_lambda_function" "ws_disconnect_lambda" {
   filename         = "../out/websocket.zip"
   function_name    = "ws-disconnect-lambda"
   role             = aws_iam_role.iam_for_rf_role.arn
-  handler          = "disconnect.handler"
+  handler          = "rf_python.lambda_handlers.disconnect.handler"
 
   layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
   runtime = "python3.7"
@@ -88,7 +88,7 @@ resource "aws_lambda_function" "ws_clear_conns_lambda" {
   filename         = "../out/websocket.zip"
   function_name    = "ws-clear-conns-lambda"
   role             = aws_iam_role.iam_for_rf_role.arn
-  handler          = "clear_connections.handler"
+  handler          = "rf_python.lambda_handlers.clear_connections.handler"
 
   layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
   runtime = "python3.7"
@@ -100,7 +100,7 @@ resource "aws_lambda_function" "ws_send_msg_lambda" {
   filename         = "../out/websocket.zip"
   function_name    = "ws-send-msg-lambda"
   role             = aws_iam_role.iam_for_rf_role.arn
-  handler          = "send_message.handler"
+  handler          = "rf_python.lambda_handlers.send_message.handler"
 
   layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
   runtime = "python3.7"

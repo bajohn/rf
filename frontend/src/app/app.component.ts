@@ -23,7 +23,7 @@ export class AppComponent implements OnInit {
     console.log('broadcast');
     this.ws.next({ action: 'send-message', message: {
       game_id: this.game_id,
-      msg: 'Hello world'
+      broadcast_message: {x: 123}
     } });
   }
 
