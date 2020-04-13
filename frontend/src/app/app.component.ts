@@ -50,8 +50,8 @@ export class AppComponent implements OnInit {
 
   }
 
-  click_move() {
-    this.boxPosition = { x: -10, y: -10 };
+  move_box(x: number, y: number) {
+    this.boxPosition = { x: x, y: y };
   }
 
 
@@ -88,8 +88,11 @@ export class AppComponent implements OnInit {
     this.ws.next(msgToSend);
   }
 
-  parseMsgFromWs(data: iWsMsg){
+  parseMsgFromWs(data: iWsMsg) {
     console.log(data);
+    if (data.action === 'card-move-end') {
+      this.boxPosition = { x: Number(data.message['x']) , y: Number(data.message['y']) }
+    }
   }
 
 
@@ -100,7 +103,7 @@ interface iWsMsg {
   action: endpoint
   message: {
     game_id: string
-    [key: string]: string
+    [key: string]: string | number
   }
 }
 
