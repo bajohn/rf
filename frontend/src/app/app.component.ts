@@ -21,15 +21,17 @@ export class AppComponent implements OnInit {
 
   click_broadcast() {
     console.log('broadcast');
-    this.ws.next({ action: 'send-message', message: {
-      game_id: this.game_id,
-      broadcast_message: {x: 123}
-    } });
+    this.ws.next({
+      action: 'send-message', message: {
+        game_id: this.game_id,
+        broadcast_message: { x: 123 }
+      }
+    });
   }
 
   click_clear() {
     console.log('delete');
-    this.ws.next({ action: 'clear-connections', message: {game_id: this.game_id} });
+    this.ws.next({ action: 'clear-connections', message: { game_id: this.game_id } });
 
   }
 
@@ -37,6 +39,7 @@ export class AppComponent implements OnInit {
     const url = `wss://${this.apiId}.execute-api.us-east-1.amazonaws.com/dev`;
     this.ws = webSocket(url);
     this.ws.asObservable().subscribe(dataFromServer => { console.log(dataFromServer) });
+    this.ws.next({ action: 'initialize', message: { game_id: this.game_id } });
   }
 
 

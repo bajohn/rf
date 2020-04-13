@@ -72,7 +72,7 @@ class Helpers():
     def _msg_to_connection(self, connection_id, msg):
 
         try:
-            gatewayapi.post_to_connection(ConnectionId=connection_id,
+            self._gw_client.post_to_connection(ConnectionId=connection_id,
                                           Data=msg.encode('utf-8'))
             return {'successful': True}
         except:  # GoneException, delete this connection id

@@ -58,34 +58,35 @@ resource "aws_lambda_layer_version" "lib_layer" {
 
 
 
-
+# endpoint: $connect
 resource "aws_lambda_function" "ws_connect_lambda" {
-  source_code_hash = filebase64sha256("../out/websocket.zip")
-  filename         = "../out/websocket.zip"
+  source_code_hash = filebase64sha256("../out/connect.zip")
+  filename         = "../out/connect.zip"
   function_name    = "ws-connect-lambda"
   role             = aws_iam_role.iam_for_rf_role.arn
   handler          = "rf_python.lambda_handlers.connect.handler"
 
   layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
   runtime = "python3.7"
-
 }
 
-resource "aws_lambda_function" "ws_disconnect_lambda" {
-  source_code_hash = filebase64sha256("../out/websocket.zip")
-  filename         = "../out/websocket.zip"
-  function_name    = "ws-disconnect-lambda"
+# endpoint: initialize
+resource "aws_lambda_function" "ws_initialize" {
+  source_code_hash = filebase64sha256("../out/initialize.zip")
+  filename         = "../out/initialize.zip"
+  function_name    = "ws-initialize-lambda"
   role             = aws_iam_role.iam_for_rf_role.arn
-  handler          = "rf_python.lambda_handlers.disconnect.handler"
+  handler          = "rf_python.lambda_handlers.initialize.handler"
 
   layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
   runtime = "python3.7"
 
 }
 
+# endpoint: clear-connections
 resource "aws_lambda_function" "ws_clear_conns_lambda" {
-  source_code_hash = filebase64sha256("../out/websocket.zip")
-  filename         = "../out/websocket.zip"
+  source_code_hash = filebase64sha256("../out/clear_connections.zip")
+  filename         = "../out/clear_connections.zip"
   function_name    = "ws-clear-conns-lambda"
   role             = aws_iam_role.iam_for_rf_role.arn
   handler          = "rf_python.lambda_handlers.clear_connections.handler"
@@ -95,15 +96,18 @@ resource "aws_lambda_function" "ws_clear_conns_lambda" {
 
 }
 
+# endpoint: send-message
 resource "aws_lambda_function" "ws_send_msg_lambda" {
-  source_code_hash = filebase64sha256("../out/websocket.zip")
-  filename         = "../out/websocket.zip"
+  source_code_hash = filebase64sha256("../out/send_message.zip")
+  filename         = "../out/send_message.zip"
   function_name    = "ws-send-msg-lambda"
   role             = aws_iam_role.iam_for_rf_role.arn
   handler          = "rf_python.lambda_handlers.send_message.handler"
 
   layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
   runtime = "python3.7"
+
+
 
 }
 
