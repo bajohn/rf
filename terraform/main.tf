@@ -106,7 +106,7 @@ resource "aws_lambda_function" "ws_send_msg_lambda" {
 
   layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
   runtime = "python3.7"
-
+  timeout = 60
 
 
 }
