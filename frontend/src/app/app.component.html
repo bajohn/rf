@@ -1,17 +1,11 @@
+<div class="container"></div>
 <h1>
     Test App
 </h1>
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <button class="m-3 btn btn-primary" (click)="click_broadcast()">
-                Broadcast Message
-            </button>
-            <button class="m-3 btn btn-primary" (click)="click_clear()">
-                Clear Connections
-            </button>
-        </div>
-    </div>
-
-
+<div class="pad-btn">
+    <button button mat-raised-button color="primary" class="pad-btn" (click)="click_broadcast()"> Broadcast
+        Message</button>
+</div>
+<div class="pad-btn">
+    <button button mat-raised-button color="warn" class="pad-btn" (click)="click_clear()"> Clear Connections</button>
 </div>

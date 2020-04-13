@@ -1,12 +1,13 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import {MatButtonModule} from '@angular/material/button';
 
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import 'bootstrap/dist/css/bootstrap.min.css'
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+ 
 @NgModule({
   declarations: [
     AppComponent
@@ -14,7 +15,8 @@ import 'bootstrap/dist/css/bootstrap.min.css'
   imports: [
     BrowserModule,
     AppRoutingModule,
-    NgbModule,
+    BrowserAnimationsModule,
+    MatButtonModule
   ],
   providers: [],
   bootstrap: [AppComponent]
