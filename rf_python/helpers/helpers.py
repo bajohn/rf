@@ -13,7 +13,7 @@ class Helpers():
     def __init__(self, event):
 
         # need better handling around this
-        # note: body is not included in $connect 
+        # note: body is not included in $connect
         body_obj = json.loads(event['body'])
         self._game_id = body_obj['message']['game_id']
         self._dynamo_client = boto3.client('dynamodb')
@@ -60,9 +60,9 @@ class Helpers():
 
     # get python dict received from websocket connection
 
-    def get_event_msg(self, key):
+    def get_event_msg(self):
         body_obj = json.loads(self._event['body'])
-        return body_obj['message'][key]
+        return body_obj['message']
 
     def clear_connections(self):
         self._update_connections([])
@@ -73,7 +73,7 @@ class Helpers():
 
         try:
             self._gw_client.post_to_connection(ConnectionId=connection_id,
-                                          Data=msg.encode('utf-8'))
+                                               Data=msg.encode('utf-8'))
             return {'successful': True}
         except:  # GoneException, delete this connection id
             logger.log(logging.INFO, f'dead id {connection_id}')
@@ -112,3 +112,83 @@ class Helpers():
                 conn_ids = get_item['connection_ids']['L']
                 return conn_ids
         return []
+
+    def start_card_move(self, message):
+        card_value = message['cardValue']
+
+        # Check for lock id
+        get_resp = self._dynamo_client.get_item(
+            TableName='rf_cards',
+            Key={
+                "game_id": {
+                    "S": self._game_id
+                },
+                "card_value": {
+                    "S": card_value
+                }
+            })
+
+        if 'Item' in get_resp:
+            get_item = get_resp['Item']
+            if 'connection_ids' in get_item:
+                lock_id = get_item['lock_id']['S']
+                if lock_id == 'False':
+                    return None
+        # Update card position if not locked
+        self._dynamo_client.put_item(
+            TableName='rf_cards',
+            Item={
+                "game_id": {
+                    "S": self._game_id
+                },
+                "card_value": {
+                    "S": card_value
+                },
+                "lock_id": {
+                    "S": self._connection_id
+                },
+                "x": {
+                    "N": str(message['x'])
+                },
+                "y": {
+                    "N": str(message['y'])
+                },
+                "date": {
+                    "S": datetime.now().isoformat()
+                }
+            })
+        logger.log(logging.INFO, 'put finished')
+        return None
+
+    def end_card_move(self, message):
+        card_value = message['cardValue']
+
+        # Check for lock id
+        # TODO: should only finalize lock if stored
+        # connection_id matches self.connection_id
+
+        # Update card position is not locked
+        self._dynamo_client.put_item(
+            TableName='rf_cards',
+            Item={
+                "game_id": {
+                    "S": self._game_id
+                },
+                "card_value": {
+                    "S": card_value
+                },
+                "lock_id": {
+                    "S": 'False'
+                },
+                "x": {
+                    "N": str(message['x'])
+                },
+                "y": {
+                    "N": str(message['x'])
+                },
+                "date": {
+                    "S": datetime.now().isoformat()
+                }
+            })
+
+        return None

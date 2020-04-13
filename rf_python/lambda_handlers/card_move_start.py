@@ -10,10 +10,11 @@ logger.setLevel(logging.INFO)
 
 
 def handler(event, context):
-    logger.log(logging.INFO, 'Sending message...')
+    logger.log(logging.INFO, 'Starting card move...')
     logger.log(logging.INFO, json.dumps(event))
 
     helpers = Helpers(event)
-    msg_obj = helpers.get_event_msg()['broadcast_message']
-    helpers.broadcast_message(msg_obj)
+    message = helpers.get_event_msg()
+    helpers.start_card_move(message)
+    helpers.broadcast_message(message)
     return {"statusCode": 200}

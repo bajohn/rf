@@ -28,7 +28,10 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.initws();
+    const url = `wss://${this.apiId}.execute-api.us-east-1.amazonaws.com/dev`;
+    this.ws = webSocket(url);
+    this.ws.asObservable().subscribe(dataFromServer => { console.log(dataFromServer) });
+    this.sendToWs('initialize', {});
   }
 
   click_broadcast() {
@@ -51,23 +54,47 @@ export class AppComponent implements OnInit {
     this.boxPosition = { x: -10, y: -10 };
   }
 
-  async initws() {
-    const url = `wss://${this.apiId}.execute-api.us-east-1.amazonaws.com/dev`;
-    this.ws = webSocket(url);
-    this.ws.asObservable().subscribe(dataFromServer => { console.log(dataFromServer) });
-    this.ws.next({ action: 'initialize', message: { game_id: this.game_id } });
-  }
 
-  moved(moved: CdkDragEnd<any>) {
-    console.log('hi!')
-    //console.log(moved);
-    //console.log(this.dragel);
-    this.ctr++;
-    console.log(moved.source.getFreeDragPosition())
+  moveStarted(dragStart: CdkDragStart) {
     console.log(this.boxPosition);
-    //console.log(moved.source.getFreeDragPosition());
-
+    const startMsg = {
+      x: this.boxPosition.x,
+      y: this.boxPosition.y,
+      cardValue: '9C'
+    };
+    this.sendToWs('card-move-start', startMsg);
   }
+
+  moveEnded(dragEnd: CdkDragEnd<any>) {
+    console.log(this.boxPosition);
+    const endMsg = {
+      x: this.boxPosition.x,
+      y: this.boxPosition.y,
+      cardValue: '9C'
+    };
+    this.sendToWs('card-move-end', endMsg);
+  }
+
+  sendToWs(endpoint: endpoint, msgIn: { [key: string]: number | string }) {
+    const msgToSend = {
+      action: endpoint,
+      message: Object.assign({
+        game_id: this.game_id,
+      }, msgIn)
+    };
+    this.ws.next(msgToSend);
+  }
+
 
 
 }
+
+interface iWsMsg {
+  action: endpoint
+  message: {
+    game_id: string
+    [key: string]: string
+  }
+}
+
+type endpoint = 'initialize' | 'send-message' | 'clear-connections' | 'card-move-start' | 'card-move-end';

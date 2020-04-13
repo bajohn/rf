@@ -107,10 +107,33 @@ resource "aws_lambda_function" "ws_send_msg_lambda" {
   layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
   runtime = "python3.7"
   timeout = 60
-
-
 }
 
+# endpoint: card-move-start
+resource "aws_lambda_function" "ws_card_move_start_lambda" {
+  source_code_hash = filebase64sha256("../out/card_move_start.zip")
+  filename         = "../out/card_move_start.zip"
+  function_name    = "ws-card-move-start-lambda"
+  role             = aws_iam_role.iam_for_rf_role.arn
+  handler          = "rf_python.lambda_handlers.card_move_start.handler"
+
+  layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
+  runtime = "python3.7"
+  timeout = 60
+}
+
+# endpoint: card-move-end
+resource "aws_lambda_function" "ws_card_move_end_lambda" {
+  source_code_hash = filebase64sha256("../out/card_move_end.zip")
+  filename         = "../out/card_move_end.zip"
+  function_name    = "ws-card-move-end-lambda"
+  role             = aws_iam_role.iam_for_rf_role.arn
+  handler          = "rf_python.lambda_handlers.card_move_end.handler"
+
+  layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
+  runtime = "python3.7"
+  timeout = 60
+}
 
 
 
@@ -241,10 +264,10 @@ resource "aws_cloudfront_distribution" "website_distribution" {
 # Therefore, most configuration was done on AWS console.
 # Hopefully support will be added soon and we can import
 resource "aws_apigatewayv2_api" "rf-api" {
-  name = "RF WS API"
-  protocol_type = "WEBSOCKET"
+  name                       = "RF WS API"
+  protocol_type              = "WEBSOCKET"
   route_selection_expression = "$request.body.action"
-  description = "RF Websocket API. Pull 'action' out of request JSON body."
+  description                = "RF Websocket API. Pull 'action' out of request JSON body."
 
 }
 

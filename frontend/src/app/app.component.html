@@ -15,7 +15,6 @@
 </div> -->
 
 <div class="game-container">
-    <div class="example-box" (cdkDragEnded)="moved($event)" [cdkDragFreeDragPosition]="boxPosition" cdkDrag #dragel>
-        Drag me around
+    <div class="example-box"  (cdkDragStarted)="moveStarted($event)"  (cdkDragEnded)="moveEnded($event)" [(cdkDragFreeDragPosition)]="boxPosition" cdkDrag #dragel>
     </div>
 </div>
