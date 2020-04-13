@@ -1,10 +1,13 @@
 import os
 import sys
 import boto3
+from datetime import datetime 
 
 API_NAME = 'rf-website-artifacts-bucket'
 OUT_DIR = 'frontend/dist/'
-URL = 'https://d155q41ienh9f7.cloudfront.net/'
+CLOUDFRONT_URL = 'd155q41ienh9f7'
+CLOUDFRONT_ID = 'EG8FC9V8HICY5'
+URL = f'https://{CLOUDFRONT_URL}.cloudfront.net/'
 BUCKET = 'rf-website-artifacts-bucket'
 
 
@@ -33,6 +36,18 @@ def main():
             print(f'Uploading: {artifact_file}')
             s3_client.upload_file(artifact_path, BUCKET, artifact_file, ExtraArgs={
                                   'ContentType': 'text/css'})
+
+    cf_client = boto3.client('cloudfront')
+    cf_client.create_invalidation(
+        DistributionId=CLOUDFRONT_ID,
+        InvalidationBatch={
+            'Paths': {
+                'Quantity': 1,
+                'Items': ['/*']
+            },
+            'CallerReference': f'invalidation_{datetime.now().isoformat()}'
+        }
+    )
 
     print('Done.')
 
