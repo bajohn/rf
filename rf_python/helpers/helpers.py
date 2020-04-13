@@ -62,7 +62,7 @@ class Helpers():
 
     def get_event_msg(self):
         body_obj = json.loads(self._event['body'])
-        return body_obj['message']
+        return body_obj
 
     def clear_connections(self):
         self._update_connections([])
@@ -113,7 +113,8 @@ class Helpers():
                 return conn_ids
         return []
 
-    def start_card_move(self, message):
+    def start_card_move(self, event_msg):
+        message = event_msg['message']
         card_value = message['cardValue']
 
         # Check for lock id
@@ -160,7 +161,8 @@ class Helpers():
         logger.log(logging.INFO, 'put finished')
         return None
 
-    def end_card_move(self, message):
+    def end_card_move(self, event_msg):
+        message = event_msg['message']
         card_value = message['cardValue']
 
         # Check for lock id
@@ -184,7 +186,7 @@ class Helpers():
                     "N": str(message['x'])
                 },
                 "y": {
-                    "N": str(message['x'])
+                    "N": str(message['y'])
                 },
                 "date": {
                     "S": datetime.now().isoformat()

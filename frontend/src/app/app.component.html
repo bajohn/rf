@@ -14,7 +14,10 @@
     <button button mat-raised-button color="warn" class="pad-btn" (click)="click_clear()"> Clear Connections</button>
 </div> -->
 
+
+<!-- [(cdkDragFreeDragPosition)]="boxPosition"  -->
+
 <div class="game-container">
-    <div class="example-box"  (cdkDragStarted)="moveStarted($event)"  (cdkDragEnded)="moveEnded($event)" [(cdkDragFreeDragPosition)]="boxPosition" cdkDrag #dragel>
+    <div class="example-box"  (cdkDragStarted)="moveStarted($event)"  (cdkDragEnded)="moveEnded($event)" cdkDrag #dragel>
     </div>
 </div>

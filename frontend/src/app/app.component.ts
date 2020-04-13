@@ -17,8 +17,7 @@ export class AppComponent implements OnInit {
   ctr = 0;
 
 
-  boxPosition = { x: 0, y: 0 };
-
+  boxPosition: { x: number, y: number };
 
 
   // @ViewChild('cdkDrag') child: CdkDrag
@@ -30,7 +29,8 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     const url = `wss://${this.apiId}.execute-api.us-east-1.amazonaws.com/dev`;
     this.ws = webSocket(url);
-    this.ws.asObservable().subscribe(dataFromServer => { console.log(dataFromServer) });
+    this.ws.asObservable().subscribe(
+      data => this.parseMsgFromWs(data));
     this.sendToWs('initialize', {});
   }
 
@@ -56,20 +56,23 @@ export class AppComponent implements OnInit {
 
 
   moveStarted(dragStart: CdkDragStart) {
-    console.log(this.boxPosition);
+    console.log(dragStart);
+    const xyPos = dragStart.source.getFreeDragPosition()
     const startMsg = {
-      x: this.boxPosition.x,
-      y: this.boxPosition.y,
+      x: xyPos.x,
+      y: xyPos.y,
       cardValue: '9C'
     };
     this.sendToWs('card-move-start', startMsg);
   }
 
   moveEnded(dragEnd: CdkDragEnd<any>) {
-    console.log(this.boxPosition);
+    console.log(dragEnd);
+    const xyPos = dragEnd.source.getFreeDragPosition()
+
     const endMsg = {
-      x: this.boxPosition.x,
-      y: this.boxPosition.y,
+      x: xyPos.x,
+      y: xyPos.y,
       cardValue: '9C'
     };
     this.sendToWs('card-move-end', endMsg);
@@ -83,6 +86,10 @@ export class AppComponent implements OnInit {
       }, msgIn)
     };
     this.ws.next(msgToSend);
+  }
+
+  parseMsgFromWs(data: iWsMsg){
+    console.log(data);
   }
 
 

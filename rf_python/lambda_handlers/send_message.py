@@ -14,6 +14,6 @@ def handler(event, context):
     logger.log(logging.INFO, json.dumps(event))
 
     helpers = Helpers(event)
-    msg_obj = helpers.get_event_msg()['broadcast_message']
+    msg_obj = helpers.get_event_msg()
     helpers.broadcast_message(msg_obj)
     return {"statusCode": 200}
