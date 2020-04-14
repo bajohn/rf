@@ -17,3 +17,11 @@ background-color: lightcoral;
 width:300px;
 height:300px;
 }
+
+.active.cdk-drag {
+    transition: transform 100ms ease;
+}
+
+.cdk-drag-preview {
+    background-color: red;
+}

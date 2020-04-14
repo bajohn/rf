@@ -1,6 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { Observable } from 'rxjs';
 import { CdkDragEnd, CdkDragStart } from '@angular/cdk/drag-drop';
 
 
@@ -15,13 +14,10 @@ export class AppComponent implements OnInit {
   apiId = '9owex9co2e';
   game_id = 'cccc'
   ctr = 0;
-
+  boxBeingDragged = false;
 
   boxPosition: { x: number, y: number };
 
-
-  // @ViewChild('cdkDrag') child: CdkDrag
-  //@ViewChild(CdkDrag) dragel: CdkDrag;
 
   constructor() {
   }
@@ -56,6 +52,7 @@ export class AppComponent implements OnInit {
 
 
   moveStarted(dragStart: CdkDragStart) {
+    this.boxBeingDragged = true;
     console.log(dragStart);
     const xyPos = dragStart.source.getFreeDragPosition()
     const startMsg = {
@@ -76,6 +73,7 @@ export class AppComponent implements OnInit {
       cardValue: '9C'
     };
     this.sendToWs('card-move-end', endMsg);
+    this.boxBeingDragged = false;
   }
 
   sendToWs(endpoint: endpoint, msgIn: { [key: string]: number | string }) {
@@ -93,6 +91,10 @@ export class AppComponent implements OnInit {
     if (data.action === 'card-move-end') {
       this.boxPosition = { x: Number(data.message['x']) , y: Number(data.message['y']) }
     }
+  }
+
+  isActive() {
+    return this.boxBeingDragged;
   }
 
 
