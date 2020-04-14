@@ -27,7 +27,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    const url = `wss://${this.apiId}.execute-api.us-east-1.amazonaws.com/dev`;
+    const url = `wss://${this.apiId}.execute-api.us-east-1.amazonaws.com/dev_stage`;
     this.ws = webSocket(url);
     this.ws.asObservable().subscribe(
       data => this.parseMsgFromWs(data));

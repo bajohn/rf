@@ -33,7 +33,7 @@ from datetime import datetime
 
 def main():
     connection_id = 'K1EcHeDToAMCIyQ=' # hard copied from dynamo db
-    api = 'https://acyiae8dc2.execute-api.us-east-1.amazonaws.com/dev'
+    api = 'https://9owex9co2e.execute-api.us-east-1.amazonaws.com/dev_stage'
     post_to_connection(connection_id, api)
 
 def put_conn_ids(client, game_id, conn_ids):

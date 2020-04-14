@@ -59,81 +59,60 @@ resource "aws_lambda_layer_version" "lib_layer" {
 
 
 # endpoint: $connect
-resource "aws_lambda_function" "ws_connect_lambda" {
-  source_code_hash = filebase64sha256("../out/connect.zip")
-  filename         = "../out/connect.zip"
-  function_name    = "ws-connect-lambda"
-  role             = aws_iam_role.iam_for_rf_role.arn
-  handler          = "rf_python.lambda_handlers.connect.handler"
-
-  layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
-  runtime = "python3.7"
+module "connect_lambda"{
+  source = "./modules/ws-lambda"
+  name = "connect"
+  iam_arn = aws_iam_role.iam_for_rf_role.arn
+  layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
 
 # endpoint: initialize
-resource "aws_lambda_function" "ws_initialize" {
-  source_code_hash = filebase64sha256("../out/initialize.zip")
-  filename         = "../out/initialize.zip"
-  function_name    = "ws-initialize-lambda"
-  role             = aws_iam_role.iam_for_rf_role.arn
-  handler          = "rf_python.lambda_handlers.initialize.handler"
-
-  layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
-  runtime = "python3.7"
-
+module "initialize_lambda"{
+  source = "./modules/ws-lambda"
+  name = "initialize"
+  iam_arn = aws_iam_role.iam_for_rf_role.arn
+  layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
+
 
 # endpoint: clear-connections
-resource "aws_lambda_function" "ws_clear_conns_lambda" {
-  source_code_hash = filebase64sha256("../out/clear_connections.zip")
-  filename         = "../out/clear_connections.zip"
-  function_name    = "ws-clear-conns-lambda"
-  role             = aws_iam_role.iam_for_rf_role.arn
-  handler          = "rf_python.lambda_handlers.clear_connections.handler"
-
-  layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
-  runtime = "python3.7"
-
+module "clear_connections_lambda" {
+  source = "./modules/ws-lambda"
+  name = "clear_connections"
+  iam_arn = aws_iam_role.iam_for_rf_role.arn
+  layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
+
+
 
 # endpoint: send-message
-resource "aws_lambda_function" "ws_send_msg_lambda" {
-  source_code_hash = filebase64sha256("../out/send_message.zip")
-  filename         = "../out/send_message.zip"
-  function_name    = "ws-send-msg-lambda"
-  role             = aws_iam_role.iam_for_rf_role.arn
-  handler          = "rf_python.lambda_handlers.send_message.handler"
-
-  layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
-  runtime = "python3.7"
-  timeout = 60
+module "send_message_lambda" {
+  source = "./modules/ws-lambda"
+  name = "send_message"
+  iam_arn = aws_iam_role.iam_for_rf_role.arn
+  layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
+
+
 
 # endpoint: card-move-start
-resource "aws_lambda_function" "ws_card_move_start_lambda" {
-  source_code_hash = filebase64sha256("../out/card_move_start.zip")
-  filename         = "../out/card_move_start.zip"
-  function_name    = "ws-card-move-start-lambda"
-  role             = aws_iam_role.iam_for_rf_role.arn
-  handler          = "rf_python.lambda_handlers.card_move_start.handler"
-
-  layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
-  runtime = "python3.7"
-  timeout = 60
+module "card_move_start_lambda" {
+  source = "./modules/ws-lambda"
+  name = "card_move_start"
+  iam_arn = aws_iam_role.iam_for_rf_role.arn
+  layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
+
+
 
 # endpoint: card-move-end
-resource "aws_lambda_function" "ws_card_move_end_lambda" {
-  source_code_hash = filebase64sha256("../out/card_move_end.zip")
-  filename         = "../out/card_move_end.zip"
-  function_name    = "ws-card-move-end-lambda"
-  role             = aws_iam_role.iam_for_rf_role.arn
-  handler          = "rf_python.lambda_handlers.card_move_end.handler"
-
-  layers  = ["${aws_lambda_layer_version.lib_layer.arn}"]
-  runtime = "python3.7"
-  timeout = 60
+module "card_move_end_lambda" {
+  source = "./modules/ws-lambda"
+  name = "card_move_end"
+  iam_arn = aws_iam_role.iam_for_rf_role.arn
+  layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
+
 
 
 
