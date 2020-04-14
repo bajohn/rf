@@ -19,7 +19,7 @@ height:300px;
 }
 
 .active.cdk-drag {
-    transition: transform 100ms ease;
+    transition: transform 200ms ease-in-out    ;
 }
 
 .cdk-drag-preview {
