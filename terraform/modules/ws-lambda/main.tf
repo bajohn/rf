@@ -8,5 +8,5 @@ resource "aws_lambda_function" "ws_lambda" {
 
   layers  = ["${var.layer_arn}"]
   runtime = "python3.7"
-  timeout = 6
+  timeout = 10 # timeout in seconds. Is typically below 2 seconds, average around 600ms.
 }
