@@ -47,7 +47,37 @@ export class AppComponent implements OnInit {
   }
 
   move_box(x: number, y: number) {
-    this.boxPosition = { x: x, y: y };
+    setInterval(() => {
+      const startMsg = {
+        x: 0,
+        y: 0,
+        cardValue: '9C'
+      };
+      this.sendToWs('card-move-start', startMsg);
+      const endMsg = {
+        x: 400,
+        y: 0,
+        cardValue: '9C'
+      };
+      this.boxPosition = { x: 400, y: 0 };
+      this.sendToWs('card-move-end', endMsg);
+      setTimeout(() => {
+        const startMsg = {
+          x: 400,
+          y: 0,
+          cardValue: '9C'
+        };
+        this.sendToWs('card-move-start', startMsg);
+        const endMsg = {
+          x: 0,
+          y: 0,
+          cardValue: '9C'
+        };
+        this.boxPosition = { x: 0, y: 0 };
+        this.sendToWs('card-move-end', endMsg);
+      }, 1000)
+
+    }, 3000)
   }
 
 
@@ -89,7 +119,7 @@ export class AppComponent implements OnInit {
   parseMsgFromWs(data: iWsMsg) {
     console.log(data);
     if (data.action === 'card-move-end') {
-      this.boxPosition = { x: Number(data.message['x']) , y: Number(data.message['y']) }
+      this.boxPosition = { x: Number(data.message['x']), y: Number(data.message['y']) }
     }
   }
 
