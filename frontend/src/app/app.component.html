@@ -6,10 +6,10 @@
         Message</button>
 </div>
 
-<div class="pad-btn">
+<!-- <div class="pad-btn">
     <button button mat-raised-button color="primary" class="pad-btn" (click)="move_box(10,10)"> Move Box
     </button>
-</div>
+</div> -->
 <!-- <div class="pad-btn">
     <button button mat-raised-button color="warn" class="pad-btn" (click)="click_clear()"> Clear Connections</button>
 </div> -->
@@ -17,8 +17,4 @@
 
 <!-- [(cdkDragFreeDragPosition)]="boxPosition"  -->
 
-<div class="game-container">
-    <div cdkDrag [class.example-box]="true" [class.active]="!isActive()" (cdkDragStarted)="moveStarted($event)"
-        [cdkDragFreeDragPosition]="boxPosition" (cdkDragEnded)="moveEnded($event)" #dragel>
-    </div>
-</div>
+<app-card [(position)]="boxPosition"></app-card>
