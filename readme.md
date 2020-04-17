@@ -4,7 +4,7 @@ Really Fun card game implemented on AWS.
 
 
 ## TODO
-
+- Iterate and test that card component works with all 52 cards
 - Card UI  updates are working. Needs lots of testing to make sure lock id works
 - Disable card drag in UI when lock ID is transmitted from a cord-move-start message
 
