@@ -18,7 +18,7 @@ export class CardComponent implements OnInit {
 
   @Output() cardPositionChange = new EventEmitter<{ x: number, y: number }>();
 
-
+  groups = ['all']
 
   boxBeingDragged = false;
   faceUp = true;
@@ -52,20 +52,19 @@ export class CardComponent implements OnInit {
 
 
   sendMove(xyPos: position, action: 'card-move-start' | 'card-move-end') {
-    const startMsg = {
+    const posMsg = {
       x: xyPos.x,
       y: xyPos.y,
       cardValue: this.cardValue
     };
-    // this.cardPosition = xyPos;
     this.cardPositionChange.emit(xyPos);
-    this.ws.sendToWs(action, startMsg);
+    this.ws.sendToWs(action, posMsg);
   }
 
 
   parseMsgFromWs(data: iWsMsg) {
     console.log('parse');
-    if (data.action === 'card-move-end' && data.message['cardValue'] === this.cardValue) {
+    if (data.action === 'card-move-end' && (data.message['cardValue'] === this.cardValue || data.message['cardValue'] === 'all')) {
       this.cardPositionChange.emit({ x: Number(data.message['x']), y: Number(data.message['y']) });
       this.cardPosition = { x: Number(data.message['x']), y: Number(data.message['y']) }
     }

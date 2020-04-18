@@ -52,8 +52,24 @@ export class AppComponent implements OnInit {
 
   }
 
-  click_check(){
+  click_check() {
     console.log(this.cardData);
+  }
+
+  click_recall() {
+    for (let data of this.cardData) {
+
+
+
+      data.cardPosition = { x: 0, y: 0 }
+
+    }
+    const posMsg = {
+      x: 0,
+      y: 0,
+      cardValue: 'all'
+    };
+    this.ws.sendToWs('card-move-end', posMsg);
   }
 
 
