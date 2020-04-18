@@ -16,5 +16,9 @@
 
 
 <!-- [(cdkDragFreeDragPosition)]="boxPosition"  -->
+<div class="game-container">
 
-<app-card [(position)]="boxPosition"></app-card>
+    <app-card *ngFor="let data of cardData" [(position)]="data.position" [cardValue]="data.cardValue">
+
+    </app-card>
+</div>

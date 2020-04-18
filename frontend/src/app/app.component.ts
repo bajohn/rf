@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
-import { CdkDragEnd, CdkDragStart } from '@angular/cdk/drag-drop';
 import { WsService } from './services/ws.service';
 import { position } from './types';
 
@@ -14,12 +12,30 @@ export class AppComponent implements OnInit {
 
 
 
-  boxPosition: position = { x: 100, y: 200 };
+  cardTypes: string[] = []
+
+  cardData: { position: position, cardValue: string }[] = [];
 
 
   constructor(
     private ws: WsService
   ) {
+    let i = 0;
+    for (const suit of ['H', 'D', 'S', 'C']) {
+      for (let value of ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']) {
+        const cardValue = `${value}${suit}`
+        const toPush = { cardValue: cardValue, position: { x: 60 * (i % 10), y: 80 * Math.floor(i / 10) } };
+        this.cardData.push(toPush);
+        i++;
+      }
+    }
+
+    for (let i = 0; i < 52; i++) {
+
+
+
+    }
+    console.log(this.cardData);
   }
 
   ngOnInit() {

@@ -52,7 +52,7 @@ export class CardComponent implements OnInit {
     const startMsg = {
       x: xyPos.x,
       y: xyPos.y,
-      cardValue: '9C'
+      cardValue: this.cardValue
     };
     this.ws.sendToWs('card-move-start', startMsg);
   }
@@ -63,7 +63,7 @@ export class CardComponent implements OnInit {
     const endMsg = {
       x: xyPos.x,
       y: xyPos.y,
-      cardValue: '9C'
+      cardValue: this.cardValue
     };
     console.log('Sending move msg');
     this.ws.sendToWs('card-move-end', endMsg);
@@ -74,7 +74,7 @@ export class CardComponent implements OnInit {
 
   parseMsgFromWs(data: iWsMsg) {
     console.log('Move msg received', data);
-    if (data.action === 'card-move-end') {
+    if (data.action === 'card-move-end' && data.message['cardValue'] ===this.cardValue) {
       this.boxPosition = { x: Number(data.message['x']), y: Number(data.message['y']) }
     }
   }
