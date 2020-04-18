@@ -117,24 +117,24 @@ class Helpers():
         message = event_msg['message']
         card_value = message['cardValue']
 
-        # Check for lock id
-        get_resp = self._dynamo_client.get_item(
-            TableName='rf_cards',
-            Key={
-                "game_id": {
-                    "S": self._game_id
-                },
-                "card_value": {
-                    "S": card_value
-                }
-            })
+        # Check for lock id. Removing for now, may not need.
+        # get_resp = self._dynamo_client.get_item(
+        #     TableName='rf_cards',
+        #     Key={
+        #         "game_id": {
+        #             "S": self._game_id
+        #         },
+        #         "card_value": {
+        #             "S": card_value
+        #         }
+        #     })
 
-        if 'Item' in get_resp:
-            get_item = get_resp['Item']
-            if 'connection_ids' in get_item:
-                lock_id = get_item['lock_id']['S']
-                if lock_id == 'False':
-                    return None
+        # if 'Item' in get_resp:
+        #     get_item = get_resp['Item']
+        #     if 'connection_ids' in get_item:
+        #         lock_id = get_item['lock_id']['S']
+        #         if lock_id == 'False':
+        #             return None
         # Update card position if not locked
         self._dynamo_client.put_item(
             TableName='rf_cards',
@@ -179,9 +179,9 @@ class Helpers():
                 "card_value": {
                     "S": card_value
                 },
-                "lock_id": {
-                    "S": 'False'
-                },
+                # "lock_id": {
+                #     "S": 'False'
+                # },
                 "x": {
                     "N": str(message['x'])
                 },

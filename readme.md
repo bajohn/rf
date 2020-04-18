@@ -4,11 +4,21 @@ Really Fun card game implemented on AWS.
 
 
 ## TODO
-- Iterate and test that card component works with all 52 cards
-- Card UI  updates are working. Needs lots of testing to make sure lock id works
-- Disable card drag in UI when lock ID is transmitted from a cord-move-start message
+- Broadcast all positions on reconnect (or first connect)
+- test sync! Automoves?
 
-- After the above two are complete, should be good to start building out playing card logic.
+- z index: maximize on click
+- move border: stop cards from being able to move outside screen
+- manage player connections with place on table and shelf
+- 
+
+
+## Lock logic. Omitting for now, may not be needed
+
+- Player 1 starts moving a card at time A
+- Player 2 starts moving the same card at time B
+- Due to latency, Player 2's move arrives at backend first. This move is stored in DB with time B
+- Player 1's move finally arrives. However, because time B > time A, Player 1's move is not recorded. The time B move IS broadcasted back to Player 2, to synchronize.
 
 ## Notes
 

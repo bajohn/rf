@@ -1,6 +1,10 @@
-<div cdkDrag [class.example-box]="true" [class.active]="!isActive()" (cdkDragStarted)="moveStarted($event)"
-    [cdkDragFreeDragPosition]="boxPosition" (cdkDragEnded)="moveEnded($event)" #dragel>
-    <h2>
+<div cdkDrag [class.card-default]="true" [class.inactive]="!isActive()" (cdkDragStarted)="dragMoveStarted($event)"
+    (dblclick)="flipCard()" [cdkDragFreeDragPosition]="cardPosition" (cdkDragEnded)="dragMoveEnded($event)" #dragel>
+    <h2 *ngIf="faceUp">
         {{cardValue}}
     </h2>
+    <h2 *ngIf="!faceUp">
+
+    </h2>
+
 </div>

@@ -14,22 +14,14 @@ export class CardComponent implements OnInit {
 
   @Input() cardValue: '';
 
-  boxPosition: position;
+  @Input() cardPosition: position;
 
-  @Output()
-  boxPositionChange = new EventEmitter<{ x: number, y: number }>();
+  @Output() cardPositionChange = new EventEmitter<{ x: number, y: number }>();
 
-  @Input()
-  get position() {
-    return this.boxPosition;
-  }
-  set position(val) {
-    this.boxPosition = val;
-    this.boxPositionChange.emit(this.boxPosition);
-  }
+
 
   boxBeingDragged = false;
-
+  faceUp = true;
   constructor(
     private ws: WsService
   ) {
@@ -38,45 +30,49 @@ export class CardComponent implements OnInit {
 
   ngOnInit(): void {
     this.ws.getSubscription(this.parseMsgFromWs.bind(this));
+    // this.sendMove(this.boxPosition, 'card-move-end');
   }
 
   isActive() {
     return this.boxBeingDragged;
   }
 
-
-  moveStarted(dragStart: CdkDragStart) {
+  // boxBeingDragged is used for styling
+  dragMoveStarted(dragStart: CdkDragStart) {
     this.boxBeingDragged = true;
-    console.log(dragStart);
-    const xyPos = dragStart.source.getFreeDragPosition()
+  }
+
+  dragMoveEnded(dragEnd: CdkDragEnd<any>) {
+    console.log('end')
+    const xyPos: position = dragEnd.source.getFreeDragPosition()
+
+    this.sendMove(xyPos, 'card-move-end');
+    this.boxBeingDragged = false;
+  }
+
+
+  sendMove(xyPos: position, action: 'card-move-start' | 'card-move-end') {
     const startMsg = {
       x: xyPos.x,
       y: xyPos.y,
       cardValue: this.cardValue
     };
-    this.ws.sendToWs('card-move-start', startMsg);
+    // this.cardPosition = xyPos;
+    this.cardPositionChange.emit(xyPos);
+    this.ws.sendToWs(action, startMsg);
   }
-
-  moveEnded(dragEnd: CdkDragEnd<any>) {
-    const xyPos = dragEnd.source.getFreeDragPosition()
-
-    const endMsg = {
-      x: xyPos.x,
-      y: xyPos.y,
-      cardValue: this.cardValue
-    };
-    console.log('Sending move msg');
-    this.ws.sendToWs('card-move-end', endMsg);
-    this.boxBeingDragged = false;
-  }
-
 
 
   parseMsgFromWs(data: iWsMsg) {
-    console.log('Move msg received', data);
-    if (data.action === 'card-move-end' && data.message['cardValue'] ===this.cardValue) {
-      this.boxPosition = { x: Number(data.message['x']), y: Number(data.message['y']) }
+    console.log('parse');
+    if (data.action === 'card-move-end' && data.message['cardValue'] === this.cardValue) {
+      this.cardPositionChange.emit({ x: Number(data.message['x']), y: Number(data.message['y']) });
+      this.cardPosition = { x: Number(data.message['x']), y: Number(data.message['y']) }
     }
+  }
+
+  flipCard() {
+    this.faceUp = !this.faceUp;
   }
 
 }

@@ -14,7 +14,7 @@ export class AppComponent implements OnInit {
 
   cardTypes: string[] = []
 
-  cardData: { position: position, cardValue: string }[] = [];
+  cardData: { cardPosition: position, cardValue: string }[] = [];
 
 
   constructor(
@@ -24,17 +24,12 @@ export class AppComponent implements OnInit {
     for (const suit of ['H', 'D', 'S', 'C']) {
       for (let value of ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']) {
         const cardValue = `${value}${suit}`
-        const toPush = { cardValue: cardValue, position: { x: 60 * (i % 10), y: 80 * Math.floor(i / 10) } };
+        const toPush = { cardValue: cardValue, cardPosition: { x: 60 * (i % 10), y: 80 * Math.floor(i / 10) } };
         this.cardData.push(toPush);
         i++;
       }
     }
 
-    for (let i = 0; i < 52; i++) {
-
-
-
-    }
     console.log(this.cardData);
   }
 
@@ -55,6 +50,10 @@ export class AppComponent implements OnInit {
     console.log('delete');
     this.ws.next({ action: 'clear-connections', message: {} });
 
+  }
+
+  click_check(){
+    console.log(this.cardData);
   }
 
 

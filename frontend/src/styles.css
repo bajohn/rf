@@ -6,24 +6,24 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .game-container {
 width:100%;
 height: 100%;
+position: relative;
 }
 
 .pad-btn{
     margin:5px;
 }
 
-.example-box {
-background-color: lightcoral;
+.card-default {
+background-color:gray; 
 width:50px;
 height:70px;
 position: absolute;
+border-style: solid;
+transform-origin: 100% 0;
 }
 
-.active.cdk-drag {
-    transition: transform 200ms ease-in-out    ;
+.inactive.cdk-drag {
+    transform-origin: 100% 0;
+    transition: transform 200ms ease-in-out;
+    background-color: lightcoral;
 }
-
-.cdk-drag-preview {
-    background-color: red;
-}
-
