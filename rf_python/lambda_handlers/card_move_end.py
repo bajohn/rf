@@ -10,11 +10,12 @@ logger.setLevel(logging.INFO)
 
 
 def handler(event, context):
-    logger.log(logging.INFO, 'Starting card move...')
+    logger.log(logging.INFO, 'Ending card move...')
     logger.log(logging.INFO, json.dumps(event))
 
     helpers = Helpers(event)
     event_msg = helpers.get_event_msg()
-    helpers.end_card_move(event_msg)
+    logger.log(logging.INFO, 'Broadcasting end card move...')
     helpers.broadcast_message(event_msg)
+    helpers.end_card_move(event_msg)
     return {"statusCode": 200}

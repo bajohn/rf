@@ -14,6 +14,11 @@ Really Fun card game implemented on AWS.
 
 API Gateway V2 (using websockets) is not included in Terraform configuration due to lack of Terraform support.
 
+See AWS Websocket Timing Google sheet for timings.
+Full send/receive loops takes approx 500 ms with 128mb lambda,
+200ms with 1024 mb Lambda. Leaving low memory for now, and should check
+whether removing logging increases speed further.
+
 Credit: favicon.ico from [icons8.com](icons8.com)
 
 

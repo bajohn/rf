@@ -58,7 +58,6 @@ export class CardComponent implements OnInit {
   }
 
   moveEnded(dragEnd: CdkDragEnd<any>) {
-    console.log(dragEnd);
     const xyPos = dragEnd.source.getFreeDragPosition()
 
     const endMsg = {
@@ -66,6 +65,7 @@ export class CardComponent implements OnInit {
       y: xyPos.y,
       cardValue: '9C'
     };
+    console.log('Sending move msg');
     this.ws.sendToWs('card-move-end', endMsg);
     this.boxBeingDragged = false;
   }
@@ -73,7 +73,7 @@ export class CardComponent implements OnInit {
 
 
   parseMsgFromWs(data: iWsMsg) {
-    console.log(data);
+    console.log('Move msg received', data);
     if (data.action === 'card-move-end') {
       this.boxPosition = { x: Number(data.message['x']), y: Number(data.message['y']) }
     }
