@@ -40,7 +40,21 @@ export class CardComponent implements OnInit {
   // boxBeingDragged is used for styling
   dragMoveStarted(dragStart: CdkDragStart) {
     this.boxBeingDragged = true;
+    //this.streamUpdate(dragStart);
   }
+
+  // ...this was iffy
+  // streamUpdate(dragStart: CdkDragStart) {
+
+  //   if (this.boxBeingDragged) {
+  //     const xyPos: position = dragStart.source.getFreeDragPosition()
+  //     console.log(xyPos);
+  //     this.sendMove(xyPos, 'card-move-end');
+  //     setTimeout(() => {
+  //       this.streamUpdate(dragStart);
+  //     }, 1000)
+  //   }
+  // }
 
   dragMoveEnded(dragEnd: CdkDragEnd<any>) {
     console.log('end')

@@ -10,6 +10,7 @@ Really Fun card game implemented on AWS.
 - z index: maximize on click
 - group id: every card starts with group "all", but should also have a settable group id 
 defaulted to null
+- add api gateway trust to ima_for_rf
 
 - move border: stop cards from being able to move outside screen
 - manage player connections with place on table and shelf

@@ -6,5 +6,10 @@ export interface iWsMsg {
     }
 }
 
-export type endpoint = 'initialize' | 'send-message' | 'clear-connections' | 'card-move-start' | 'card-move-end';
+export type endpoint = 'initialize' | 
+'send-message' | 
+'clear-connections' | 
+'card-move-start' |
+ 'card-move-end' |
+ 'test';
 export interface position { x: number, y: number };

@@ -26,6 +26,9 @@ export class WsService {
     };
     this.ws.next(msgToSend);
   }
+  sendToWsRaw(msg:any){
+    this.ws.next(msg);
+  }
 
   next(msg) {
     this.ws.next(msg);

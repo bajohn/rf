@@ -72,6 +72,11 @@ export class AppComponent implements OnInit {
     this.ws.sendToWs('card-move-end', posMsg);
   }
 
+  click_dynamo() {
+    //this.ws.sendToWs('test', {});
+    this.ws.sendToWsRaw({action: 'test',message: {}});
+  }
+
 
 
 
