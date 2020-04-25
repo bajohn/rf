@@ -9,7 +9,7 @@ export class WsService {
 
   private ws: WebSocketSubject<any>;
   private apiId = '9owex9co2e';
-  private game_id  = 'cccc';
+  private game_id  = 'dd';// 'cccc';
   constructor() {
     const url = `wss://${this.apiId}.execute-api.us-east-1.amazonaws.com/dev_stage`;
     this.ws = webSocket(url);

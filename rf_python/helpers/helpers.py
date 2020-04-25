@@ -1,6 +1,8 @@
 import logging
 import boto3
 import json
+import traceback
+
 from datetime import datetime
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -27,9 +29,44 @@ class Helpers():
         self._event = event
         self._connection_table = 'rf_connections'
 
+    # This doesn't work for $connect endpoint,
+    # is sent via an "initialize" endpoint instead.
+
+    def initiate_connection(self):
+        # check that game id exists
+        self._check_game_id_exists()
+        return True
+
+        conn_objs = self._get_connection_objs()
+        new_conn_obj = {'S': self._connection_id}
+
+        if new_conn_obj not in conn_objs:
+            conn_objs.append(new_conn_obj)
+            self._update_connections(conn_objs)
+        else:
+            logger.log(logging.ERROR,
+                       f'Repeated connection id?? {self._connection_id}')
+
+    def _check_game_id_exists(self):
+        get_resp = self._dynamo_client.get_item(
+            TableName=self._connection_table,
+            Key={
+                "game_id": {
+                    "S": self._game_id
+                }
+            })
+
+        self._msg_to_self({
+            'action': "initialize",
+            'message': {
+                'game_exists': 'Item' in get_resp
+            }
+        })
+
     # send msg to everyone except own connections
     # automatically update live connections table
     # msg_obj must be a dict
+
     def broadcast_message(self, msg_obj):
         cur_conn_objs = self._get_connection_objs()
 
@@ -45,19 +82,6 @@ class Helpers():
         alive_conn_objs.append({"S": self._connection_id})
         self._update_connections(alive_conn_objs)
 
-    # This doesn't work for $connect endpoint,
-    # might need to manually send a connect message,
-    # or just be smart about checking for connection id later
-    def initiate_connection(self):
-        conn_objs = self._get_connection_objs()
-        new_conn_obj = {'S': self._connection_id}
-        if new_conn_obj not in conn_objs:
-            conn_objs.append(new_conn_obj)
-            self._update_connections(conn_objs)
-        else:
-            logger.log(logging.ERROR,
-                       f'Repeated connection id?? {self._connection_id}')
-
     # get python dict received from websocket connection
 
     def get_event_msg(self):
@@ -67,7 +91,12 @@ class Helpers():
     def clear_connections(self):
         self._update_connections([])
 
+    # msg must be Python dict
+    def _msg_to_self(self, msg_obj):
+        self._msg_to_connection(self._connection_id, json.dumps(msg_obj))
+
     # send msg to specified connection
+    # msg must be json string
     # return {successful} with whether message went out or not
     def _msg_to_connection(self, connection_id, msg):
 
@@ -76,7 +105,8 @@ class Helpers():
                                                Data=msg.encode('utf-8'))
             return {'successful': True}
         except:  # GoneException, delete this connection id
-            logger.log(logging.INFO, f'dead id {connection_id}')
+            logger.log(
+                logging.INFO, f'dead id or error in msg {connection_id} {str(msg)}')
             return {'successful': False}
 
     # update connection table in dynamo
