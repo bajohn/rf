@@ -5,14 +5,15 @@ Really Fun card game implemented on AWS.
 
 ## TODO
 - Broadcast all positions on reconnect (or first connect)
-- test sync! Automoves?
 
 - z index: maximize on click
-- group id: every card starts with group "all", but should also have a settable group id 
-defaulted to null
-- add api gateway trust to ima_for_rf
+- group id: every card starts with group "null", but should also have a settable group id 
+- Concept of stacking: highlight when hovering over a card, then add to stack
+- shuffling: using stack concept, randomize card z-indices
 
+- add api gateway trust to ian_for_rf
 - move border: stop cards from being able to move outside screen
+
 - manage player connections with place on table and shelf
 
 
