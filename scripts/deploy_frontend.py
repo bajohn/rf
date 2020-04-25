@@ -3,6 +3,9 @@ import sys
 import boto3
 from datetime import datetime
 
+# card graphics svgs
+DEPLOY_SVGS = False
+
 API_NAME = 'rf-website-artifacts-bucket'
 OUT_DIR = 'frontend/dist'
 CLOUDFRONT_URL = 'd155q41ienh9f7'
@@ -53,9 +56,11 @@ def _upload_valid_file(s3_client, artifact_file, artifact_path):
     mime_dict = {
         '.js': 'application/javascript',
         '.ico': 'image/x-icon',
-        '.svg': 'image/svg+xml',
         '.css': 'text/css'
     }
+    if DEPLOY_SVGS:
+        mime_dict['.svg'] = 'image/svg+xml'
+
     for key in mime_dict:
         if key in artifact_file:
             print(f'Uploading: {artifact_file}')
