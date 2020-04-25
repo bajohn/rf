@@ -43,7 +43,10 @@ class Helpers():
                 self._update_connections(conn_objs)
             else:
                 logger.log(logging.ERROR,
-                        f'Repeated connection id?? {self._connection_id}')
+                           f'Repeated connection id?? {self._connection_id}')
+
+    def send_current_cards(self):
+        raise NotImplementedError
 
     def _game_id_exists(self):
         get_resp = self._dynamo_client.get_item(
@@ -54,7 +57,7 @@ class Helpers():
                 }
             })
 
-        self._msg_to_self({
+        self.message_self({
             'action': "initialize",
             'message': {
                 'game_id': self._game_id,
@@ -62,11 +65,28 @@ class Helpers():
             }
         })
 
+    def create_room(self):
+        new_conn_obj = {'S': self._connection_id}
+
+        self._dynamo_client.put_item(
+            TableName=self._connection_table,
+            Item={
+                "game_id": {
+                    "S": self._game_id
+                },
+                "connection_ids": {
+                    "L": [new_conn_obj]
+                },
+                "date": {
+                    "S": datetime.now().isoformat()
+                }
+            })
+
     # send msg to everyone except own connections
     # automatically update live connections table
     # msg_obj must be a dict
 
-    def broadcast_message(self, msg_obj):
+    def message_broadcast(self, msg_obj):
         cur_conn_objs = self._get_connection_objs()
 
         alive_conn_objs = []
@@ -91,7 +111,7 @@ class Helpers():
         self._update_connections([])
 
     # msg must be Python dict
-    def _msg_to_self(self, msg_obj):
+    def message_self(self, msg_obj):
         self._msg_to_connection(self._connection_id, json.dumps(msg_obj))
 
     # send msg to specified connection

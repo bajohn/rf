@@ -4,7 +4,7 @@ SHELL:=/bin/bash
 backend:
 	scripts/package_py.sh;
 	scripts/deploy_py.sh;
-	cd terraform && terraform apply;
+	cd terraform && terraform init && terraform apply;
 
 .PHONY: frontend
 frontend:

@@ -10,10 +10,14 @@ logger.setLevel(logging.INFO)
 
 
 def handler(event, context):
-    logger.log(logging.INFO, 'Sending message...')
+    logger.log(logging.INFO, 'Creating room...')
     logger.log(logging.INFO, json.dumps(event))
 
     helpers = Helpers(event)
-    msg_obj = helpers.get_event_msg()
-    helpers.message_broadcast(msg_obj)
+    helpers.create_room()
+    event_msg = helpers.get_event_msg()
+    event_msg['message']['success'] = True
+    helpers.message_self(event_msg)
     return {"statusCode": 200}
+
+

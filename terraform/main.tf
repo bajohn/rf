@@ -74,6 +74,13 @@ module "initialize_lambda"{
   layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
 
+# endpoint: create-room 
+module "create_room_lambda"{
+  source = "./modules/ws-lambda"
+  name = "create_room"
+  iam_arn = aws_iam_role.iam_for_rf_role.arn
+  layer_arn = aws_lambda_layer_version.lib_layer.arn
+}
 
 # endpoint: clear-connections
 module "clear_connections_lambda" {
