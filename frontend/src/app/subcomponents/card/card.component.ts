@@ -89,7 +89,7 @@ export class CardComponent implements OnInit {
   }
 
   getFrontImgSrc(){
-    return `../../../assets/cards/${this.cardValue}.svg`
+    return `assets/cards/${this.cardValue}.svg`
   }
 
   getFaceUp(){
