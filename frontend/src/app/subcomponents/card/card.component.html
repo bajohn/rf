@@ -1,10 +1,19 @@
-<div cdkDrag [class.card-default]="true" [class.inactive]="!isActive()" (cdkDragStarted)="dragMoveStarted($event)"
-    (dblclick)="flipCard()" [cdkDragFreeDragPosition]="cardPosition" (cdkDragEnded)="dragMoveEnded($event)" #dragel>
-    <h2 *ngIf="faceUp">
-        {{cardValue}}
-    </h2>
-    <h2 *ngIf="!faceUp">
+<div cdkDrag [class.card-default]="true" [class.active]="isActive()" [class.inactive]="!isActive()"
+    (cdkDragStarted)="dragMoveStarted($event)" (dblclick)="flipCard()" [cdkDragFreeDragPosition]="cardPosition"
+    (cdkDragEnded)="dragMoveEnded($event)" #dragel>
 
-    </h2>
+    <div [class.card-overlay]="true" [class.active]="isActive()">
+
+    </div>
+
+    <img [class.card-img]="true" [class.active]="faceUp" [src]="getFrontImgSrc()">
+
+    <img [class.card-img]="true" [class.active]="!faceUp" src="../../../assets/cards/cardback.svg">
+
+
+
+
+
+
 
 </div>

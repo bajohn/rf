@@ -44,17 +44,17 @@ export class CardComponent implements OnInit {
   }
 
   // ...this was iffy
-  // streamUpdate(dragStart: CdkDragStart) {
+  streamUpdate(dragStart: CdkDragStart) {
 
-  //   if (this.boxBeingDragged) {
-  //     const xyPos: position = dragStart.source.getFreeDragPosition()
-  //     console.log(xyPos);
-  //     this.sendMove(xyPos, 'card-move-end');
-  //     setTimeout(() => {
-  //       this.streamUpdate(dragStart);
-  //     }, 1000)
-  //   }
-  // }
+    if (this.boxBeingDragged) {
+      const xyPos: position = dragStart.source.getFreeDragPosition()
+      console.log(xyPos);
+      this.sendMove(xyPos, 'card-move-end');
+      setTimeout(() => {
+        this.streamUpdate(dragStart);
+      }, 100)
+    }
+  }
 
   dragMoveEnded(dragEnd: CdkDragEnd<any>) {
     console.log('end')
@@ -87,5 +87,14 @@ export class CardComponent implements OnInit {
   flipCard() {
     this.faceUp = !this.faceUp;
   }
+
+  getFrontImgSrc(){
+    return `../../../assets/cards/${this.cardValue}.svg`
+  }
+
+  getFaceUp(){
+    return this.faceUp;
+  }
+  
 
 }
