@@ -6,10 +6,12 @@ export interface iWsMsg {
     }
 }
 
-export type endpoint = 'initialize' | 
+export type endpoint = 
+'initialize' | 
 'send-message' | 
 'clear-connections' | 
 'card-move-start' |
  'card-move-end' |
- 'test';
+ 'test' | 
+ 'create-room'
 export interface position { x: number, y: number };

@@ -34,20 +34,18 @@ class Helpers():
 
     def initiate_connection(self):
         # check that game id exists
-        self._check_game_id_exists()
-        return True
+        if self._game_id_exists():
+            conn_objs = self._get_connection_objs()
+            new_conn_obj = {'S': self._connection_id}
 
-        conn_objs = self._get_connection_objs()
-        new_conn_obj = {'S': self._connection_id}
+            if new_conn_obj not in conn_objs:
+                conn_objs.append(new_conn_obj)
+                self._update_connections(conn_objs)
+            else:
+                logger.log(logging.ERROR,
+                        f'Repeated connection id?? {self._connection_id}')
 
-        if new_conn_obj not in conn_objs:
-            conn_objs.append(new_conn_obj)
-            self._update_connections(conn_objs)
-        else:
-            logger.log(logging.ERROR,
-                       f'Repeated connection id?? {self._connection_id}')
-
-    def _check_game_id_exists(self):
+    def _game_id_exists(self):
         get_resp = self._dynamo_client.get_item(
             TableName=self._connection_table,
             Key={
@@ -59,6 +57,7 @@ class Helpers():
         self._msg_to_self({
             'action': "initialize",
             'message': {
+                'game_id': self._game_id,
                 'game_exists': 'Item' in get_resp
             }
         })

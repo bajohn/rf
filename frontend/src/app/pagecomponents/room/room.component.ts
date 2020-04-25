@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { WsService } from '../../services/ws.service';
-import { position } from '../../types';
+import { position, iWsMsg } from '../../types';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -20,8 +21,20 @@ export class RoomComponent implements OnInit {
 
 
   constructor(
-    private ws: WsService
+    private ws: WsService,
+    private router: Router
   ) {
+    this.ws.getSubscription(this.parseMsgFromWs.bind(this));
+    const gameId = this.router.url.substring(1);
+    this.ws.setGameId(gameId);
+    this.ws.sendToWs('initialize', {});
+  }
+
+  ngOnInit() {
+    console.log(this.cardData);
+  }
+
+  setDefaultCards() {
     let i = 0;
     for (const suit of ['H', 'D', 'S', 'C']) {
       for (let value of ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']) {
@@ -31,12 +44,6 @@ export class RoomComponent implements OnInit {
         i++;
       }
     }
-
-    console.log(this.cardData);
-  }
-
-  ngOnInit() {
-
   }
 
   click_broadcast() {
@@ -78,6 +85,19 @@ export class RoomComponent implements OnInit {
     //this.ws.sendToWs('test', {});
     this.ws.sendToWsRaw({ action: 'test', message: {} });
   }
+
+
+  parseMsgFromWs(data: iWsMsg) {
+    console.log(data);
+    if (data.action === 'initialize') {
+      if (data.message['game_exists']) {
+        console.log('found!'); 
+      } else {
+        console.log('No game found. Ask to create');
+      }
+    }
+  }
+
 
 
 
