@@ -4,5 +4,15 @@
 
 <div class="pad-btn">
     <button button mat-raised-button color="primary" class="pad-btn" (click)="click_create()">
-     Create Room </button>
+        Create Room </button>
+</div>
+
+<div *ngIf="createInProgress">
+    Loading....
+</div>
+<div>
+    {{createAttempts}}
+</div>
+<div>
+    {{errorMsg}}
 </div>

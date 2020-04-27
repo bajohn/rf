@@ -10,6 +10,11 @@ import { iWsMsg } from 'src/app/types';
 })
 export class CreateRoomComponent implements OnInit {
 
+
+  createInProgress = false;
+  createAttempts = 0;
+  errorMsg = '';
+
   constructor(
     private router: Router,
     private ws: WsService
@@ -42,25 +47,60 @@ export class CreateRoomComponent implements OnInit {
     return ret;
   }
   click_create() {
-    const x = this.getRandomString(6);
-    console.log(x);
-    this.ws.setGameId(x);
-    this.ws.sendToWs('initialize', {});
+    if (this.createAttempts >= 3) {
+      this.errorMsg = 'Error creating room. 3 attempts failed.';
+    } else {
+      this.createInProgress = true;
+      this.createAttempts++;
+      const x = this.getRandomString(6);
+      console.log(x);
+      // Send newly generated game id to backend
+      // in an initialize message. This should
+      // return game_exists == false, because the
+      // game has not been created yet.
+      this.ws.setGameId(x);
+      this.ws.sendToWs('initialize', {});
+    }
   }
+
+  //TODO: this should probably unbind after create room.
+  // In the meantime, createInProgress is used to turn off
+  // subsequent room creatinos.
 
   parseMsgFromWs(data: iWsMsg) {
     console.log(data);
-    if (data.action === 'initialize') {
-      if (!data.message['game_exists']) {
-        console.log('Create!');
-        this.ws.sendToWs('create-room', {});
-        console.log('redirect');
-      } else {
-        // random ID collision, try again
-        // very unlikely!
-        this.click_create();
+    try {
+      if (data.action === 'initialize' && this.createInProgress) {
+        if (!data.message['game_exists']) {
+          console.log('Create!');
+          this.ws.sendToWs('create-room', {});
+          console.log('redirect');
+        } else {
+          // Probably due to random ID collision, try again.
+          // Very unlikely!
+          this.errorMsg = 'Still trying...';
+          this.click_create();
+        }
+      } else if (data.action === 'create-room') {
+        if (data.message['success']) {
+          this.createInProgress = false;
+          const gameId = data.message['game_id'];
+          this.router.navigateByUrl(gameId);
+        } else {
+          throw Error('Unsuccessful creating room.')
+        }
       }
     }
+    catch (error) {
+      if ('message' in error) {
+        this.errorMsg = error['message']
+      } else {
+        this.errorMsg = 'Unknown error';
+      }
+
+    }
+
+
   }
 
 
