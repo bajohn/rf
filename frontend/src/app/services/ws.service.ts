@@ -25,7 +25,7 @@ export class WsService {
       const msgToSend = {
         action: endpoint,
         message: Object.assign({
-          game_id: this.gameId,
+          gameId: this.gameId,
         }, msgIn)
       };
       this.ws.next(msgToSend);

@@ -56,7 +56,7 @@ export class CreateRoomComponent implements OnInit {
       console.log(x);
       // Send newly generated game id to backend
       // in an initialize message. This should
-      // return game_exists == false, because the
+      // return gameExists == false, because the
       // game has not been created yet.
       this.ws.setGameId(x);
       this.ws.sendToWs('initialize', {});
@@ -71,7 +71,7 @@ export class CreateRoomComponent implements OnInit {
     console.log(data);
     try {
       if (data.action === 'initialize' && this.createInProgress) {
-        if (!data.message['game_exists']) {
+        if (!data.message['gameExists']) {
           console.log('Create!');
           this.ws.sendToWs('create-room', {});
           console.log('redirect');
@@ -84,7 +84,7 @@ export class CreateRoomComponent implements OnInit {
       } else if (data.action === 'create-room') {
         if (data.message['success']) {
           this.createInProgress = false;
-          const gameId = data.message['game_id'];
+          const gameId = data.message['gameId'];
           this.router.navigateByUrl(gameId);
         } else {
           throw Error('Unsuccessful creating room.')

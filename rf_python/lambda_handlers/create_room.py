@@ -14,10 +14,10 @@ def handler(event, context):
     logger.log(logging.INFO, json.dumps(event))
 
     helpers = Helpers(event)
-    helpers.create_room()
-    event_msg = helpers.get_event_msg()
+    helpers.createRoom()
+    event_msg = helpers.getEventMsg()
     event_msg['message']['success'] = True
-    helpers.message_self(event_msg)
+    helpers.messageSelf(event_msg)
     return {"statusCode": 200}
 
 

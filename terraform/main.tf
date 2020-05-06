@@ -75,7 +75,7 @@ module "initialize_lambda"{
 }
 
 # endpoint: create-room 
-module "create_room_lambda"{
+module "createroom_lambda"{
   source = "./modules/ws-lambda"
   name = "create_room"
   iam_arn = aws_iam_role.iam_for_rf_role.arn
@@ -262,7 +262,7 @@ resource "aws_apigatewayv2_api" "rf-api" {
 
 # dynamo: Connections Table: hit once for all connections to a game.
 # partition key: room id: string
-# attribute: connection_ids: array of strings 
+# attribute: connectionIds: array of strings 
 # attribute: time: start_time
 
 

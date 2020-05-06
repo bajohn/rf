@@ -14,7 +14,7 @@ def handler(event, context):
     logger.log(logging.INFO, json.dumps(event))
 
     helpers = Helpers(event)
-    helpers.initiate_connection()
+    helpers.initiateConnection()
 
     return {"statusCode": 200}
 

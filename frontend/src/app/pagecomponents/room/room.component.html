@@ -8,14 +8,10 @@
 </div>
 
 <div class="pad-btn">
-    <button button mat-raised-button color="primary" class="pad-btn" (click)="click_recall()">
-        Recall cards</button>
+    <button button mat-raised-button color="primary" class="pad-btn" (click)="click_shuffle()">
+        Recall & shuffle cards</button>
 </div>
 
-<div class="pad-btn">
-    <button button mat-raised-button color="primary" class="pad-btn" (click)="click_dynamo()">
-     Dynamo</button>
-</div>
 <!-- <div class="pad-btn">
     <button button mat-raised-button color="primary" class="pad-btn" (click)="move_box(10,10)"> Move Box
     </button>
@@ -28,7 +24,7 @@
 <!-- [(cdkDragFreeDragPosition)]="boxPosition"  -->
 <div class="game-container">
 
-    <app-card *ngFor="let data of cardData" [(cardPosition)]="data.cardPosition" [cardValue]="data.cardValue">
+    <app-card *ngFor="let data of initCards" [cardValue]="data.cardValue">
 
     </app-card>
 </div>

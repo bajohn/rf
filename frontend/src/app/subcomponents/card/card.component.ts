@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Input, Output } from '@angular/core';
 import { WsService } from 'src/app/services/ws.service';
 import { CdkDragStart, CdkDragEnd } from '@angular/cdk/drag-drop';
-import { endpoint, iWsMsg, position } from './../../types'
+import { endpoint, iWsMsg, iCardData } from './../../types'
 
 
 @Component({
@@ -13,24 +13,31 @@ export class CardComponent implements OnInit {
 
 
   @Input() cardValue: '';
-
-  @Input() cardPosition: position;
-
-  @Output() cardPositionChange = new EventEmitter<{ x: number, y: number }>();
-
-  groups = ['all']
+  // initial positions
+  x = 10;
+  y = 10
+  z = 1;
+  groupId = 0;
+  ownerId = '';
+  faceUp = true;
 
   boxBeingDragged = false;
-  faceUp = true;
+
   constructor(
     private ws: WsService
   ) {
 
   }
 
+  getInitPosition() {
+    return {
+      x: this.x,
+      y: this.y
+    }
+  }
+
   ngOnInit(): void {
     this.ws.getSubscription(this.parseMsgFromWs.bind(this));
-    // this.sendMove(this.boxPosition, 'card-move-end');
   }
 
   isActive() {
@@ -40,16 +47,15 @@ export class CardComponent implements OnInit {
   // boxBeingDragged is used for styling
   dragMoveStarted(dragStart: CdkDragStart) {
     this.boxBeingDragged = true;
-    //this.streamUpdate(dragStart);
   }
 
   // ...this was iffy
   streamUpdate(dragStart: CdkDragStart) {
 
     if (this.boxBeingDragged) {
-      const xyPos: position = dragStart.source.getFreeDragPosition()
-      console.log(xyPos);
-      this.sendMove(xyPos, 'card-move-end');
+      const xyPos: { x: number, y: number } = dragStart.source.getFreeDragPosition()
+
+      this.sendCardUpdate(xyPos);
       setTimeout(() => {
         this.streamUpdate(dragStart);
       }, 100)
@@ -57,44 +63,55 @@ export class CardComponent implements OnInit {
   }
 
   dragMoveEnded(dragEnd: CdkDragEnd<any>) {
-    console.log('end')
-    const xyPos: position = dragEnd.source.getFreeDragPosition()
-
-    this.sendMove(xyPos, 'card-move-end');
+    const xyPos: { x: number, y: number } = dragEnd.source.getFreeDragPosition()
+    this.sendCardUpdate(xyPos);
     this.boxBeingDragged = false;
-  }
-
-
-  sendMove(xyPos: position, action: 'card-move-start' | 'card-move-end') {
-    const posMsg = {
-      x: xyPos.x,
-      y: xyPos.y,
-      cardValue: this.cardValue
-    };
-    this.cardPositionChange.emit(xyPos);
-    this.ws.sendToWs(action, posMsg);
-  }
-
-
-  parseMsgFromWs(data: iWsMsg) {
-    console.log('parse');
-    if (data.action === 'card-move-end' && (data.message['cardValue'] === this.cardValue || data.message['cardValue'] === 'all')) {
-      this.cardPositionChange.emit({ x: Number(data.message['x']), y: Number(data.message['y']) });
-      this.cardPosition = { x: Number(data.message['x']), y: Number(data.message['y']) }
-    }
   }
 
   flipCard() {
     this.faceUp = !this.faceUp;
+    this.sendCardUpdate({
+      faceUp: this.faceUp
+    })
   }
 
-  getFrontImgSrc(){
-    return `assets/cards/${this.cardValue}.svg`
+  sendCardUpdate(objIn: iCardData) {
+    objIn['cardValue'] = this.cardValue;
+
+    this.ws.sendToWs('card-move-end', objIn);
   }
 
-  getFaceUp(){
-    return this.faceUp;
+
+
+  parseMsgFromWs(data: iWsMsg) {
+    console.log('parse');
+    if ('cardValue' in data.message) {
+      if (data.action === 'card-move-end' && (data.message['cardValue'] === this.cardValue || data.message['cardValue'] === 'all')) {
+        if ('x' in data.message) {
+          this.x = Number(data.message['x']);
+        }
+        if ('y' in data.message) {
+          this.y = Number(data.message['y']);
+        }
+        if ('z' in data.message) {
+          this.x = Number(data.message['z']);
+        }
+        if ('groupId' in data.message) {
+          this.groupId = Number(data.message['groupId']);
+        }
+        if('faceUp' in data.message){
+          this.faceUp = Boolean(data.message['faceUp']);
+        }
+        if('ownerId' in data.message){
+          this.ownerId = String(data.message['ownerId']);
+        }
+      }
+    }
+
   }
-  
+
+  getFrontImgSrc() {
+    return `assets/cards/${this.cardValue}.svg`;
+  }
 
 }

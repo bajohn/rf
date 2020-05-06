@@ -14,8 +14,8 @@ def handler(event, context):
     logger.log(logging.INFO, json.dumps(event))
 
     helpers = Helpers(event)
-    event_msg = helpers.get_event_msg()
+    event_msg = helpers.getEventMsg()
     logger.log(logging.INFO, 'Broadcasting end card move...')
-    helpers.message_broadcast(event_msg)
-    helpers.end_card_move(event_msg)
+    helpers.messageBroadcast(event_msg)
+    helpers.endCardMove(event_msg)
     return {"statusCode": 200}

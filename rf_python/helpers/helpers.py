@@ -2,6 +2,8 @@ import logging
 import boto3
 import json
 import traceback
+import random
+
 
 from datetime import datetime
 logger = logging.getLogger()
@@ -16,129 +18,130 @@ class Helpers():
 
         # need better handling around this
         # note: body is not included in $connect
-        body_obj = json.loads(event['body'])
-        self._game_id = body_obj['message']['game_id']
-        self._dynamo_client = boto3.client('dynamodb')
+        bodyObj = json.loads(event['body'])
+        self._gameId = bodyObj['message']['gameId']
+        self._dynamoClient = boto3.client('dynamodb')
 
         domain = event['requestContext']['domainName']
         stage = event['requestContext']['stage']
         endpoint = f'https://{domain}/{stage}'
-        self._gw_client = boto3.client(
+        self._gwClient = boto3.client(
             "apigatewaymanagementapi", endpoint_url=endpoint)
-        self._connection_id = event['requestContext']['connectionId']
+        self._connectionId = event['requestContext']['connectionId']
         self._event = event
-        self._connection_table = 'rf_connections'
+        self._connectionTable = 'rfConnections'
 
     # This doesn't work for $connect endpoint,
     # is sent via an "initialize" endpoint instead.
 
-    def initiate_connection(self):
+    def initiateConnection(self):
         # check that game id exists
-        if self._game_id_exists():
-            conn_objs = self._get_connection_objs()
-            new_conn_obj = {'S': self._connection_id}
+        if self._gameIdExists():
+            connObjs = self._getConnObjs()
+            newConnObj = {'S': self._connectionId}
 
-            if new_conn_obj not in conn_objs:
-                conn_objs.append(new_conn_obj)
-                self._update_connections(conn_objs)
+            if newConnObj not in connObjs:
+                connObjs.append(newConnObj)
+                self._updateConnections(connObjs)
             else:
                 logger.log(logging.ERROR,
-                           f'Repeated connection id?? {self._connection_id}')
+                           f'Repeated connection id?? {self._connectionId}')
 
-    def send_current_cards(self):
+    def sendCurrentCards(self):
         raise NotImplementedError
 
-    def _game_id_exists(self):
-        get_resp = self._dynamo_client.get_item(
-            TableName=self._connection_table,
+    def _gameIdExists(self):
+        getResp = self._dynamoClient.get_item(
+            TableName=self._connectionTable,
             Key={
-                "game_id": {
-                    "S": self._game_id
+                "gameId": {
+                    "S": self._gameId
                 }
             })
 
-        self.message_self({
+        self.messageSelf({
             'action': "initialize",
             'message': {
-                'game_id': self._game_id,
-                'game_exists': 'Item' in get_resp
+                'gameId': self._gameId,
+                'gameExists': 'Item' in getResp
             }
         })
 
-    def create_room(self):
-        new_conn_obj = {'S': self._connection_id}
+    def createRoom(self):
+        newConnObj = {'S': self._connectionId}
 
-        self._dynamo_client.put_item(
-            TableName=self._connection_table,
+        self._dynamoClient.put_item(
+            TableName=self._connectionTable,
             Item={
-                "game_id": {
-                    "S": self._game_id
+                "gameId": {
+                    "S": self._gameId
                 },
-                "connection_ids": {
-                    "L": [new_conn_obj]
+                "connectionIds": {
+                    "L": [newConnObj]
                 },
                 "date": {
                     "S": datetime.now().isoformat()
                 }
             })
+        self._initializeCards()
 
-    # send msg to everyone except own connections
+    # send msg to everyone, including optionally, self
     # automatically update live connections table
-    # msg_obj must be a dict
+    # msgObj must be a dict
 
-    def message_broadcast(self, msg_obj):
-        cur_conn_objs = self._get_connection_objs()
+    def messageBroadcast(self, msgObj, toSelf=False):
+        connObjs = self._getConnObjs()
 
-        alive_conn_objs = []
-        for conn_id_obj in cur_conn_objs:
-            conn_id = conn_id_obj['S']
-            if conn_id != self._connection_id:
-                res = self._msg_to_connection(
-                    conn_id, json.dumps(msg_obj))
+        aliveConnObjs = []
+        for connObj in connObjs:
+            connId = connObj['S']
+            if (connId != self._connectionId) or toSelf:
+                res = self._msgToConnection(
+                    connId, json.dumps(msgObj))
                 if res['successful']:
-                    alive_conn_objs.append(conn_id_obj)
+                    aliveConnObjs.append(connObj)
 
-        alive_conn_objs.append({"S": self._connection_id})
-        self._update_connections(alive_conn_objs)
+        aliveConnObjs.append({"S": self._connectionId})
+        self._updateConnections(aliveConnObjs)
 
     # get python dict received from websocket connection
 
-    def get_event_msg(self):
-        body_obj = json.loads(self._event['body'])
-        return body_obj
+    def getEventMsg(self):
+        bodyObj = json.loads(self._event['body'])
+        return bodyObj
 
-    def clear_connections(self):
-        self._update_connections([])
+    def clearConnections(self):
+        self._updateConnections([])
 
     # msg must be Python dict
-    def message_self(self, msg_obj):
-        self._msg_to_connection(self._connection_id, json.dumps(msg_obj))
+    def messageSelf(self, msgObj):
+        self._msgToConnection(self._connectionId, json.dumps(msgObj))
 
     # send msg to specified connection
     # msg must be json string
     # return {successful} with whether message went out or not
-    def _msg_to_connection(self, connection_id, msg):
+    def _msgToConnection(self, connectionId, msg):
 
         try:
-            self._gw_client.post_to_connection(ConnectionId=connection_id,
+            self._gw_client.post_to_connection(ConnectionId=connectionId,
                                                Data=msg.encode('utf-8'))
             return {'successful': True}
         except:  # GoneException, delete this connection id
             logger.log(
-                logging.INFO, f'dead id or error in msg {connection_id} {str(msg)}')
+                logging.INFO, f'dead id or error in msg {connectionId} {str(msg)}')
             return {'successful': False}
 
     # update connection table in dynamo
-    def _update_connections(self, conn_id_objs):
+    def _updateConnections(self, connIdObjs):
 
-        self._dynamo_client.put_item(
-            TableName=self._connection_table,
+        self._dynamoClient.put_item(
+            TableName=self._connectionTable,
             Item={
-                "game_id": {
-                    "S": self._game_id
+                "gameId": {
+                    "S": self._gameId
                 },
-                "connection_ids": {
-                    "L": conn_id_objs
+                "connectionIds": {
+                    "L": connIdObjs
                 },
                 "date": {
                     "S": datetime.now().isoformat()
@@ -146,62 +149,42 @@ class Helpers():
             })
 
     # get current connections from dynamo
-    def _get_connection_objs(self):
-        get_resp = self._dynamo_client.get_item(
-            TableName=self._connection_table,
+    def _getConnObjs(self):
+        getResp = self._dynamoClient.get_item(
+            TableName=self._connectionTable,
             Key={
-                "game_id": {
-                    "S": self._game_id
+                "gameId": {
+                    "S": self._gameId
                 }
             })
 
-        if 'Item' in get_resp:
-            get_item = get_resp['Item']
-            if 'connection_ids' in get_item:
-                conn_ids = get_item['connection_ids']['L']
-                return conn_ids
+        if 'Item' in getResp:
+            getItem = getResp['Item']
+            if 'c' in getItem:
+                connIds = getItem['connectionIds']['L']
+                return connIds
         return []
 
-    def start_card_move(self, event_msg):
-        message = event_msg['message']
-        card_value = message['cardValue']
-
-        # Check for lock id. Removing for now, may not need.
-        # get_resp = self._dynamo_client.get_item(
-        #     TableName='rf_cards',
-        #     Key={
-        #         "game_id": {
-        #             "S": self._game_id
-        #         },
-        #         "card_value": {
-        #             "S": card_value
-        #         }
-        #     })
-
-        # if 'Item' in get_resp:
-        #     get_item = get_resp['Item']
-        #     if 'connection_ids' in get_item:
-        #         lock_id = get_item['lock_id']['S']
-        #         if lock_id == 'False':
-        #             return None
-        # Update card position if not locked
-        self._dynamo_client.put_item(
-            TableName='rf_cards',
+    def startCardMove(self, eventMsg):
+        message = eventMsg['message']
+        cardValue = message['cardValue']
+        self._dynamoClient.put_item(
+            TableName='rfCards',
             Item={
-                "game_id": {
-                    "S": self._game_id
+                "gameId": {
+                    "S": self._gameId
                 },
-                "card_value": {
-                    "S": card_value
-                },
-                "lock_id": {
-                    "S": self._connection_id
+                "cardValue": {
+                    "S": cardValue
                 },
                 "x": {
                     "N": str(message['x'])
                 },
                 "y": {
                     "N": str(message['y'])
+                },
+                "z": {
+                    "N": str(message['z'])
                 },
                 "date": {
                     "S": datetime.now().isoformat()
@@ -210,36 +193,81 @@ class Helpers():
         logger.log(logging.INFO, 'put finished')
         return None
 
-    def end_card_move(self, event_msg):
-        message = event_msg['message']
-        card_value = message['cardValue']
+    def endCardMove(self, eventMsg):
 
-        # Check for lock id
-        # TODO: should only finalize lock if stored
-        # connection_id matches self.connection_id
+        message = eventMsg['message']
 
-        # Update card position is not locked
-        self._dynamo_client.put_item(
-            TableName='rf_cards',
-            Item={
-                "game_id": {
-                    "S": self._game_id
-                },
-                "card_value": {
-                    "S": card_value
-                },
-                # "lock_id": {
-                #     "S": 'False'
-                # },
-                "x": {
-                    "N": str(message['x'])
-                },
-                "y": {
-                    "N": str(message['y'])
-                },
-                "date": {
-                    "S": datetime.now().isoformat()
-                }
-            })
-
+        self.updateDbCardPosition(message)
         return None
+
+    def updateDbCardPosition(self, updateObj):
+
+        dbObj = {
+            "gameId": {
+                "S": self._gameId
+            },
+            "cardValue": {
+                "S": updateObj['cardValue']
+            },
+            "date": {
+                "S": datetime.now().isoformat()
+            }
+        }
+
+        if 'x' in updateObj:
+            dbObj['x'] = {
+                "N":  str(updateObj['x'])
+            }
+        if 'y' in updateObj:
+            dbObj['y'] = {
+                "N":  str(updateObj['y'])
+            }
+
+        if 'z' in updateObj:
+            dbObj['z'] = {
+                "N":  str(updateObj['z'])
+            }
+
+        if 'groupId' in updateObj:
+            dbObj['z'] = {
+                "N":  str(updateObj['groupId'])
+            }
+
+        if 'faceUp' in updateObj:
+            dbObj['faceUp'] = {
+                "BOOL":  bool(updateObj['groupId'])
+            }
+
+        if 'ownerId' in updateObj:
+            dbObj['faceUp'] = {
+                "S":  bool(updateObj['ownerId'])
+            }
+
+        self._dynamoClient.put_item(
+            TableName='rfCards',
+            Item=dbObj)
+
+    def _initializeCards(self):
+
+        cardValues = []
+        for suit in ['H', 'D', 'S', 'C']:
+            for value in ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']:
+                cardValue = f'{value}{suit}'
+                cardValues.append(cardValue)
+
+        random.shuffle(cardValues)
+        i = 0
+        while len(cardValues) > 0:
+            cardValue = cardValues.pop()
+            objToSend = dict(
+                cardValue=cardValue,
+                x=10,
+                y=10,
+                z=i,
+                groupId=0,
+                faceUp=False,
+                ownerId=''
+            )
+            self.updateDbCardPosition(objToSend)
+            self.messageBroadcast(objToSend, True)
+            i += 1

@@ -1,6 +1,8 @@
 <div cdkDrag [class.card-default]="true" [class.active]="isActive()" [class.inactive]="!isActive()"
-    (cdkDragStarted)="dragMoveStarted($event)" (dblclick)="flipCard()" [cdkDragFreeDragPosition]="cardPosition"
-    (cdkDragEnded)="dragMoveEnded($event)" #dragel>
+    [style.z-index]="z"
+    (cdkDragStarted)="dragMoveStarted($event)" (dblclick)="flipCard()" [cdkDragFreeDragPosition]="getInitPosition()"
+    (cdkDragEnded)="dragMoveEnded($event)" #dragel
+    >
 
     <div [class.card-overlay]="true" [class.active]="isActive()">
 

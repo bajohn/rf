@@ -14,5 +14,5 @@ def handler(event, context):
     logger.log(logging.INFO, json.dumps(event))
 
     helpers = Helpers(event)
-    helpers.clear_connections()
+    helpers.clearConnections()
     return {"statusCode": 200}

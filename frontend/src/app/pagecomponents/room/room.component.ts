@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { WsService } from '../../services/ws.service';
-import { position, iWsMsg } from '../../types';
+import { iCardData, iWsMsg } from '../../types';
 import { Router } from '@angular/router';
 
 
@@ -15,15 +15,14 @@ export class RoomComponent implements OnInit {
 
 
 
-  cardTypes: string[] = []
-
-  cardData: { cardPosition: position, cardValue: string }[] = [];
-
+  cardTypes: string[] = [];
+  initCards = [];
 
   constructor(
     private ws: WsService,
     private router: Router
   ) {
+    this.initCards = this.getDefaultCards();
     this.ws.getSubscription(this.parseMsgFromWs.bind(this));
     const gameId = this.router.url.substring(1);
     this.ws.setGameId(gameId);
@@ -31,19 +30,23 @@ export class RoomComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.cardData);
   }
 
-  setDefaultCards() {
+  getDefaultCards() {
+    const cardData = [];
     let i = 0;
     for (const suit of ['H', 'D', 'S', 'C']) {
       for (let value of ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']) {
         const cardValue = `${value}${suit}`
-        const toPush = { cardValue: cardValue, cardPosition: { x: 60 * (i % 10), y: 80 * Math.floor(i / 10) } };
-        this.cardData.push(toPush);
+        const toPush = {
+          cardValue: cardValue,
+          //cardPosition: { x: 60 * (i % 10), y: 80 * Math.floor(i / 10) }
+        };
+        cardData.push(toPush);
         i++;
       }
     }
+    return cardData;
   }
 
   click_broadcast() {
@@ -62,36 +65,18 @@ export class RoomComponent implements OnInit {
   }
 
   click_check() {
-    console.log(this.cardData);
   }
 
-  click_recall() {
-    for (let data of this.cardData) {
-
-
-
-      data.cardPosition = { x: 0, y: 0 }
-
-    }
-    const posMsg = {
-      x: 0,
-      y: 0,
-      cardValue: 'all'
-    };
-    this.ws.sendToWs('card-move-end', posMsg);
-  }
-
-  click_dynamo() {
-    //this.ws.sendToWs('test', {});
-    this.ws.sendToWsRaw({ action: 'test', message: {} });
+  click_shuffle() {
+    this.ws.sendToWs('card-shuffle', {});
   }
 
 
   parseMsgFromWs(data: iWsMsg) {
     console.log(data);
     if (data.action === 'initialize') {
-      if (data.message['game_exists']) {
-        console.log('found!'); 
+      if (data.message['gameExists']) {
+        console.log('found!');
       } else {
         console.log('No game found. Ask to create');
       }
