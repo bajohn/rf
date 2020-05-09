@@ -2,7 +2,7 @@ export interface iWsMsg {
     action: endpoint
     message: {
         gameId: string
-        [key: string]: string | number
+        [key: string]: any
     }
 }
 
@@ -21,6 +21,7 @@ export interface iCardData {
 
 export type endpoint =
     'initialize' |
+    'initialize-cards' |
     'send-message' |
     'clear-connections' |
     'card-move-start' |

@@ -12,14 +12,8 @@ import { endpoint, iWsMsg, iCardData } from './../../types'
 export class CardComponent implements OnInit {
 
 
-  @Input() cardValue: '';
-  // initial positions
-  x = 10;
-  y = 10
-  z = 1;
-  groupId = 0;
-  ownerId = '';
-  faceUp = true;
+  @Input() data: iCardData;
+  @Output() dataChange = new EventEmitter<iCardData>();
 
   boxBeingDragged = false;
 
@@ -29,10 +23,10 @@ export class CardComponent implements OnInit {
 
   }
 
-  getInitPosition() {
+  getPosition() {
     return {
-      x: this.x,
-      y: this.y
+      x: this.data.x,
+      y: this.data.y
     }
   }
 
@@ -64,21 +58,21 @@ export class CardComponent implements OnInit {
 
   dragMoveEnded(dragEnd: CdkDragEnd<any>) {
     const xyPos: { x: number, y: number } = dragEnd.source.getFreeDragPosition();
-    this.x = xyPos.x;
-    this.y = xyPos.y;
+    this.data.x = xyPos.x;
+    this.data.y = xyPos.y;
     this.sendCardUpdate(xyPos);
     this.boxBeingDragged = false;
   }
 
   flipCard() {
-    this.faceUp = !this.faceUp;
+    this.data.faceUp = !this.data.faceUp;
     this.sendCardUpdate({
-      faceUp: this.faceUp
+      faceUp: this.data.faceUp
     })
   }
 
   sendCardUpdate(objIn: iCardData) {
-    objIn['cardValue'] = this.cardValue;
+    objIn['cardValue'] = this.data.cardValue;
 
     this.ws.sendToWs('card-move-end', objIn);
   }
@@ -86,30 +80,34 @@ export class CardComponent implements OnInit {
 
 
   parseMsgFromWs(data: iWsMsg) {
-    console.log('parse');
     if (typeof data.message === 'string') {
       //TODO: handle this
       console.error(data);
     } else {
       if ('cardValue' in data.message) {
-        if (data.action === 'card-move-end' && (data.message['cardValue'] === this.cardValue || data.message['cardValue'] === 'all')) {
-          if ('x' in data.message) {
-            this.x = Number(data.message['x']);
-          }
+
+        const cardValue = data.message['cardValue'];
+
+        if (data.action === 'card-move-end' && (cardValue === this.data.cardValue || data.message['cardValue'] === 'all')) {
+          console.log(cardValue, data.message);
+          if (data.message)
+            if ('x' in data.message) {
+              this.data.x = Number(data.message['x']);
+            }
           if ('y' in data.message) {
-            this.y = Number(data.message['y']);
+            this.data.y = Number(data.message['y']);
           }
           if ('z' in data.message) {
-            this.x = Number(data.message['z']);
+            this.data.x = Number(data.message['z']);
           }
           if ('groupId' in data.message) {
-            this.groupId = Number(data.message['groupId']);
+            this.data.groupId = Number(data.message['groupId']);
           }
           if ('faceUp' in data.message) {
-            this.faceUp = Boolean(data.message['faceUp']);
+            this.data.faceUp = Boolean(data.message['faceUp']);
           }
           if ('ownerId' in data.message) {
-            this.ownerId = String(data.message['ownerId']);
+            this.data.ownerId = String(data.message['ownerId']);
           }
         }
       }
@@ -119,7 +117,7 @@ export class CardComponent implements OnInit {
   }
 
   getFrontImgSrc() {
-    return `assets/cards/${this.cardValue}.svg`;
+    return `assets/cards/${this.data.cardValue}.svg`;
   }
 
 }

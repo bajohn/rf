@@ -50,13 +50,20 @@ class Helpers():
                            f'Repeated connection id?? {self._connectionId}')
 
     def sendCurrentCards(self):
+        cards = []
         for cardValue in self._cardValues:
+
             cardMsg = self.getCardMsgFromDb(cardValue)
+            cards.append(cardMsg)
             logger.log(logging.INFO, cardMsg)
-            self.messageSelf(dict(
-                action='card-move-end',
-                message=cardMsg
-            ))
+
+        self.messageSelf(dict(
+            action='initialize-cards',
+            message=dict(
+                gameId=self._gameId,
+                cards=cards
+            )
+        ))
 
     def _gameIdExists(self):
         getResp = self._dynamoClient.get_item(

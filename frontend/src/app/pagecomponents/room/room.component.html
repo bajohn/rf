@@ -24,7 +24,12 @@
 <!-- [(cdkDragFreeDragPosition)]="boxPosition"  -->
 <div class="game-container">
 
-    <app-card *ngFor="let data of initCards" [cardValue]="data.cardValue">
+    <app-card *ngFor="let cData of cards; let index=index;" [(data)]="cards[index]">
 
     </app-card>
+
+
+
+
+
 </div>

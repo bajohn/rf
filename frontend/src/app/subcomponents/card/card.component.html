@@ -1,6 +1,6 @@
 <div cdkDrag [class.card-default]="true" [class.active]="isActive()" [class.inactive]="!isActive()"
-    [style.z-index]="z"
-    (cdkDragStarted)="dragMoveStarted($event)" (dblclick)="flipCard()" [cdkDragFreeDragPosition]="getInitPosition()"
+    [style.z-index]="data.z"
+    (cdkDragStarted)="dragMoveStarted($event)" (dblclick)="flipCard()" [cdkDragFreeDragPosition]="getPosition()"
     (cdkDragEnded)="dragMoveEnded($event)" #dragel
     >
 
@@ -8,9 +8,9 @@
 
     </div>
 
-    <img [class.card-img]="true" [class.active]="faceUp" [src]="getFrontImgSrc()">
+    <img [class.card-img]="true" [class.active]="data.faceUp" [src]="getFrontImgSrc()">
 
-    <img [class.card-img]="true" [class.active]="!faceUp" src="assets/cards/cardback.svg">
+    <img [class.card-img]="true" [class.active]="!data.faceUp" src="assets/cards/cardback.svg">
 
 
 
