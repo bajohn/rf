@@ -87,28 +87,34 @@ export class CardComponent implements OnInit {
 
   parseMsgFromWs(data: iWsMsg) {
     console.log('parse');
-    if ('cardValue' in data.message) {
-      if (data.action === 'card-move-end' && (data.message['cardValue'] === this.cardValue || data.message['cardValue'] === 'all')) {
-        if ('x' in data.message) {
-          this.x = Number(data.message['x']);
-        }
-        if ('y' in data.message) {
-          this.y = Number(data.message['y']);
-        }
-        if ('z' in data.message) {
-          this.x = Number(data.message['z']);
-        }
-        if ('groupId' in data.message) {
-          this.groupId = Number(data.message['groupId']);
-        }
-        if('faceUp' in data.message){
-          this.faceUp = Boolean(data.message['faceUp']);
-        }
-        if('ownerId' in data.message){
-          this.ownerId = String(data.message['ownerId']);
+    if (typeof data.message === 'string') {
+      //TODO: handle this
+      console.error(data);
+    } else {
+      if ('cardValue' in data.message) {
+        if (data.action === 'card-move-end' && (data.message['cardValue'] === this.cardValue || data.message['cardValue'] === 'all')) {
+          if ('x' in data.message) {
+            this.x = Number(data.message['x']);
+          }
+          if ('y' in data.message) {
+            this.y = Number(data.message['y']);
+          }
+          if ('z' in data.message) {
+            this.x = Number(data.message['z']);
+          }
+          if ('groupId' in data.message) {
+            this.groupId = Number(data.message['groupId']);
+          }
+          if ('faceUp' in data.message) {
+            this.faceUp = Boolean(data.message['faceUp']);
+          }
+          if ('ownerId' in data.message) {
+            this.ownerId = String(data.message['ownerId']);
+          }
         }
       }
     }
+
 
   }
 

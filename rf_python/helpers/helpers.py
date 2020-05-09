@@ -30,6 +30,8 @@ class Helpers():
         self._connectionId = event['requestContext']['connectionId']
         self._event = event
         self._connectionTable = 'rfConnections'
+        self._cardTable = 'rfCards'
+        self._cardValues = self._initializeCardValues()
 
     # hit from 'initialize' endpoint
 
@@ -37,6 +39,7 @@ class Helpers():
         # check that game id exists
 
         if self._gameIdExists():
+            self.sendCurrentCards()
             connObjs = self._getConnObjs()
             newConnObj = {'S': self._connectionId}
             if newConnObj not in connObjs:
@@ -47,7 +50,13 @@ class Helpers():
                            f'Repeated connection id?? {self._connectionId}')
 
     def sendCurrentCards(self):
-        raise NotImplementedError
+        for cardValue in self._cardValues:
+            cardMsg = self.getCardMsgFromDb(cardValue)
+            logger.log(logging.INFO, cardMsg)
+            self.messageSelf(dict(
+                action='card-move-end',
+                message=cardMsg
+            ))
 
     def _gameIdExists(self):
         getResp = self._dynamoClient.get_item(
@@ -166,8 +175,8 @@ class Helpers():
     def startCardMove(self, eventMsg):
         message = eventMsg['message']
         cardValue = message['cardValue']
-        self._dynamoClient.put_item(
-            TableName='rfCards',
+        self._dynamoClient.update_item(
+            TableName=self._cardTable,
             Item={
                 "gameId": {
                     "S": self._gameId
@@ -197,60 +206,87 @@ class Helpers():
         self.updateDbCardPosition(message)
         return None
 
-    def updateDbCardPosition(self, updateObj):
-
-        dbObj = {
-            "gameId": {
-                "S": self._gameId
-            },
-            "cardValue": {
-                "S": updateObj['cardValue']
-            },
-            "date": {
-                "S": datetime.now().isoformat()
+    def getCardMsgFromDb(self, cardValue):
+        getResp = self._dynamoClient.get_item(
+            TableName=self._cardTable,
+            Key={
+                "gameId": {
+                    "S": self._gameId
+                },
+                "cardValue": {
+                    "S": cardValue
+                }
             }
-        }
+        )
+        logger.info(f'Getting {self._gameId}, {cardValue}')
+        logger.info(f'Getting {str(getResp)}')
+        dbCard = getResp['Item']
+
+        message = dict(
+            x=int(dbCard['x']['N']),
+            y=int(dbCard['y']['N']),
+            z=int(dbCard['z']['N']),
+            cardValue=cardValue,
+            # groupId=db['cardValue']
+            faceUp=bool(dbCard['faceUp']['BOOL']),
+            ownerId=dbCard['ownerId']['S']
+        )
+        return message
+
+    def updateDbCardPosition(self, updateObj):
+        cardValue = updateObj['cardValue']
+
+        dbObj = dict(date=dict(
+            Value=dict(S=datetime.now().isoformat()),
+            Action='PUT'
+        ))
 
         if 'x' in updateObj:
-            dbObj['x'] = {
-                "N":  str(updateObj['x'])
-            }
-        if 'y' in updateObj:
-            dbObj['y'] = {
-                "N":  str(updateObj['y'])
-            }
+            dbObj['x'] = dict(
+                Value=dict(N=str(updateObj['x'])),
+                Action='PUT'
+            )
 
+        if 'y' in updateObj:
+            dbObj['y'] = dict(
+                Value=dict(N=str(updateObj['y'])),
+                Action='PUT'
+            )
         if 'z' in updateObj:
-            dbObj['z'] = {
-                "N":  str(updateObj['z'])
-            }
+            dbObj['z'] = dict(
+                Value=dict(N=str(updateObj['z'])),
+                Action='PUT'
+            )
 
         if 'groupId' in updateObj:
-            dbObj['z'] = {
-                "N":  str(updateObj['groupId'])
-            }
-
-        if 'faceUp' in updateObj:
-            dbObj['faceUp'] = {
-                "BOOL":  bool(updateObj['faceUp'])
-            }
+            dbObj['groupId'] = dict(
+                Value=dict(N=str(updateObj['groupId'])),
+                Action='PUT'
+            )
 
         if 'ownerId' in updateObj:
-            dbObj['ownerId'] = {
-                "S":  str(updateObj['ownerId'])
-            }
+            dbObj['ownerId'] = dict(
+                Value=dict(S=str(updateObj['ownerId'])),
+                Action='PUT'
+            )
 
-        self._dynamoClient.put_item(
-            TableName='rfCards',
-            Item=dbObj)
+        if 'faceUp' in updateObj:
+            dbObj['faceUp'] = dict(
+                Value=dict(BOOL=bool(updateObj['faceUp'])),
+                Action='PUT'
+            )
+
+        self._dynamoClient.update_item(
+            TableName=self._cardTable,
+            Key=dict(
+                gameId=dict(S=self._gameId),
+                cardValue=dict(S=cardValue),
+            ),
+            AttributeUpdates=dbObj)
 
     def _initializeCards(self):
 
-        cardValues = []
-        for suit in ['H', 'D', 'S', 'C']:
-            for value in ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']:
-                cardValue = f'{value}{suit}'
-                cardValues.append(cardValue)
+        cardValues = self._cardValues.copy()
 
         random.shuffle(cardValues)
         i = 0
@@ -266,5 +302,14 @@ class Helpers():
                 ownerId='none'
             )
             self.updateDbCardPosition(objToSend)
-            self.messageBroadcast(objToSend, True)
+            # self.messageBroadcast(objToSend, True)
             i += 1
+
+    def _initializeCardValues(self):
+        cardValues = []
+        for suit in ['H', 'D', 'S', 'C']:
+            for value in ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']:
+                cardValue = f'{value}{suit}'
+                cardValues.append(cardValue)
+
+        return cardValues
