@@ -89,16 +89,14 @@ export class CardComponent implements OnInit {
         const cardValue = data.message['cardValue'];
 
         if (data.action === 'card-move-end' && (cardValue === this.data.cardValue || data.message['cardValue'] === 'all')) {
-          console.log(cardValue, data.message);
-          if (data.message)
-            if ('x' in data.message) {
-              this.data.x = Number(data.message['x']);
-            }
+          if ('x' in data.message) {
+            this.data.x = Number(data.message['x']);
+          }
           if ('y' in data.message) {
             this.data.y = Number(data.message['y']);
           }
           if ('z' in data.message) {
-            this.data.x = Number(data.message['z']);
+            this.data.z = Number(data.message['z']);
           }
           if ('groupId' in data.message) {
             this.data.groupId = Number(data.message['groupId']);

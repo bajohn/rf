@@ -15,7 +15,7 @@ def handler(event, context):
 
     helpers = Helpers(event)
     event_msg = helpers.getEventMsg()
-    helpers.messageBroadcast(event_msg)
+    helpers.sendMsg(event_msg, toOthers=True)
     helpers.startCardMove(event_msg)
 
     return {"statusCode": 200}

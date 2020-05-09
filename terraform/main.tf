@@ -59,34 +59,42 @@ resource "aws_lambda_layer_version" "lib_layer" {
 
 
 # endpoint: $connect
-module "connect_lambda"{
-  source = "./modules/ws-lambda"
-  name = "connect"
-  iam_arn = aws_iam_role.iam_for_rf_role.arn
+module "connect_lambda" {
+  source    = "./modules/ws-lambda"
+  name      = "connect"
+  iam_arn   = aws_iam_role.iam_for_rf_role.arn
   layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
 
 # endpoint: initialize
-module "initialize_lambda"{
-  source = "./modules/ws-lambda"
-  name = "initialize"
-  iam_arn = aws_iam_role.iam_for_rf_role.arn
+module "initialize_lambda" {
+  source    = "./modules/ws-lambda"
+  name      = "initialize"
+  iam_arn   = aws_iam_role.iam_for_rf_role.arn
+  layer_arn = aws_lambda_layer_version.lib_layer.arn
+}
+
+# endpoint: card-shuffle
+module "recall_and_shuffle_lambda" {
+  source    = "./modules/ws-lambda"
+  name      = "recall_and_shuffle"
+  iam_arn   = aws_iam_role.iam_for_rf_role.arn
   layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
 
 # endpoint: create-room 
-module "createroom_lambda"{
-  source = "./modules/ws-lambda"
-  name = "create_room"
-  iam_arn = aws_iam_role.iam_for_rf_role.arn
+module "createroom_lambda" {
+  source    = "./modules/ws-lambda"
+  name      = "create_room"
+  iam_arn   = aws_iam_role.iam_for_rf_role.arn
   layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
 
 # endpoint: clear-connections
 module "clear_connections_lambda" {
-  source = "./modules/ws-lambda"
-  name = "clear_connections"
-  iam_arn = aws_iam_role.iam_for_rf_role.arn
+  source    = "./modules/ws-lambda"
+  name      = "clear_connections"
+  iam_arn   = aws_iam_role.iam_for_rf_role.arn
   layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
 
@@ -94,9 +102,9 @@ module "clear_connections_lambda" {
 
 # endpoint: send-message
 module "send_message_lambda" {
-  source = "./modules/ws-lambda"
-  name = "send_message"
-  iam_arn = aws_iam_role.iam_for_rf_role.arn
+  source    = "./modules/ws-lambda"
+  name      = "send_message"
+  iam_arn   = aws_iam_role.iam_for_rf_role.arn
   layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
 
@@ -104,9 +112,9 @@ module "send_message_lambda" {
 
 # endpoint: card-move-start
 module "card_move_start_lambda" {
-  source = "./modules/ws-lambda"
-  name = "card_move_start"
-  iam_arn = aws_iam_role.iam_for_rf_role.arn
+  source    = "./modules/ws-lambda"
+  name      = "card_move_start"
+  iam_arn   = aws_iam_role.iam_for_rf_role.arn
   layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
 
@@ -114,9 +122,9 @@ module "card_move_start_lambda" {
 
 # endpoint: card-move-end
 module "card_move_end_lambda" {
-  source = "./modules/ws-lambda"
-  name = "card_move_end"
-  iam_arn = aws_iam_role.iam_for_rf_role.arn
+  source    = "./modules/ws-lambda"
+  name      = "card_move_end"
+  iam_arn   = aws_iam_role.iam_for_rf_role.arn
   layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
 

@@ -1,3 +1,5 @@
+
+
 <div cdkDrag [class.card-default]="true" [class.active]="isActive()" [class.inactive]="!isActive()"
     [style.z-index]="data.z"
     (cdkDragStarted)="dragMoveStarted($event)" (dblclick)="flipCard()" [cdkDragFreeDragPosition]="getPosition()"
@@ -11,11 +13,5 @@
     <img [class.card-img]="true" [class.active]="data.faceUp" [src]="getFrontImgSrc()">
 
     <img [class.card-img]="true" [class.active]="!data.faceUp" src="assets/cards/cardback.svg">
-
-
-
-
-
-
 
 </div>

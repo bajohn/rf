@@ -17,13 +17,12 @@ export class RoomComponent implements OnInit {
 
   cardTypes: string[] = [];
   cardIdxLookup: { [key: string]: number }; //
-  cards = [];
+  cards: iCardData[] = [];
 
   constructor(
     private ws: WsService,
     private router: Router
   ) {
-    //this.initCards = this.getDefaultCards();
     this.ws.getSubscription(this.parseMsgFromWs.bind(this));
     const gameId = this.router.url.substring(1);
     this.ws.setGameId(gameId);
@@ -31,23 +30,6 @@ export class RoomComponent implements OnInit {
   }
 
   ngOnInit() {
-  }
-
-  getDefaultCards() {
-    const cardData = [];
-    let i = 0;
-    for (const suit of ['H', 'D', 'S', 'C']) {
-      for (let value of ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']) {
-        const cardValue = `${value}${suit}`
-        const toPush = {
-          cardValue: cardValue,
-          //cardPosition: { x: 60 * (i % 10), y: 80 * Math.floor(i / 10) }
-        };
-        cardData.push(toPush);
-        i++;
-      }
-    }
-    return cardData;
   }
 
   click_broadcast() {
@@ -65,11 +47,36 @@ export class RoomComponent implements OnInit {
 
   }
 
-  click_check() {
+  click_shuffle_recall() {
+    this.do_shuffle(false);
   }
 
-  click_shuffle() {
-    this.ws.sendToWs('card-shuffle', {});
+  click_shuffle_spread() {
+    this.do_shuffle(true);
+  }
+
+  do_shuffle(faceUp: boolean) {
+    const cards: iCardData[] = [].concat(this.cards);
+    const zMap = {};
+
+    let counter = 0;
+    while (cards.length > 0) {
+      const len = cards.length;
+      const idx = Math.floor(len * Math.random());
+      const curEl = cards.splice(idx, 1)[0];
+      zMap[curEl.cardValue] = counter;
+      counter++;
+    }
+    counter = 0;
+    for (const card of this.cards) {
+      card.x = faceUp ? 10 * zMap[card.cardValue] : 10;
+      card.y = 10;
+      card.z = zMap[card.cardValue];
+      card.faceUp = faceUp;
+      this.ws.sendToWs('card-move-end', card);
+      counter++;
+    }
+
   }
 
 
@@ -86,37 +93,9 @@ export class RoomComponent implements OnInit {
       }
     }
     else if (data.action === 'initialize-cards') {
-      const cards = data.message['cards'];
-      console.log(cards);
-      this.cards = cards;
+      this.cards = data.message['cards'];
     }
-    else if ('cardValue' in data.message) {
 
-      // const cardValue = data.message['cardValue'];
-
-      // if (data.action === 'card-move-end' && (cardValue === this.cardValue || data.message['cardValue'] === 'all')) {
-      //   console.log(cardValue, data.message);
-      //   if (data.message)
-      //     if ('x' in data.message) {
-      //       this.x = Number(data.message['x']);
-      //     }
-      //   if ('y' in data.message) {
-      //     this.y = Number(data.message['y']);
-      //   }
-      //   if ('z' in data.message) {
-      //     this.x = Number(data.message['z']);
-      //   }
-      //   if ('groupId' in data.message) {
-      //     this.groupId = Number(data.message['groupId']);
-      //   }
-      //   if ('faceUp' in data.message) {
-      //     this.faceUp = Boolean(data.message['faceUp']);
-      //   }
-      //   if ('ownerId' in data.message) {
-      //     this.ownerId = String(data.message['ownerId']);
-      //   }
-      // }
-    }
   }
 
 

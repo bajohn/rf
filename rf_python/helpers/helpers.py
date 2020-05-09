@@ -57,13 +57,13 @@ class Helpers():
             cards.append(cardMsg)
             logger.log(logging.INFO, cardMsg)
 
-        self.messageSelf(dict(
+        self.sendMsg(dict(
             action='initialize-cards',
             message=dict(
                 gameId=self._gameId,
                 cards=cards
             )
-        ))
+        ), toSelf=True)
 
     def _gameIdExists(self):
         getResp = self._dynamoClient.get_item(
@@ -99,29 +99,29 @@ class Helpers():
                     "S": datetime.now().isoformat()
                 }
             })
-        self._initializeCards()
+        self.recallAndShuffleDb()
 
-    # send msg to everyone, including optionally, self
+    # send msg to everyone and/or self
     # automatically update live connections table
     # msgObj must be a dict
+    def sendMsg(self, msgObj, toSelf=False, toOthers=False):
+        if toSelf and not toOthers:
+            self._msgToConnection(self._connectionId, json.dumps(msgObj))
+        else:
+            connObjs = self._getConnObjs()
+            aliveConnObjs = []
+            for connObj in connObjs:
+                connId = connObj['S']
+                if (connId != self._connectionId) or toSelf:
+                    res = self._msgToConnection(
+                        connId, json.dumps(msgObj))
+                    if res['successful']:
+                        aliveConnObjs.append(connObj)
 
-    def messageBroadcast(self, msgObj, toSelf=False):
-        connObjs = self._getConnObjs()
-
-        aliveConnObjs = []
-        for connObj in connObjs:
-            connId = connObj['S']
-            if (connId != self._connectionId) or toSelf:
-                res = self._msgToConnection(
-                    connId, json.dumps(msgObj))
-                if res['successful']:
-                    aliveConnObjs.append(connObj)
-
-        aliveConnObjs.append({"S": self._connectionId})
-        self._updateConnections(aliveConnObjs)
+            aliveConnObjs.append({"S": self._connectionId})
+            self._updateConnections(aliveConnObjs)
 
     # get python dict received from websocket connection
-
     def getEventMsg(self):
         bodyObj = json.loads(self._event['body'])
         return bodyObj
@@ -225,8 +225,6 @@ class Helpers():
                 }
             }
         )
-        logger.info(f'Getting {self._gameId}, {cardValue}')
-        logger.info(f'Getting {str(getResp)}')
         dbCard = getResp['Item']
 
         message = dict(
@@ -283,6 +281,7 @@ class Helpers():
                 Action='PUT'
             )
 
+        # TODO: how to bulk send?
         self._dynamoClient.update_item(
             TableName=self._cardTable,
             Key=dict(
@@ -291,7 +290,7 @@ class Helpers():
             ),
             AttributeUpdates=dbObj)
 
-    def _initializeCards(self):
+    def recallAndShuffleDb(self):
 
         cardValues = self._cardValues.copy()
 
@@ -308,8 +307,8 @@ class Helpers():
                 faceUp=False,
                 ownerId='none'
             )
+            # TODO- this blocks, causing slowness. How do we send all at once?
             self.updateDbCardPosition(objToSend)
-            # self.messageBroadcast(objToSend, True)
             i += 1
 
     def _initializeCardValues(self):

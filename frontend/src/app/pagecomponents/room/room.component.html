@@ -3,33 +3,19 @@
 </h1>
 
 <div class="pad-btn">
-    <button button mat-raised-button color="primary" class="pad-btn" (click)="click_check()">
-        Check states</button>
-</div>
-
-<div class="pad-btn">
-    <button button mat-raised-button color="primary" class="pad-btn" (click)="click_shuffle()">
+    <button button mat-raised-button color="primary" class="pad-btn" (click)="click_shuffle_recall()">
         Recall & shuffle cards</button>
 </div>
 
-<!-- <div class="pad-btn">
-    <button button mat-raised-button color="primary" class="pad-btn" (click)="move_box(10,10)"> Move Box
-    </button>
-</div> -->
-<!-- <div class="pad-btn">
-    <button button mat-raised-button color="warn" class="pad-btn" (click)="click_clear()"> Clear Connections</button>
-</div> -->
+<div class="pad-btn">
+    <button button mat-raised-button color="primary" class="pad-btn" (click)="click_shuffle_spread()">
+        Shuffle & spread cards</button>
+</div>
 
-
-<!-- [(cdkDragFreeDragPosition)]="boxPosition"  -->
 <div class="game-container">
 
     <app-card *ngFor="let cData of cards; let index=index;" [(data)]="cards[index]">
 
     </app-card>
-
-
-
-
 
 </div>

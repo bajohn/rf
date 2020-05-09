@@ -15,5 +15,5 @@ def handler(event, context):
 
     helpers = Helpers(event)
     msg_obj = helpers.getEventMsg()
-    helpers.messageBroadcast(msg_obj)
+    helpers.sendMsg(msg_obj, toOthers=True)
     return {"statusCode": 200}

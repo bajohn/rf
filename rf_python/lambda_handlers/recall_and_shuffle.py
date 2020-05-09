@@ -8,14 +8,12 @@ from rf_python.helpers.helpers import Helpers
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-
+# This is no longer used, in favor of the frontend doing
+# the shuffling
 def handler(event, context):
-    logger.log(logging.INFO, 'Ending card move...')
     logger.log(logging.INFO, json.dumps(event))
 
     helpers = Helpers(event)
-    event_msg = helpers.getEventMsg()
-    logger.log(logging.INFO, 'Broadcasting end card move...')
-    helpers.sendMsg(event_msg,toOthers=True)
-    helpers.endCardMove(event_msg)
+    helpers.recallAndShuffleDb()
+    # helpers.sendCurrentCards(msgSelf=True, broadcast=True)
     return {"statusCode": 200}

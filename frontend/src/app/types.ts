@@ -26,7 +26,7 @@ export type endpoint =
     'clear-connections' |
     'card-move-start' |
     'card-move-end' |
-    'card-shuffle' |
+    'recall-and-shuffle' |
     'test' |
     'create-room'
 export interface position { x: number, y: number };
