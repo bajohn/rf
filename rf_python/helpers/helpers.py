@@ -31,15 +31,14 @@ class Helpers():
         self._event = event
         self._connectionTable = 'rfConnections'
 
-    # This doesn't work for $connect endpoint,
-    # is sent via an "initialize" endpoint instead.
+    # hit from 'initialize' endpoint
 
     def initiateConnection(self):
         # check that game id exists
+
         if self._gameIdExists():
             connObjs = self._getConnObjs()
             newConnObj = {'S': self._connectionId}
-
             if newConnObj not in connObjs:
                 connObjs.append(newConnObj)
                 self._updateConnections(connObjs)
@@ -58,14 +57,15 @@ class Helpers():
                     "S": self._gameId
                 }
             })
-
+        gameExists = 'Item' in getResp
         self.messageSelf({
             'action': "initialize",
             'message': {
                 'gameId': self._gameId,
-                'gameExists': 'Item' in getResp
+                'gameExists': gameExists
             }
         })
+        return gameExists
 
     def createRoom(self):
         newConnObj = {'S': self._connectionId}
@@ -123,17 +123,16 @@ class Helpers():
     def _msgToConnection(self, connectionId, msg):
 
         try:
-            self._gw_client.post_to_connection(ConnectionId=connectionId,
-                                               Data=msg.encode('utf-8'))
+            self._gwClient.post_to_connection(ConnectionId=connectionId,
+                                              Data=msg.encode('utf-8'))
             return {'successful': True}
-        except:  # GoneException, delete this connection id
+        except self._gwClient.exceptions.GoneException:  # GoneException, delete this connection id
             logger.log(
-                logging.INFO, f'dead id or error in msg {connectionId} {str(msg)}')
+                logging.ERROR, f'dead id or error in msg {connectionId} {str(msg)}')
             return {'successful': False}
 
     # update connection table in dynamo
     def _updateConnections(self, connIdObjs):
-
         self._dynamoClient.put_item(
             TableName=self._connectionTable,
             Item={
@@ -157,10 +156,9 @@ class Helpers():
                     "S": self._gameId
                 }
             })
-
         if 'Item' in getResp:
             getItem = getResp['Item']
-            if 'c' in getItem:
+            if 'connectionIds' in getItem:
                 connIds = getItem['connectionIds']['L']
                 return connIds
         return []
@@ -190,7 +188,6 @@ class Helpers():
                     "S": datetime.now().isoformat()
                 }
             })
-        logger.log(logging.INFO, 'put finished')
         return None
 
     def endCardMove(self, eventMsg):
@@ -235,12 +232,12 @@ class Helpers():
 
         if 'faceUp' in updateObj:
             dbObj['faceUp'] = {
-                "BOOL":  bool(updateObj['groupId'])
+                "BOOL":  bool(updateObj['faceUp'])
             }
 
         if 'ownerId' in updateObj:
-            dbObj['faceUp'] = {
-                "S":  bool(updateObj['ownerId'])
+            dbObj['ownerId'] = {
+                "S":  str(updateObj['ownerId'])
             }
 
         self._dynamoClient.put_item(
@@ -266,7 +263,7 @@ class Helpers():
                 z=i,
                 groupId=0,
                 faceUp=False,
-                ownerId=''
+                ownerId='none'
             )
             self.updateDbCardPosition(objToSend)
             self.messageBroadcast(objToSend, True)

@@ -63,7 +63,9 @@ export class CardComponent implements OnInit {
   }
 
   dragMoveEnded(dragEnd: CdkDragEnd<any>) {
-    const xyPos: { x: number, y: number } = dragEnd.source.getFreeDragPosition()
+    const xyPos: { x: number, y: number } = dragEnd.source.getFreeDragPosition();
+    this.x = xyPos.x;
+    this.y = xyPos.y;
     this.sendCardUpdate(xyPos);
     this.boxBeingDragged = false;
   }
