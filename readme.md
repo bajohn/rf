@@ -9,10 +9,14 @@ Really Fun card game implemented on AWS.
 - z index: maximize on click
 - group id: every card starts with group "null", but should also have a settable group id 
 - Concept of stacking: highlight when hovering over a card, then add to stack
-- shuffling: using stack concept, randomize card z-indices
 
 - add api gateway trust to ian_for_rf
 - move border: stop cards from being able to move outside screen
+- heartbeat, show when connection is dead
+- any way to verify accuracy of cards? Could use heartbeat + some hash of cards
+    - hash of cards concept- frontend and backend can hash the card states. When the frontend receives an update, 
+    the update includes a hash, then the frontent calculates a hash itself and compares (what if
+    frontend) updates in the meantime though?
 
 - manage player connections with place on table and shelf
 
