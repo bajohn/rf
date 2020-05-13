@@ -19,6 +19,8 @@ export class RoomComponent implements OnInit {
   cardIdxLookup: { [key: string]: number }; //
   cards: iCardData[] = [];
 
+  
+
   constructor(
     private ws: WsService,
     private router: Router
@@ -76,7 +78,6 @@ export class RoomComponent implements OnInit {
       this.ws.sendToWs('card-move-end', card);
       counter++;
     }
-
   }
 
 

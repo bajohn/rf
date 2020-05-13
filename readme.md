@@ -4,11 +4,12 @@ Really Fun card game implemented on AWS.
 
 
 ## TODO
-- Broadcast all positions on reconnect (or first connect)
+- MAIN TODO: move card data to shared service! Should simplify things a lot.
 
 - z index: maximize on click
 - group id: every card starts with group "null", but should also have a settable group id 
 - Concept of stacking: highlight when hovering over a card, then add to stack
+- Loading spinners everywhere!
 
 - add api gateway trust to ian_for_rf
 - move border: stop cards from being able to move outside screen

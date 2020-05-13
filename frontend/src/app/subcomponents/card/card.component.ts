@@ -15,6 +15,7 @@ export class CardComponent implements OnInit {
   @Input() data: iCardData;
   @Output() dataChange = new EventEmitter<iCardData>();
 
+  nextZ = 52; // set zIndex to this next time card is picked up.
   boxBeingDragged = false;
 
   constructor(
@@ -41,6 +42,8 @@ export class CardComponent implements OnInit {
   // boxBeingDragged is used for styling
   dragMoveStarted(dragStart: CdkDragStart) {
     this.boxBeingDragged = true;
+    this.data.z = ++this.nextZ;
+    console.log('new z', this.data.z);
   }
 
   // ...this was iffy
@@ -60,7 +63,7 @@ export class CardComponent implements OnInit {
     const xyPos: { x: number, y: number } = dragEnd.source.getFreeDragPosition();
     this.data.x = xyPos.x;
     this.data.y = xyPos.y;
-    this.sendCardUpdate(xyPos);
+    this.sendCardUpdate(this.data);
     this.boxBeingDragged = false;
   }
 
@@ -88,24 +91,32 @@ export class CardComponent implements OnInit {
 
         const cardValue = data.message['cardValue'];
 
-        if (data.action === 'card-move-end' && (cardValue === this.data.cardValue || data.message['cardValue'] === 'all')) {
-          if ('x' in data.message) {
-            this.data.x = Number(data.message['x']);
-          }
-          if ('y' in data.message) {
-            this.data.y = Number(data.message['y']);
-          }
+        if (data.action === 'card-move-end') {
           if ('z' in data.message) {
-            this.data.z = Number(data.message['z']);
+            const newZ = data.message['z'];
+            if (newZ > this.nextZ) {
+              this.nextZ = newZ + 1;
+            }
           }
-          if ('groupId' in data.message) {
-            this.data.groupId = Number(data.message['groupId']);
-          }
-          if ('faceUp' in data.message) {
-            this.data.faceUp = Boolean(data.message['faceUp']);
-          }
-          if ('ownerId' in data.message) {
-            this.data.ownerId = String(data.message['ownerId']);
+          if (cardValue === this.data.cardValue) {
+            if ('x' in data.message) {
+              this.data.x = Number(data.message['x']);
+            }
+            if ('y' in data.message) {
+              this.data.y = Number(data.message['y']);
+            }
+            if ('z' in data.message) {
+              this.data.z = Number(data.message['z']);
+            }
+            if ('groupId' in data.message) {
+              this.data.groupId = Number(data.message['groupId']);
+            }
+            if ('faceUp' in data.message) {
+              this.data.faceUp = Boolean(data.message['faceUp']);
+            }
+            if ('ownerId' in data.message) {
+              this.data.ownerId = String(data.message['ownerId']);
+            }
           }
         }
       }
