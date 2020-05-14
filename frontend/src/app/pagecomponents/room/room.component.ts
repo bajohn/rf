@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { WsService } from '../../services/ws.service';
 import { iCardData, iWsMsg } from '../../types';
 import { Router } from '@angular/router';
+import { CardsService } from 'src/app/services/cards.service';
 
 
 @Component({
@@ -16,14 +17,13 @@ export class RoomComponent implements OnInit {
 
 
   cardTypes: string[] = [];
-  cardIdxLookup: { [key: string]: number }; //
-  cards: iCardData[] = [];
 
-  
+
 
   constructor(
     private ws: WsService,
-    private router: Router
+    private router: Router,
+    public cardService: CardsService,
   ) {
     this.ws.getSubscription(this.parseMsgFromWs.bind(this));
     const gameId = this.router.url.substring(1);
@@ -34,51 +34,16 @@ export class RoomComponent implements OnInit {
   ngOnInit() {
   }
 
-  click_broadcast() {
-    console.log('broadcast');
-    this.ws.next({
-      action: 'send-message', message: {
-        broadcast_message: { x: 123 }
-      }
-    });
+
+  clickShuffleRecall() {
+    this.cardService.doShuffle(false);
   }
 
-  click_clear() {
-    console.log('delete');
-    this.ws.next({ action: 'clear-connections', message: {} });
-
+  clickShuffleSpread() {
+    this.cardService.doShuffle(true);
   }
 
-  click_shuffle_recall() {
-    this.do_shuffle(false);
-  }
 
-  click_shuffle_spread() {
-    this.do_shuffle(true);
-  }
-
-  do_shuffle(faceUp: boolean) {
-    const cards: iCardData[] = [].concat(this.cards);
-    const zMap = {};
-
-    let counter = 0;
-    while (cards.length > 0) {
-      const len = cards.length;
-      const idx = Math.floor(len * Math.random());
-      const curEl = cards.splice(idx, 1)[0];
-      zMap[curEl.cardValue] = counter;
-      counter++;
-    }
-    counter = 0;
-    for (const card of this.cards) {
-      card.x = faceUp ? 10 * zMap[card.cardValue] : 10;
-      card.y = 10;
-      card.z = zMap[card.cardValue];
-      card.faceUp = faceUp;
-      this.ws.sendToWs('card-move-end', card);
-      counter++;
-    }
-  }
 
 
   parseMsgFromWs(data: iWsMsg) {
@@ -93,10 +58,10 @@ export class RoomComponent implements OnInit {
         console.log('No game found. Ask to create');
       }
     }
-    else if (data.action === 'initialize-cards') {
-      this.cards = data.message['cards'];
-    }
+  }
 
+  getCards() {
+    return this.cardService.getCards();
   }
 
 

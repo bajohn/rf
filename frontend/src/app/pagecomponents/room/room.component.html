@@ -3,18 +3,18 @@
 </h1>
 
 <div class="pad-btn">
-    <button button mat-raised-button color="primary" class="pad-btn" (click)="click_shuffle_recall()">
+    <button button mat-raised-button color="primary" class="pad-btn" (click)="clickShuffleRecall()">
         Recall & shuffle cards</button>
 </div>
 
 <div class="pad-btn">
-    <button button mat-raised-button color="primary" class="pad-btn" (click)="click_shuffle_spread()">
+    <button button mat-raised-button color="primary" class="pad-btn" (click)="clickShuffleSpread()">
         Shuffle & spread cards</button>
 </div>
 
 <div class="game-container">
 
-    <app-card *ngFor="let cData of cards; let index=index;" [(data)]="cards[index]">
+    <app-card *ngFor="let cData of getCards(); let index=index;" [(data)]="getCards()[index]">
 
     </app-card>
 
