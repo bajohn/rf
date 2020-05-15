@@ -85,8 +85,10 @@ export class CardComponent implements OnInit {
 
   flipCard() {
     const faceUp = this.getCard().faceUp;
+    const z = this.cardService.getMaxZ() + 1;
     this.updateCard({
-      faceUp: !faceUp
+      faceUp: !faceUp,
+      z: z
     });
   }
 
