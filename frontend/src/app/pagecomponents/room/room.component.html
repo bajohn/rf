@@ -15,14 +15,14 @@
 
 </div>
 
-<div class="game-container">
-    <div class="main-table">
+<div  class="game-container">
+    <div class="main-table"  [style.height]="getTableHeight()">
         <app-card *ngFor="let cData of getCards();" [cardValue]="cData.cardValue">
 
         </app-card>
     </div>
 
-    <div class="shelf">
+    <div class="shelf" [style.height]="getShelfHeight()" >
 
     </div>
 </div>

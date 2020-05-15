@@ -49,6 +49,15 @@ class Helpers():
                 logger.log(logging.ERROR,
                            f'Repeated connection id?? {self._connectionId}')
 
+    def sendConnectionId(self):
+        self.sendMsg(dict(
+            action='initialize-connection-id',
+            message=dict(
+                gameId=self._gameId,
+                connectionId=self._connectionId
+            )
+        ), toSelf=True)
+
     def sendCurrentCards(self):
         cards = []
         for cardValue in self._cardValues:

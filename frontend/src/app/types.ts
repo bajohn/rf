@@ -22,6 +22,7 @@ export interface iCardData {
 export type endpoint =
     'initialize' |
     'initialize-cards' |
+    'initialize-connection-id' |
     'send-message' |
     'clear-connections' |
     'card-move-start' |

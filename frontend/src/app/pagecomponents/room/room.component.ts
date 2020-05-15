@@ -17,7 +17,7 @@ export class RoomComponent implements OnInit {
 
 
   cardTypes: string[] = [];
-
+  readonly _shelfHeight = 40;
 
 
   constructor(
@@ -58,6 +58,17 @@ export class RoomComponent implements OnInit {
       } else {
         console.log('No game found. Ask to create');
       }
+    } 
+    else if (data.action === 'initialize-connection-id') {
+      console.log(data);
     }
+  }
+
+  getShelfHeight() {
+    return `${this._shelfHeight}%`;
+  }
+
+  getTableHeight() {
+    return `${100 - this._shelfHeight}%`;
   }
 }
