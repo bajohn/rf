@@ -2,6 +2,7 @@ import { Component, EventEmitter, OnInit, Input, Output } from '@angular/core';
 import { WsService } from 'src/app/services/ws.service';
 import { CdkDragStart, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { endpoint, iWsMsg, iCardData } from './../../types'
+import { CardsService } from 'src/app/services/cards.service';
 
 
 @Component({
@@ -12,23 +13,37 @@ import { endpoint, iWsMsg, iCardData } from './../../types'
 export class CardComponent implements OnInit {
 
 
-  @Input() data: iCardData;
-  @Output() dataChange = new EventEmitter<iCardData>();
+  // @Input() data: iCardData;
+  // @Output() dataChange = new EventEmitter<iCardData>();
 
-  nextZ = 52; // set zIndex to this next time card is picked up.
+  @Input() cardValue: string;
+
+
   boxBeingDragged = false;
 
   constructor(
-    private ws: WsService
+    private ws: WsService,
+    private cardService: CardsService
   ) {
 
   }
 
   getPosition() {
+    const cardData = this.getCard();
     return {
-      x: this.data.x,
-      y: this.data.y
+      x: cardData.x,
+      y: cardData.y
     }
+  }
+
+  getZ() {
+    const cardData = this.getCard();
+    return cardData.z;
+  }
+
+  getFaceUp() {
+    const cardData = this.getCard();
+    return cardData.faceUp;
   }
 
   ngOnInit(): void {
@@ -42,8 +57,9 @@ export class CardComponent implements OnInit {
   // boxBeingDragged is used for styling
   dragMoveStarted(dragStart: CdkDragStart) {
     this.boxBeingDragged = true;
-    this.data.z = ++this.nextZ;
-    console.log('new z', this.data.z);
+    const z = this.cardService.getMaxZ() + 1;
+
+    this.updateCard({ z: z });
   }
 
   // ...this was iffy
@@ -52,7 +68,7 @@ export class CardComponent implements OnInit {
     if (this.boxBeingDragged) {
       const xyPos: { x: number, y: number } = dragStart.source.getFreeDragPosition()
 
-      this.sendCardUpdate(xyPos);
+      this.updateCard(xyPos);
       setTimeout(() => {
         this.streamUpdate(dragStart);
       }, 100)
@@ -60,23 +76,25 @@ export class CardComponent implements OnInit {
   }
 
   dragMoveEnded(dragEnd: CdkDragEnd<any>) {
-    const xyPos: { x: number, y: number } = dragEnd.source.getFreeDragPosition();
-    this.data.x = xyPos.x;
-    this.data.y = xyPos.y;
-    this.sendCardUpdate(this.data);
+    const newPosition: { x: number, y: number } = dragEnd.source.getFreeDragPosition();
+    const z = this.cardService.getMaxZ() + 1;
+    newPosition['z'] = z;
+    this.updateCard(newPosition);
     this.boxBeingDragged = false;
   }
 
   flipCard() {
-    this.data.faceUp = !this.data.faceUp;
-    this.sendCardUpdate({
-      faceUp: this.data.faceUp
-    })
+    const faceUp = this.getCard().faceUp;
+    this.updateCard({
+      faceUp: !faceUp
+    });
   }
 
-  sendCardUpdate(objIn: iCardData) {
-    objIn['cardValue'] = this.data.cardValue;
-
+  // Update card in both cardService 
+  // and in backend via ws.
+  updateCard(objIn: iCardData) {
+    objIn['cardValue'] = this.cardValue;
+    this.cardService.updateCard(objIn);
     this.ws.sendToWs('card-move-end', objIn);
   }
 
@@ -86,47 +104,19 @@ export class CardComponent implements OnInit {
     if (typeof data.message === 'string') {
       //TODO: handle this
       console.error(data);
-    } else {
-      if ('cardValue' in data.message) {
-
-        const cardValue = data.message['cardValue'];
-
-        if (data.action === 'card-move-end') {
-          if ('z' in data.message) {
-            const newZ = data.message['z'];
-            if (newZ > this.nextZ) {
-              this.nextZ = newZ + 1;
-            }
-          }
-          if (cardValue === this.data.cardValue) {
-            if ('x' in data.message) {
-              this.data.x = Number(data.message['x']);
-            }
-            if ('y' in data.message) {
-              this.data.y = Number(data.message['y']);
-            }
-            if ('z' in data.message) {
-              this.data.z = Number(data.message['z']);
-            }
-            if ('groupId' in data.message) {
-              this.data.groupId = Number(data.message['groupId']);
-            }
-            if ('faceUp' in data.message) {
-              this.data.faceUp = Boolean(data.message['faceUp']);
-            }
-            if ('ownerId' in data.message) {
-              this.data.ownerId = String(data.message['ownerId']);
-            }
-          }
-        }
-      }
     }
 
 
   }
 
   getFrontImgSrc() {
-    return `assets/cards/${this.data.cardValue}.svg`;
+    return `assets/cards/${this.cardValue}.svg`;
   }
+
+  getCard(): iCardData {
+    return this.cardService.getCard(this.cardValue);
+  }
+
+
 
 }

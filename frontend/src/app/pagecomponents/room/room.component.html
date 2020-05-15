@@ -14,7 +14,7 @@
 
 <div class="game-container">
 
-    <app-card *ngFor="let cData of getCards(); let index=index;" [(data)]="getCards()[index]">
+    <app-card *ngFor="let cData of getCards();" [cardValue]="cData.cardValue">
 
     </app-card>
 

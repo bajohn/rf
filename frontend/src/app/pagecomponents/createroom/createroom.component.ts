@@ -38,7 +38,6 @@ export class CreateRoomComponent implements OnInit {
       }
     }
     const len = charIdxs.length;
-    console.log(len);
     for (let i = 0; i < length; i++) {
       const idx = Math.floor(len * Math.random());
       const letter = String.fromCharCode(charIdxs[idx]);
@@ -52,13 +51,12 @@ export class CreateRoomComponent implements OnInit {
     } else {
       this.createInProgress = true;
       this.createAttempts++;
-      const x = this.getRandomString(6);
-      console.log(x);
+      const newGameId = this.getRandomString(6);
       // Send newly generated game id to backend
       // in an initialize message. This should
       // return gameExists == false, because the
       // game has not been created yet.
-      this.ws.setGameId(x);
+      this.ws.setGameId(newGameId);
       this.ws.sendToWs('initialize', {});
     }
   }
@@ -68,7 +66,6 @@ export class CreateRoomComponent implements OnInit {
   // subsequent room creatinos.
 
   parseMsgFromWs(data: iWsMsg) {
-    console.log(data);
     try {
       if (data.action === 'initialize' && this.createInProgress) {
         if (!data.message['gameExists']) {

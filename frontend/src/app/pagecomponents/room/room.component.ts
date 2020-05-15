@@ -43,8 +43,9 @@ export class RoomComponent implements OnInit {
     this.cardService.doShuffle(true);
   }
 
-
-
+  getCards() {
+    return this.cardService.getCards();
+  }
 
   parseMsgFromWs(data: iWsMsg) {
     if (typeof data.message === 'string') {
@@ -59,12 +60,4 @@ export class RoomComponent implements OnInit {
       }
     }
   }
-
-  getCards() {
-    return this.cardService.getCards();
-  }
-
-
-
-
 }
