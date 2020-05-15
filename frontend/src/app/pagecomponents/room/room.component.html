@@ -1,21 +1,28 @@
-<h1>
-    Test App
-</h1>
+<div class="header">
+    <h1>
+        Test App
+    </h1>
 
-<div class="pad-btn">
-    <button button mat-raised-button color="primary" class="pad-btn" (click)="clickShuffleRecall()">
-        Recall & shuffle cards</button>
-</div>
+    <div class="pad-btn">
+        <button button mat-raised-button color="primary" class="pad-btn" (click)="clickShuffleRecall()">
+            Recall & shuffle cards</button>
+    </div>
 
-<div class="pad-btn">
-    <button button mat-raised-button color="primary" class="pad-btn" (click)="clickShuffleSpread()">
-        Shuffle & spread cards</button>
+    <div class="pad-btn">
+        <button button mat-raised-button color="primary" class="pad-btn" (click)="clickShuffleSpread()">
+            Shuffle & spread cards</button>
+    </div>
+
 </div>
 
 <div class="game-container">
+    <div class="main-table">
+        <app-card *ngFor="let cData of getCards();" [cardValue]="cData.cardValue">
 
-    <app-card *ngFor="let cData of getCards();" [cardValue]="cData.cardValue">
+        </app-card>
+    </div>
 
-    </app-card>
+    <div class="shelf">
 
+    </div>
 </div>
