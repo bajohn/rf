@@ -2,9 +2,15 @@
     <h1>
         Test App
     </h1>
-    <h2 (click)="clickPlayerName()">
-        Player: {{playerService.playerName}}
-    </h2>
+    <div class="player-selector">
+        <mat-card class="card-bg">
+            <h2 (click)="clickPlayerName()">
+                Your Name: {{playerService.playerName}}
+            </h2>
+        </mat-card>
+
+    </div>
+
 
     <div class="pad-btn">
         <button button mat-raised-button color="primary" class="pad-btn" (click)="clickShuffleRecall()">
