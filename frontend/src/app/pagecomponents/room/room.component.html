@@ -2,6 +2,9 @@
     <h1>
         Test App
     </h1>
+    <h2 (click)="clickPlayerName()">
+        Player: {{playerService.playerName}}
+    </h2>
 
     <div class="pad-btn">
         <button button mat-raised-button color="primary" class="pad-btn" (click)="clickShuffleRecall()">
@@ -15,14 +18,14 @@
 
 </div>
 
-<div  class="game-container">
-    <div class="main-table"  [style.height]="getTableHeight()">
+<div class="game-container">
+    <div class="main-table" [style.height]="getTableHeight()">
         <app-card *ngFor="let cData of getCards();" [cardValue]="cData.cardValue">
 
         </app-card>
     </div>
 
-    <div class="shelf" [style.height]="getShelfHeight()" >
+    <div class="shelf" [style.height]="getShelfHeight()">
 
     </div>
 </div>

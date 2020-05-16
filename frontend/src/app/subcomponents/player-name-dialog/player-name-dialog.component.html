@@ -1,0 +1,18 @@
+<div (keyup)="keyPress($event)">
+
+
+
+    <mat-form-field class="example-full-width">
+        <mat-label>Player Name</mat-label>
+        <input matInput placeholder="Name" [(ngModel)]="playerService.playerName">
+    </mat-form-field>
+
+
+
+    <div class="pad-btn">
+        <button button mat-raised-button color="primary" class="pad-btn" [disabled]="!canClose()"
+            (click)="clickEnter()">
+            Enter </button>
+    </div>
+
+</div>
