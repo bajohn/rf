@@ -61,11 +61,8 @@ class Helpers():
 
     def sendCurrentCards(self):
         cards = []
-        for cardValue in self._cardValues:
 
-            cardMsg = self.getCardMsgFromDb(cardValue)
-            cards.append(cardMsg)
-            logger.log(logging.INFO, cardMsg)
+        cards = self.getCardMsgFromDbBatch(self._cardValues)
 
         self.sendMsg(dict(
             action='initialize-cards',
@@ -247,6 +244,43 @@ class Helpers():
             ownerId=dbCard['ownerId']['S']
         )
         return message
+
+    def getCardMsgFromDbBatch(self, cardValues):
+
+        keysArr = [
+            {
+                "gameId": {
+                    "S": self._gameId
+                },
+                "cardValue": {
+                    "S": cardValue
+                }
+            } for cardValue in cardValues
+        ]
+
+        getResp = self._dynamoClient.batch_get_item(
+            RequestItems={
+                self._cardTable: {
+                    'Keys': keysArr
+                }
+            }
+        )
+
+        cardResps = getResp['Responses'][self._cardTable]
+
+        ret = [
+            dict(
+                x=int(cardResp['x']['N']),
+                y=int(cardResp['y']['N']),
+                z=int(cardResp['z']['N']),
+                cardValue=cardResp['cardValue']['S'],
+                # groupId=db['cardValue']
+                faceUp=bool(cardResp['faceUp']['BOOL']),
+                ownerId=cardResp['ownerId']['S']
+            ) for cardResp in cardResps
+        ]
+
+        return ret
 
     def updateDbPlayer(self, updateObj):
         playerId = updateObj['playerId']
