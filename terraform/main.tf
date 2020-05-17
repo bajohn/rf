@@ -128,6 +128,23 @@ module "card_move_end_lambda" {
   layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
 
+# endpoint: get-player
+module "get_player_lambda" {
+  source    = "./modules/ws-lambda"
+  name      = "get_player"
+  iam_arn   = aws_iam_role.iam_for_rf_role.arn
+  layer_arn = aws_lambda_layer_version.lib_layer.arn
+}
+
+# endpoint: update-player
+module "update_player_lambda" {
+  source    = "./modules/ws-lambda"
+  name      = "update_player"
+  iam_arn   = aws_iam_role.iam_for_rf_role.arn
+  layer_arn = aws_lambda_layer_version.lib_layer.arn
+}
+
+
 
 
 

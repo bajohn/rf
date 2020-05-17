@@ -31,6 +31,7 @@ class Helpers():
         self._event = event
         self._connectionTable = 'rfConnections'
         self._cardTable = 'rfCards'
+        self._playerTable = 'rfPlayers'
         self._cardValues = self._initializeCardValues()
 
     # hit from 'initialize' endpoint
@@ -244,6 +245,52 @@ class Helpers():
             # groupId=db['cardValue']
             faceUp=bool(dbCard['faceUp']['BOOL']),
             ownerId=dbCard['ownerId']['S']
+        )
+        return message
+
+    def updateDbPlayer(self, updateObj):
+        playerId = updateObj['playerId']
+
+        dbObj = dict(date=dict(
+            Value=dict(S=datetime.now().isoformat()),
+            Action='PUT'
+        ))
+
+        if 'playerName' in updateObj:
+            dbObj['playerName'] = dict(
+                Value=dict(S=str(updateObj['playerName'])),
+                Action='PUT'
+            )
+
+        self._dynamoClient.update_item(
+            TableName=self._playerTable,
+            Key=dict(
+                gameId=dict(S=self._gameId),
+                playerId=dict(S=playerId),
+            ),
+            AttributeUpdates=dbObj)
+
+    def getDbPlayer(self, playerId):
+        getResp = self._dynamoClient.get_item(
+            TableName=self._playerTable,
+            Key={
+                "gameId": {
+                    "S": self._gameId
+                },
+                "playerId": {
+                    "S": playerId
+                }
+            }
+        )
+
+        if 'Item' in getResp:
+            dbPlayer = getResp['Item']
+            playerName = dbPlayer['playerName']['S']
+        else:
+            playerName = ''
+        message = dict(
+            playerId=playerId,
+            playerName=playerName
         )
         return message
 

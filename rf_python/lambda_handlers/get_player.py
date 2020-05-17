@@ -10,11 +10,16 @@ logger.setLevel(logging.INFO)
 
 
 def handler(event, context):
-    logger.log(logging.INFO, 'Ending card move...')
+    logger.log(logging.INFO, 'Getting player...')
     logger.log(logging.INFO, json.dumps(event))
 
     helpers = Helpers(event)
     eventMsg = helpers.getEventMsg()
-    helpers.sendMsg(eventMsg, toOthers=True)
-    helpers.endCardMove(eventMsg)
+    playerId = eventMsg['message']['playerId']
+    playerMsg = helpers.getDbPlayer(playerId)
+    helpers.sendMsg(dict(
+        action='get-player',
+        message=playerMsg
+    ), toSelf=True)
+
     return {"statusCode": 200}

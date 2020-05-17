@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalService } from 'src/app/services/modal.service';
 import { PlayerService } from 'src/app/services/player.service';
+import { WsService } from 'src/app/services/ws.service';
 
 @Component({
   selector: 'app-player-name-dialog',
@@ -11,7 +12,8 @@ export class PlayerNameDialogComponent implements OnInit {
 
   constructor(
     private modalService: ModalService,
-    public playerService: PlayerService
+    public playerService: PlayerService,
+    private ws: WsService
   ) {
 
   }
@@ -22,12 +24,20 @@ export class PlayerNameDialogComponent implements OnInit {
 
   clickEnter() {
     //this.playerService.setPlayerName(this.playerName)
-    this.modalService.getModalRef().close();
+    this.completeModal();
   }
   keyPress(keyEvent: KeyboardEvent) {
     if (keyEvent.key === 'Enter' && this.canClose()) {
-      this.modalService.getModalRef().close();
+      this.completeModal();
     }
+  }
+
+  completeModal() {
+    this.modalService.getModalRef().close();
+    this.ws.sendToWs('update-player', { 
+      playerId: this.playerService.playerId, 
+      playerName: this.playerService.playerName
+    });
   }
 
   canClose() {

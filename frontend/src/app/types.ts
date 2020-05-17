@@ -29,6 +29,8 @@ export type endpoint =
     'card-move-end' |
     'recall-and-shuffle' |
     'test' |
-    'create-room'
+    'create-room' | 
+    'get-player' |
+    'update-player'
 export interface position { x: number, y: number };
 

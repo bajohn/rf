@@ -4,10 +4,10 @@ import { iCardData, iWsMsg } from '../../types';
 import { Router } from '@angular/router';
 import { CardsService } from 'src/app/services/cards.service';
 import { MatDialog } from '@angular/material/dialog';
-import { ModalService } from 'src/app/services/modal.service';
-import { PlayerNameDialogComponent } from 'src/app/subcomponents/player-name-dialog/player-name-dialog.component';
 import { PlayerService } from 'src/app/services/player.service';
-
+import { PlayerNameDialogComponent } from 'src/app/subcomponents/player-name-dialog/player-name-dialog.component';
+import { v4 as uuidv4 } from 'uuid';
+import { ModalService } from 'src/app/services/modal.service';
 
 @Component({
   selector: 'app-room',
@@ -16,57 +16,44 @@ import { PlayerService } from 'src/app/services/player.service';
 })
 export class RoomComponent implements OnInit {
 
-
-
-
-
-  cardTypes: string[] = [];
   readonly _shelfHeight = 40;
 
   constructor(
     private ws: WsService,
-    private router: Router,
     public cardService: CardsService,
-    private modalService: ModalService,
     public dialog: MatDialog,
-    public playerService: PlayerService
+    public playerService: PlayerService,
+    private router: Router,
+    private modalService: ModalService,
   ) {
     this.ws.getSubscription(this.parseMsgFromWs.bind(this));
+
     const gameId = this.router.url.substring(1);
     this.ws.setGameId(gameId);
-
-    const storedPlayerName = window.localStorage.getItem(gameId);
-    console.log(storedPlayerName)
-    if (typeof storedPlayerName === 'string') {
-      this.playerService.playerName = storedPlayerName;
-
+    this.ws.sendToWs('initialize', {});
+    
+    const storedPlayerId = window.localStorage.getItem(gameId);
+    console.log(storedPlayerId)
+    if (typeof storedPlayerId === 'string') {
+      this.playerService.playerId = storedPlayerId;
+      this.ws.sendToWs('get-player', { playerId: this.playerService.playerId });
     }
     else {
+      // Player not yet set up for this user in this room.
+      const playerId = uuidv4();
+      this.playerService.playerId = playerId;
+      window.localStorage.setItem(gameId, playerId);
       this.promptNameModal();
+
     }
-    this.ws.sendToWs('initialize', {});
+
   }
 
   ngOnInit() {
 
   }
 
-  promptNameModal() {
 
-    const dialogRef = this.dialog.open(PlayerNameDialogComponent, {
-      width: '250px',
-      //data: {name: this.name, animal: this.animal}
-    });
-    this.modalService.setModalRef(dialogRef);
-
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('entering player name');
-      const newName = this.playerService.playerName;
-      window.localStorage.setItem(this.ws.getGameId(), newName);
-    });
-
-
-  }
 
   clickShuffleRecall() {
     this.cardService.doShuffle(false);
@@ -90,11 +77,13 @@ export class RoomComponent implements OnInit {
       //TODO: handle this
       console.error(data);
     }
-    else if (data.action === 'initialize') {
-      if (data.message['gameExists']) {
-        console.log('found!');
+    else if (data.action === 'get-player') {
+      console.log(data.message);
+      const playerName = data.message['playerName'];
+      if (playerName.length === 0) {
+        this.promptNameModal();
       } else {
-        console.log('No game found. Ask to create');
+        this.playerService.playerName = playerName;
       }
     }
     else if (data.action === 'initialize-connection-id') {
@@ -108,5 +97,13 @@ export class RoomComponent implements OnInit {
 
   getTableHeight() {
     return `${100 - this._shelfHeight}%`;
+  }
+  promptNameModal() {
+
+    const dialogRef = this.dialog.open(PlayerNameDialogComponent, {
+      width: '250px',
+      //data: {name: this.name, animal: this.animal}
+    });
+    this.modalService.setModalRef(dialogRef);
   }
 }
