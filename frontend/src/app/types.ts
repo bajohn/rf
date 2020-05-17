@@ -12,9 +12,9 @@ export interface iCardData {
     y?: number
     z?: number
     cardValue?: string
-    groupID?: number
+    groupId?: number
     faceUp?: boolean
-    ownerID?: string
+    ownerId?: string
 }
 
 

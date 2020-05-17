@@ -12,7 +12,9 @@ export class CardsService {
   _cardIdxLookup: { [key: string]: number };
   _maxZ = 51;
 
-  constructor(private ws: WsService) {
+  constructor(
+    private ws: WsService
+    ) {
     this.ws.getSubscription(this._parseMsgFromWs.bind(this));
   }
 
@@ -37,6 +39,7 @@ export class CardsService {
       card.y = shuffledLocation;
       card.z = zMap[card.cardValue];
       card.faceUp = faceUp;
+      card.ownerId = '';
       this.ws.sendToWs('card-move-end', card);
       counter++;
     }
@@ -63,6 +66,7 @@ export class CardsService {
         this._maxZ = newZ;
       }
     }
+
     Object.assign(this.getCard(cardValue), updateObj);
   }
 
@@ -118,15 +122,15 @@ export class CardsService {
             updateObj['z'] = Number(data.message['z']);
           }
           if ('groupId' in data.message) {
-            updateObj['groupID'] = Number(data.message['groupId']);
+            updateObj['groupId'] = Number(data.message['groupId']);
           }
           if ('faceUp' in data.message) {
             updateObj['faceUp'] = Boolean(data.message['faceUp']);
           }
           if ('ownerId' in data.message) {
-            updateObj['ownerID'] = String(data.message['ownerId']);
+            updateObj['ownerId'] = String(data.message['ownerId']);
           }
-
+          console.log(updateObj);
           this.updateCard(updateObj);
 
         }

@@ -51,8 +51,8 @@ transform-origin: 100% 0;
 }
 
 .card-overlay.active {
-    /* z-index to put above imgs..? */
-    z-index:100;
+    /* z-index to put above imgs */
+    z-index:999999999;
     background-color:rgba(0 ,0, 0, 0.2);
 }
 
@@ -76,4 +76,12 @@ transform-origin: 100% 0;
 .card-bg:hover{
     background-color: gray;
     cursor: pointer;
+}
+
+.card-show {
+    visibility: visible;
+}
+
+.card-hidden {
+    visibility: hidden;
 }

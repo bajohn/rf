@@ -3,6 +3,7 @@ import { WsService } from 'src/app/services/ws.service';
 import { CdkDragStart, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { endpoint, iWsMsg, iCardData } from './../../types'
 import { CardsService } from 'src/app/services/cards.service';
+import { PlayerService } from 'src/app/services/player.service';
 
 
 @Component({
@@ -23,7 +24,8 @@ export class CardComponent implements OnInit {
 
   constructor(
     private ws: WsService,
-    private cardService: CardsService
+    private cardService: CardsService,
+    private playerService: PlayerService
   ) {
 
   }
@@ -96,6 +98,17 @@ export class CardComponent implements OnInit {
   // and in backend via ws.
   updateCard(objIn: iCardData) {
     objIn['cardValue'] = this.cardValue;
+    if ('y' in objIn) {
+      const newY = objIn['y'];
+      if (newY > 400) {
+        objIn['x'] = 0;
+        objIn['ownerId'] = this.playerService.playerId;
+      } else{
+        objIn['ownerId'] = '';
+      }
+
+    }
+    console.log(objIn);
     this.cardService.updateCard(objIn);
     this.ws.sendToWs('card-move-end', objIn);
   }
@@ -117,6 +130,11 @@ export class CardComponent implements OnInit {
 
   getCard(): iCardData {
     return this.cardService.getCard(this.cardValue);
+  }
+
+  isVisible() {
+    const thisCard = this.getCard();
+    return thisCard.ownerId === '' || thisCard.ownerId === this.playerService.playerId;
   }
 
 

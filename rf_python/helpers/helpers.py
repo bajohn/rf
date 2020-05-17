@@ -395,7 +395,7 @@ class Helpers():
                 z=i,
                 groupId=0,
                 faceUp=False,
-                ownerId='none'
+                ownerId=''
             )
             # TODO- this blocks, causing slowness. How do we send all at once?
             self.updateDbCardPosition(objToSend)

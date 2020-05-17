@@ -6,8 +6,10 @@
 
     </div>
 
-    <img [class.card-img]="true" [class.active]="getFaceUp()" [src]="getFrontImgSrc()">
+    <img [class.card-img]="true" [class.active]="getFaceUp()  && isVisible()" [class.card-hidden]="!isVisible()"
+        [src]="getFrontImgSrc()">
 
-    <img [class.card-img]="true" [class.active]="!getFaceUp()" src="assets/cards/cardback.svg">
+    <img [class.card-img]="true" [class.active]="!getFaceUp() && isVisible()" [class.card-hidden]="!isVisible()"
+        src="assets/cards/cardback.svg">
 
 </div>
