@@ -220,6 +220,13 @@ class Helpers():
         self.updateDbCardPosition(message)
         return None
 
+    def endCardMoveBulk(self, eventMsg):
+
+        message = eventMsg['message']
+
+        self.updateDbCardPositionBulk(message)
+        return None
+
     def getCardMsgFromDb(self, cardValue):
         getResp = self._dynamoClient.get_item(
             TableName=self._cardTable,
@@ -371,7 +378,6 @@ class Helpers():
                 Action='PUT'
             )
 
-        # TODO: how to bulk send?
         self._dynamoClient.update_item(
             TableName=self._cardTable,
             Key=dict(
@@ -379,6 +385,53 @@ class Helpers():
                 cardValue=dict(S=cardValue),
             ),
             AttributeUpdates=dbObj)
+
+    def updateDbCardPositionBulk(self, updateObj):
+
+        cards = updateObj['cards']
+
+        while len(cards) > 0:
+            # AWS limit of 25 items per batch
+            toPush = cards[:25]
+            cards = cards[25:]
+
+            toSend = [
+                dict(
+                    PutRequest=dict(
+                        Item=self._getAttrForBulk(card))
+                ) for card in toPush
+            ]
+
+            self._dynamoClient.batch_write_item(
+                RequestItems={self._cardTable: toSend}
+            )
+        return 'Done'
+
+    def _getAttrForBulk(self, cardObj):
+        ret = dict(
+            date=dict(S=datetime.now().isoformat()),
+            gameId=dict(S=self._gameId),
+            cardValue=dict(S=cardObj['cardValue'])
+            )
+        if 'x' in cardObj:
+            ret['x'] = dict(N=str(cardObj['x']))
+
+        if 'y' in cardObj:
+            ret['y'] = dict(N=str(cardObj['y']))
+
+        if 'z' in cardObj:
+            ret['z'] = dict(N=str(cardObj['z']))
+
+        if 'groupId' in cardObj:
+            ret['groupId'] = dict(N=str(cardObj['groupId']))
+
+        if 'ownerId' in cardObj:
+            ret['ownerId'] = dict(S=str(cardObj['ownerId']))
+
+        if 'faceUp' in cardObj:
+            ret['faceUp'] = dict(BOOL=bool(cardObj['faceUp']))
+
+        return ret
 
     def recallAndShuffleDb(self):
 

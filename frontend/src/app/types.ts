@@ -27,6 +27,7 @@ export type endpoint =
     'clear-connections' |
     'card-move-start' |
     'card-move-end' |
+    'card-move-end-bulk' |
     'recall-and-shuffle' |
     'test' |
     'create-room' | 

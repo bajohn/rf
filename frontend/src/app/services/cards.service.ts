@@ -14,7 +14,7 @@ export class CardsService {
 
   constructor(
     private ws: WsService
-    ) {
+  ) {
     this.ws.getSubscription(this._parseMsgFromWs.bind(this));
   }
 
@@ -40,9 +40,9 @@ export class CardsService {
       card.z = zMap[card.cardValue];
       card.faceUp = faceUp;
       card.ownerId = '';
-      this.ws.sendToWs('card-move-end', card);
       counter++;
     }
+    this.ws.sendToWs('card-move-end-bulk', { cards: this._cards });
   }
 
   getCards() {
@@ -101,7 +101,17 @@ export class CardsService {
       this._cards = data.message['cards'];
       this._cardIdxLookup = this._getInitIdxs();
       this._maxZ = this._getInitZ();
-    } else {
+    }
+    else if (data.action === 'card-move-end-bulk') {
+      const newCards = data.message['cards'] as iCardData[];
+      // this._maxZ = this._getInitZ();
+      for(const card of newCards){
+        const cardValue = card.cardValue;
+        const idx = this._cardIdxLookup[cardValue];
+        Object.assign(this._cards[idx], card);
+      }
+    }
+    else {
       if ('cardValue' in data.message) {
 
         const cardValue = data.message['cardValue'];

@@ -9,7 +9,8 @@ Really Fun card game implemented on AWS.
 - group id: every card starts with group "null", but should also have a settable group id 
 - Concept of stacking: highlight when hovering over a card, then add to stack
 - Loading spinners everywhere!
-
+- Disable "shuffle" buttons for ~1 second. Avoids risk of race conditions from mashing the button
+- Can eventually check a hash via a heartbeat
 - add api gateway trust to ian_for_rf
 - move border: stop cards from being able to move outside screen
 - heartbeat, show when connection is dead

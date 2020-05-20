@@ -18,7 +18,7 @@ export class WsService {
     this.ws = webSocket(url);
   }
 
-  sendToWs(endpoint: endpoint, msgIn: { [key: string]: number | string }) {
+  sendToWs(endpoint: endpoint, msgIn: { [key: string]: any }) {
     if (this.gameId.length === 0) {
       throw (Error(`Invalid Game ID! ${this.gameId}`))
     } else {
