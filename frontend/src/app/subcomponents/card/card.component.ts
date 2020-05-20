@@ -97,20 +97,24 @@ export class CardComponent implements OnInit {
   // Update card in both cardService 
   // and in backend via ws.
   updateCard(objIn: iCardData) {
+    const toSend = {};
+    Object.assign(toSend, this.getCard()); //copy
     objIn['cardValue'] = this.cardValue;
     if ('y' in objIn) {
       const newY = objIn['y'];
       if (newY > 400) {
         objIn['x'] = 0;
         objIn['ownerId'] = this.playerService.playerId;
-      } else{
+      } else {
         objIn['ownerId'] = '';
       }
 
     }
     console.log(objIn);
-    this.cardService.updateCard(objIn);
-    this.ws.sendToWs('card-move-end', objIn);
+    Object.assign(toSend, objIn)
+    this.cardService.updateCard(toSend);
+    console.log(toSend);
+    this.ws.sendToWs('card-move-end-bulk', { cards: [toSend] });
   }
 
 

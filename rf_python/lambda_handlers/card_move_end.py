@@ -8,7 +8,7 @@ from rf_python.helpers.helpers import Helpers
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-
+# THIS IS DEPRECATED- replaced with bulk card move end
 def handler(event, context):
     logger.log(logging.INFO, 'Ending card move...')
     logger.log(logging.INFO, json.dumps(event))

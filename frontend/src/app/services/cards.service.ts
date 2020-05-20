@@ -111,42 +111,6 @@ export class CardsService {
         Object.assign(this._cards[idx], card);
       }
     }
-    else {
-      if ('cardValue' in data.message) {
-
-        const cardValue = data.message['cardValue'];
-
-        if (data.action === 'card-move-end') {
-
-          const updateObj: iCardData = {
-            cardValue: cardValue
-          };
-
-          if ('x' in data.message) {
-            updateObj['x'] = Number(data.message['x']);
-          }
-          if ('y' in data.message) {
-            updateObj['y'] = Number(data.message['y']);
-          }
-          if ('z' in data.message) {
-            updateObj['z'] = Number(data.message['z']);
-          }
-          if ('groupId' in data.message) {
-            updateObj['groupId'] = Number(data.message['groupId']);
-          }
-          if ('faceUp' in data.message) {
-            updateObj['faceUp'] = Boolean(data.message['faceUp']);
-          }
-          if ('ownerId' in data.message) {
-            updateObj['ownerId'] = String(data.message['ownerId']);
-          }
-          console.log(updateObj);
-          this.updateCard(updateObj);
-
-        }
-      }
-    }
-
   }
 
 
