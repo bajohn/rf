@@ -1,6 +1,6 @@
 import { Component, EventEmitter, OnInit, Input, Output } from '@angular/core';
 import { WsService } from 'src/app/services/ws.service';
-import { CdkDragStart, CdkDragEnd } from '@angular/cdk/drag-drop';
+import { CdkDragStart, CdkDragEnd, CdkDragMove } from '@angular/cdk/drag-drop';
 import { endpoint, iWsMsg, iCardData } from './../../types'
 import { CardsService } from 'src/app/services/cards.service';
 import { PlayerService } from 'src/app/services/player.service';
@@ -29,6 +29,15 @@ export class CardComponent implements OnInit {
   ) {
 
   }
+  ngOnInit(): void {
+    this.ws.getSubscription(this.parseMsgFromWs.bind(this));
+  }
+
+
+  isActive() {
+    return this.boxBeingDragged;
+  }
+
 
   getPosition() {
     const cardData = this.getCard();
@@ -48,20 +57,15 @@ export class CardComponent implements OnInit {
     return cardData.faceUp;
   }
 
-  ngOnInit(): void {
-    this.ws.getSubscription(this.parseMsgFromWs.bind(this));
-  }
 
-  isActive() {
-    return this.boxBeingDragged;
-  }
 
   // boxBeingDragged is used for styling
   dragMoveStarted(dragStart: CdkDragStart) {
+    dragStart.source.exited.subscribe(el=>console.log('hi'));
     this.boxBeingDragged = true;
     const z = this.cardService.getMaxZ() + 1;
-
     this.updateCard({ z: z });
+
   }
 
   // ...this was iffy
@@ -75,6 +79,10 @@ export class CardComponent implements OnInit {
         this.streamUpdate(dragStart);
       }, 100)
     }
+  }
+
+  dragEntered(event) {
+    console.log('HERE')
   }
 
   dragMoveEnded(dragEnd: CdkDragEnd<any>) {

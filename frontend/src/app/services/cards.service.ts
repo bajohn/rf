@@ -11,6 +11,8 @@ export class CardsService {
   _cards: iCardData[] = [];
   _cardIdxLookup: { [key: string]: number };
   _maxZ = 51;
+  _activeCard: iCardData | null = null; //not yet used
+  mouseOverShelf = false;
 
   constructor(
     private ws: WsService
@@ -42,6 +44,7 @@ export class CardsService {
       card.ownerId = '';
       counter++;
     }
+    console.log(this._cards);
     this.ws.sendToWs('card-move-end-bulk', { cards: this._cards });
   }
 
@@ -58,6 +61,18 @@ export class CardsService {
     return this._maxZ;
   }
 
+  setActiveCard(cardValue: string | null) {
+    if (typeof cardValue === 'string') {
+      this._activeCard = this.getCard(cardValue)
+    } else {
+      this._activeCard = null;
+    }
+
+  }
+  getActiveCard(): iCardData | null {
+    return this._activeCard;
+  }
+
   updateCard(updateObj: iCardData) {
     const cardValue = updateObj.cardValue;
     if ('z' in updateObj) {
@@ -66,7 +81,7 @@ export class CardsService {
         this._maxZ = newZ;
       }
     }
-
+    console.log(updateObj);
     Object.assign(this.getCard(cardValue), updateObj);
   }
 
@@ -105,7 +120,8 @@ export class CardsService {
     else if (data.action === 'card-move-end-bulk') {
       const newCards = data.message['cards'] as iCardData[];
       // this._maxZ = this._getInitZ();
-      for(const card of newCards){
+      for (const card of newCards) {
+        console.log('update', card);
         const cardValue = card.cardValue;
         const idx = this._cardIdxLookup[cardValue];
         Object.assign(this._cards[idx], card);

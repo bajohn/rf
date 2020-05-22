@@ -4,8 +4,8 @@ Really Fun card game implemented on AWS.
 
 
 ## TODO
-- MAIN TODO: move card data to shared service! Should simplify things a lot.
 
+- player name should be stored as a default in local storage, regardless of room id
 - group id: every card starts with group "null", but should also have a settable group id 
 - Concept of stacking: highlight when hovering over a card, then add to stack
 - Loading spinners everywhere!

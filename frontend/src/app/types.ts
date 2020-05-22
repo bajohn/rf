@@ -15,6 +15,9 @@ export interface iCardData {
     groupId?: number
     faceUp?: boolean
     ownerId?: string
+    lastUpdated?: Date
+    
+
 }
 
 

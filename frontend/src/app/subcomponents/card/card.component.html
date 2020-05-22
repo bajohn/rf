@@ -1,15 +1,17 @@
-<div cdkDrag [class.card-default]="isVisible()" [class.card-hide]="!isVisible()" [class.active]="isActive()" [class.inactive]="!isActive()"
-    [style.z-index]="getZ()" [cdkDragDisabled]="!isVisible()" (cdkDragStarted)="dragMoveStarted($event)" (dblclick)="flipCard()"
-    [cdkDragFreeDragPosition]="getPosition()" (cdkDragEnded)="dragMoveEnded($event)" #dragel>
 
-    <div [class.card-overlay]="true" [class.active]="isActive()">
+    <div cdkDrag [class.card-default]="isVisible()" [class.card-hide]="!isVisible()" [class.active]="isActive()"
+        [class.inactive]="!isActive()" [style.z-index]="getZ()" [cdkDragDisabled]="!isVisible()"
+        (cdkDragStarted)="dragMoveStarted($event)" (dblclick)="flipCard()" [cdkDragFreeDragPosition]="getPosition()"
+        (cdkDragEnded)="dragMoveEnded($event)" #dragel>
+
+        <div [class.card-overlay]="true" [class.active]="isActive()">
+
+        </div>
+
+        <img [class.card-img]="true" [class.active]="getFaceUp()  && isVisible()" [class.card-hidden]="!isVisible()"
+            [src]="getFrontImgSrc()">
+
+        <img [class.card-img]="true" [class.active]="!getFaceUp() && isVisible()" [class.card-hidden]="!isVisible()"
+            src="assets/cards/cardback.svg">
 
     </div>
-
-    <img [class.card-img]="true" [class.active]="getFaceUp()  && isVisible()" [class.card-hidden]="!isVisible()"
-        [src]="getFrontImgSrc()">
-
-    <img [class.card-img]="true" [class.active]="!getFaceUp() && isVisible()" [class.card-hidden]="!isVisible()"
-        src="assets/cards/cardback.svg">
-
-</div>

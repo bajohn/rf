@@ -26,9 +26,31 @@
 
 <div class="game-container">
     <div class="main-table" [style.height]="getTableHeight()">
-        <app-card *ngFor="let cData of getCards();" [cardValue]="cData.cardValue">
 
-        </app-card>
+        <!-- <app-card *ngFor="let cData of getCards();" [cardValue]="cData.cardValue">
+
+        </app-card> -->
+        <!--  -->
+        <div cdkDrag *ngFor="let cData of getCards()" 
+        [class.card-default]="isVisible(cData)"
+            [class.card-hide]="!isVisible(cData)" [class.active]="isActive(cData)" [class.inactive]="!isActive(cData)"
+            [style.z-index]="getZ(cData)" [cdkDragDisabled]="!isVisible(cData)" (cdkDragStarted)="dragMoveStarted(cData,$event)"
+            (dblclick)="flipCard(cData)"  (cdkDragEnded)="dragMoveEnded(cData, $event)"
+            [cdkDragFreeDragPosition]="getPosition(cData)"
+            >
+
+            <div [class.card-overlay]="true" [class.active]="isActive(cData)">
+
+            </div>
+
+            <img [class.card-img]="true" [class.active]="getFaceUp(cData)  && isVisible(cData)" [class.card-hidden]="!isVisible(cData)"
+                [src]="getFrontImgSrc(cData)">
+
+            <img [class.card-img]="true" [class.active]="!getFaceUp(cData) && isVisible(cData)" [class.card-hidden]="!isVisible(cData)"
+                src="assets/cards/cardback.svg">
+
+        </div>
+
     </div>
 
     <div class="shelf" [style.height]="getShelfHeight()">
