@@ -67,6 +67,10 @@ transform-origin: 100% 0;
     width: 100%;
 }
 
+.shelf.carddrag {
+    background-color: red;
+}
+
 .main-table {
     position: relative;
     width:100%;

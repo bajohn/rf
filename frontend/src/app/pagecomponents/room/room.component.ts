@@ -8,6 +8,7 @@ import { PlayerService } from 'src/app/services/player.service';
 import { PlayerNameDialogComponent } from 'src/app/subcomponents/player-name-dialog/player-name-dialog.component';
 import { v4 as uuidv4 } from 'uuid';
 import { ModalService } from 'src/app/services/modal.service';
+import { RoomService } from 'src/app/services/room.service';
 
 @Component({
   selector: 'app-room',
@@ -16,7 +17,7 @@ import { ModalService } from 'src/app/services/modal.service';
 })
 export class RoomComponent implements OnInit {
 
-  readonly _shelfHeight = 40;
+
 
   constructor(
     private ws: WsService,
@@ -25,13 +26,14 @@ export class RoomComponent implements OnInit {
     public playerService: PlayerService,
     private router: Router,
     private modalService: ModalService,
+    public roomService: RoomService
   ) {
     this.ws.getSubscription(this.parseMsgFromWs.bind(this));
 
     const gameId = this.router.url.substring(1);
     this.ws.setGameId(gameId);
     this.ws.sendToWs('initialize', {});
-    
+
     const storedPlayerId = window.localStorage.getItem(gameId);
     console.log(storedPlayerId)
     if (typeof storedPlayerId === 'string') {
@@ -92,11 +94,11 @@ export class RoomComponent implements OnInit {
   }
 
   getShelfHeight() {
-    return `${this._shelfHeight}%`;
+    return `${this.roomService.shelfHeight}%`;
   }
 
   getTableHeight() {
-    return `${100 - this._shelfHeight}%`;
+    return `${100 - this.roomService.shelfHeight}%`;
   }
   promptNameModal() {
 
@@ -105,5 +107,9 @@ export class RoomComponent implements OnInit {
       //data: {name: this.name, animal: this.animal}
     });
     this.modalService.setModalRef(dialogRef);
+  }
+
+  shelfDragOver() {
+    console.log('test');
   }
 }
