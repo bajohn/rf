@@ -57,32 +57,36 @@ export class CardComponent implements OnInit {
   }
 
   // boxBeingDragged is used for styling
-  dragMoveStarted(dragStart: CdkDragStart) {
+  dragMoveStarted(dragStart: DragEvent) {
+    console.log('test');
     this.boxBeingDragged = true;
     const z = this.cardService.getMaxZ() + 1;
 
     this.updateCard({ z: z });
   }
 
-  // ...this was iffy
-  streamUpdate(dragStart: CdkDragStart) {
 
-    if (this.boxBeingDragged) {
-      const xyPos: { x: number, y: number } = dragStart.source.getFreeDragPosition()
+  dragMoveEnded(event: DragEvent) {
 
-      this.updateCard(xyPos);
-      setTimeout(() => {
-        this.streamUpdate(dragStart);
-      }, 100)
-    }
-  }
-
-  dragMoveEnded(dragEnd: CdkDragEnd<any>) {
-    const newPosition: { x: number, y: number } = dragEnd.source.getFreeDragPosition();
+    //const newPosition: { x: number, y: number } = dragEnd.source.getFreeDragPosition();
     const z = this.cardService.getMaxZ() + 1;
+    const cardData = this.getCard();
+    const newPosition = { x: cardData.x, y: cardData.y };
+    console.log(newPosition);
     newPosition['z'] = z;
     this.updateCard(newPosition);
     this.boxBeingDragged = false;
+  }
+
+  move(event: MouseEvent) {
+    const cardData = this.getCard();
+    if (this.boxBeingDragged) {
+      console.log(event)
+      cardData.x = event.clientX -25;
+      cardData.y = event.clientY - 300;
+    }
+
+
   }
 
   flipCard() {
@@ -141,6 +145,21 @@ export class CardComponent implements OnInit {
     return thisCard.ownerId === '' || thisCard.ownerId === this.playerService.playerId;
   }
 
+  getTransform() {
 
+    // from working copy:
+    //     style="z-index: 184; transform: translate3d(493px, 168px, 0px);"
+    const position = this.getPosition();
+
+    return {
+      transform: `translateX(${position.x}px) translateY(${position.y}px)`
+    }
+
+
+  }
 
 }
+
+
+// [ngStyle]="{'transform': 'rotate(45deg) translateX(10px)'}"
+//     (dblclick)="flipCard()"
