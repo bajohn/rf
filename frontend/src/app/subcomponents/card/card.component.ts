@@ -81,7 +81,6 @@ export class CardComponent implements OnInit {
   move(event: MouseEvent) {
     const cardData = this.getCard();
     if (this.boxBeingDragged) {
-      console.log(event)
       cardData.x = event.clientX -25;
       cardData.y = event.clientY - 300;
     }
