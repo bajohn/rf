@@ -109,7 +109,4 @@ export class RoomComponent implements OnInit {
     this.modalService.setModalRef(dialogRef);
   }
 
-  shelfDragOver() {
-    console.log('test');
-  }
 }
