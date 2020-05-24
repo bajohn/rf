@@ -84,10 +84,12 @@ export class CardComponent implements OnInit {
     const cardData = this.getCard();
     if (this.boxBeingDragged) {
       const newX = event.clientX - 25;
-      const newY = event.clientY - 300;
+      const headerY = this.roomService.getHeaderPx(false) as number;
+      const mainTableY = this.roomService.getPlayTablePx(false) as number;
+      const newY = Math.round(event.clientY - headerY - 75 / 2);
 
-      this.roomService.shelfDrag = this.roomService.shelfHeight < newY;
-
+      this.roomService.shelfDrag = mainTableY < newY + 75/2;
+      
       cardData.x = newX;
       cardData.y = newY;
     }

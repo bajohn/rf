@@ -45,7 +45,7 @@ export class RoomService {
     if (appendPx) {
       return this._appendPx(pctNum);
     } else {
-      return pctNum;
+      return pctNum as number
     }
   }
 
