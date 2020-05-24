@@ -35,10 +35,10 @@ export class CardComponent implements OnInit {
 
   @HostListener('window:mousemove', ['$event'])
   onMove(event: MouseEvent) {
-    this.dragCard(event);
+    this.renderDrag(event);
   }
 
-  dragCard(event) {
+  renderDrag(event, updateXY = true) {
     if (this.boxBeingDragged) {
       const cardData = this.getCard();
       const newX = event.clientX - 25;
@@ -48,8 +48,11 @@ export class CardComponent implements OnInit {
 
       this.roomService.shelfDrag = mainTableY < newY + 75 / 2;
 
-      cardData.x = newX;
-      cardData.y = newY;
+      if (updateXY) {
+        cardData.x = newX;
+        cardData.y = newY;
+      }
+
     }
   }
 
@@ -114,7 +117,7 @@ export class CardComponent implements OnInit {
     this.boxBeingDragged = true;
     this.dragStartTime = (new Date()).getTime();
     const z = this.cardService.getMaxZ() + 1;
-    this.dragCard(event);
+    this.renderDrag(event, false);
     this.updateCard({ z: z });
   }
 
