@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { WsService } from '../../services/ws.service';
 import { iCardData, iWsMsg } from '../../types';
 import { Router } from '@angular/router';
@@ -55,6 +55,10 @@ export class RoomComponent implements OnInit {
 
   }
 
+  // nice-to-have: trigger change detection for window resize
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+  }
 
 
   clickShuffleRecall() {

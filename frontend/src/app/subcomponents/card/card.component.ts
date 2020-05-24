@@ -77,6 +77,7 @@ export class CardComponent implements OnInit {
     newPosition['z'] = z;
     this.updateCard(newPosition);
     this.boxBeingDragged = false;
+    this.roomService.shelfDrag = false;
   }
 
   move(event: MouseEvent) {

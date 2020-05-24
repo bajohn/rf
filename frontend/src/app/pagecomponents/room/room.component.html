@@ -1,4 +1,4 @@
-<div class="header">
+<div [style.height]="roomService.getHeaderPx()">
     <h1>
         Test App
     </h1>
@@ -24,14 +24,13 @@
 
 </div>
 
-<div class="game-container">
-    <div class="main-table" [style.height]="getTableHeight()">
-        <app-card *ngFor="let cData of getCards();" [cardValue]="cData.cardValue">
 
-        </app-card>
-    </div>
+<div [style.height]="roomService.getPlayTablePx()">
+    <app-card *ngFor="let cData of getCards();" [cardValue]="cData.cardValue">
 
-    <div class="shelf" [style.height]="getShelfHeight()"  [class.carddrag]="roomService.shelfDrag">
+    </app-card>
+</div>
 
-    </div>
+<div [style.height]="roomService.getShelfPx()" [class.shelf]="true" [class.carddrag]="roomService.shelfDrag">
+
 </div>
