@@ -104,7 +104,7 @@ export class CardsService {
     }
     else if (data.action === 'card-move-end-bulk') {
       const newCards = data.message['cards'] as iCardData[];
-      // this._maxZ = this._getInitZ();
+      console.log(newCards);
       for(const card of newCards){
         const cardValue = card.cardValue;
         const idx = this._cardIdxLookup[cardValue];

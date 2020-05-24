@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Input, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Input, Output, HostListener } from '@angular/core';
 import { WsService } from 'src/app/services/ws.service';
 import { CdkDragStart, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { endpoint, iWsMsg, iCardData } from './../../types'
@@ -22,6 +22,7 @@ export class CardComponent implements OnInit {
 
 
   boxBeingDragged = false;
+  dragStartTime = Infinity;
 
   constructor(
     private ws: WsService,
@@ -30,6 +31,56 @@ export class CardComponent implements OnInit {
     private roomService: RoomService
   ) {
 
+  }
+
+  @HostListener('window:mousemove', ['$event'])
+  onMove(event: MouseEvent) {
+    this.dragCard(event);
+  }
+
+  dragCard(event) {
+    if (this.boxBeingDragged) {
+      const cardData = this.getCard();
+      const newX = event.clientX - 25;
+      const headerY = this.roomService.getHeaderPx(false) as number;
+      const mainTableY = this.roomService.getPlayTablePx(false) as number;
+      const newY = Math.round(event.clientY - headerY - 75 / 2);
+
+      this.roomService.shelfDrag = mainTableY < newY + 75 / 2;
+
+      cardData.x = newX;
+      cardData.y = newY;
+    }
+  }
+
+  mouseUp(event: MouseEvent) {
+    const curTime = (new Date()).getTime();
+    console.log(curTime - this.dragStartTime, this.boxBeingDragged);
+    if (this.boxBeingDragged && curTime > this.dragStartTime + 200) {
+      // drag end
+      const z = this.cardService.getMaxZ() + 1;
+      const cardData = this.getCard();
+      const newPosition = { x: cardData.x, y: cardData.y };
+      console.log(newPosition);
+      newPosition['z'] = z;
+
+      if (this.roomService.shelfDrag) {
+        newPosition['x'] = 0;
+        newPosition['ownerId'] = this.playerService.playerId;
+      }
+      else {
+        newPosition['ownerId'] = '';
+      }
+
+      this.updateCard(newPosition);
+
+      this.roomService.shelfDrag = false;
+    } else {
+      // click and release 
+      this.flipCard();
+    }
+    this.boxBeingDragged = false;
+    this.dragStartTime = Infinity;
   }
 
   getPosition() {
@@ -59,43 +110,14 @@ export class CardComponent implements OnInit {
   }
 
   // boxBeingDragged is used for styling
-  dragMoveStarted(dragStart: DragEvent) {
+  dragMoveStarted(event: MouseEvent) {
     this.boxBeingDragged = true;
+    this.dragStartTime = (new Date()).getTime();
     const z = this.cardService.getMaxZ() + 1;
-
+    this.dragCard(event);
     this.updateCard({ z: z });
   }
 
-
-  dragMoveEnded(event: DragEvent) {
-
-    //const newPosition: { x: number, y: number } = dragEnd.source.getFreeDragPosition();
-    const z = this.cardService.getMaxZ() + 1;
-    const cardData = this.getCard();
-    const newPosition = { x: cardData.x, y: cardData.y };
-    console.log(newPosition);
-    newPosition['z'] = z;
-    this.updateCard(newPosition);
-    this.boxBeingDragged = false;
-    this.roomService.shelfDrag = false;
-  }
-
-  move(event: MouseEvent) {
-    const cardData = this.getCard();
-    if (this.boxBeingDragged) {
-      const newX = event.clientX - 25;
-      const headerY = this.roomService.getHeaderPx(false) as number;
-      const mainTableY = this.roomService.getPlayTablePx(false) as number;
-      const newY = Math.round(event.clientY - headerY - 75 / 2);
-
-      this.roomService.shelfDrag = mainTableY < newY + 75/2;
-      
-      cardData.x = newX;
-      cardData.y = newY;
-    }
-
-
-  }
 
   flipCard() {
     const faceUp = this.getCard().faceUp;
@@ -104,6 +126,7 @@ export class CardComponent implements OnInit {
       faceUp: !faceUp,
       z: z
     });
+
   }
 
   // Update card in both cardService 
@@ -112,17 +135,7 @@ export class CardComponent implements OnInit {
     const toSend = {};
     Object.assign(toSend, this.getCard()); //copy
     objIn['cardValue'] = this.cardValue;
-    if ('y' in objIn) {
-      const newY = objIn['y'];
-      const shelfHeight = this.roomService.shelfHeight;
-      if (newY > shelfHeight) {
-        objIn['x'] = 0;
-        objIn['ownerId'] = this.playerService.playerId;
-      } else {
-        objIn['ownerId'] = '';
-      }
 
-    }
     console.log(objIn);
     Object.assign(toSend, objIn)
     this.cardService.updateCard(toSend);

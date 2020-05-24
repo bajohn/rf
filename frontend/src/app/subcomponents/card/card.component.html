@@ -3,10 +3,9 @@
    [cdkDragDisabled]="!isVisible()"   -->
 
 
-<div draggable="false" (mousedown)="dragMoveStarted($event)"
-    (mousemove)="move($event)" [class.card-default]="isVisible()" [class.card-hide]="!isVisible()"
-    [class.active]="isActive()" [class.inactive]="!isActive()" [style.z-index]="getZ()" [ngStyle]="getTransform()"
-    (dblclick)="flipCard()" (mouseup)="dragMoveEnded($event)">
+<div draggable="false" (mouseup)="mouseUp($event)" (mousedown)="dragMoveStarted($event)" [class.card-default]="isVisible()"
+    [class.card-hidden]="!isVisible()" [class.active]="isActive()" [class.inactive]="!isActive()"
+    [style.z-index]="getZ()" [ngStyle]="getTransform()">
 
     <div [class.card-overlay]="true" [class.active]="isActive()">
 

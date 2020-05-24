@@ -24,9 +24,7 @@ position: absolute;
 transform-origin: 100% 0;
 }
 
-.card-hidden{
-    visibility: hidden;
-}
+
 
 .inactive {
     transform-origin: 100% 0;
@@ -68,7 +66,7 @@ transform-origin: 100% 0;
 }
 
 .shelf.carddrag {
-    background-color: red;
+    background-color: gray;
 }
 
 .main-table {
@@ -90,6 +88,3 @@ transform-origin: 100% 0;
     visibility: visible;
 }
 
-.card-hidden {
-    visibility: hidden;
-}
