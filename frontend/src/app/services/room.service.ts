@@ -20,32 +20,43 @@ export class RoomService {
 
   constructor() {
     const pct = this._headerPct + this._playTablePct + this._shelfPct;
-    console.log(pct);
     if (pct !== 1) {
       throw Error('Page pct calculation does not sum to 100%');
     }
   }
 
-
-
-  getHeaderPx(appendPx = true) {
-    return this._getRet(this._headerPct, appendPx);
+  getHeaderNum(): number {
+    return this._getRet(this._headerPct, false) as number;
   }
 
-  getPlayTablePx(appendPx = true) {
-    return this._getRet(this._playTablePct, appendPx);
+  getHeaderPx(): string {
+    return this._getRet(this._headerPct, true) as string;
   }
 
-  getShelfPx(appendPx = true) {
-    return this._getRet(this._shelfPct, appendPx);
+  getPlayTableNum(): number {
+    return this._getRet(this._playTablePct, false) as number;
   }
+
+  getPlayTablePx(): string {
+    return this._getRet(this._playTablePct, true) as string;
+  }
+
+  getShelfNum(): number {
+    return this._getRet(this._shelfPct, false) as number
+  }
+
+  getShelfPx(): string {
+    return this._getRet(this._shelfPct, true) as string;
+  }
+
+
 
   _getRet(pctIn: number, appendPx) {
     const pctNum = window.innerHeight * pctIn
     if (appendPx) {
       return this._appendPx(pctNum);
     } else {
-      return pctNum as number
+      return pctNum;
     }
   }
 

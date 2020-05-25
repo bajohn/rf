@@ -42,8 +42,8 @@ export class CardComponent implements OnInit {
     if (this.boxBeingDragged) {
       const cardData = this.getCard();
       const newX = event.clientX - 25;
-      const headerY = this.roomService.getHeaderPx(false) as number;
-      const mainTableY = this.roomService.getPlayTablePx(false) as number;
+      const headerY = this.roomService.getHeaderNum();
+      const mainTableY = this.roomService.getPlayTableNum();
       const newY = Math.round(event.clientY - headerY - 75 / 2);
 
       this.roomService.shelfDrag = mainTableY < newY + 75 / 2;
@@ -58,22 +58,14 @@ export class CardComponent implements OnInit {
 
   mouseUp(event: MouseEvent) {
     const curTime = (new Date()).getTime();
-    console.log(curTime - this.dragStartTime, this.boxBeingDragged);
     if (this.boxBeingDragged && curTime > this.dragStartTime + 200) {
       // drag end
       const z = this.cardService.getMaxZ() + 1;
       const cardData = this.getCard();
       const newPosition = { x: cardData.x, y: cardData.y };
-      console.log(newPosition);
       newPosition['z'] = z;
 
-      if (this.roomService.shelfDrag) {
-        newPosition['x'] = 0;
-        newPosition['ownerId'] = this.playerService.playerId;
-      }
-      else {
-        newPosition['ownerId'] = '';
-      }
+
 
       this.updateCard(newPosition);
 
@@ -139,11 +131,10 @@ export class CardComponent implements OnInit {
     Object.assign(toSend, this.getCard()); //copy
     objIn['cardValue'] = this.cardValue;
 
-    console.log(objIn);
     Object.assign(toSend, objIn)
-    this.cardService.updateCard(toSend);
     console.log(toSend);
-    this.ws.sendToWs('card-move-end-bulk', { cards: [toSend] });
+    const cardsToUpdate = this.cardService.updateCard(toSend);
+    this.ws.sendToWs('card-move-end-bulk', { cards: cardsToUpdate });
   }
 
 

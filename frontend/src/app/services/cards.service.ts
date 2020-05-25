@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { WsService } from './ws.service';
 
 import { iCardData, iWsMsg } from '../types';
+import { RoomService } from './room.service';
+import { PlayerService } from './player.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,9 +13,14 @@ export class CardsService {
   _cards: iCardData[] = [];
   _cardIdxLookup: { [key: string]: number };
   _maxZ = 51;
+  _shelfCardSpacing = 10;
+
+  shelfCards: string[] = [];
 
   constructor(
-    private ws: WsService
+    private ws: WsService,
+    private roomService: RoomService,
+    private playerService: PlayerService
   ) {
     this.ws.getSubscription(this._parseMsgFromWs.bind(this));
   }
@@ -60,6 +67,8 @@ export class CardsService {
 
   updateCard(updateObj: iCardData) {
     const cardValue = updateObj.cardValue;
+    const curCard = this.getCard(cardValue);
+
     if ('z' in updateObj) {
       const newZ = updateObj['z']
       if (newZ > this._maxZ) {
@@ -67,7 +76,27 @@ export class CardsService {
       }
     }
 
-    Object.assign(this.getCard(cardValue), updateObj);
+    if (this.roomService.shelfDrag) {
+      updateObj['ownerId'] = this.playerService.playerId;
+    }
+    else {
+      updateObj['ownerId'] = '';
+    }
+    if (curCard.ownerId !== updateObj.ownerId && updateObj.ownerId === '') {
+      this.removeFromShelf(updateObj.cardValue);
+      return this._getShelfCards().concat(this.getCard(cardValue));
+    }
+    if (this.playerService.playerId === updateObj.ownerId) {
+      this.placeInShelf(updateObj.cardValue);
+      return this._getShelfCards()
+    }
+    else {
+      console.log(updateObj);
+      Object.assign(this.getCard(cardValue), updateObj);
+      return [this.getCard(cardValue)];
+    }
+
+
   }
 
   _getInitZ() {
@@ -104,13 +133,55 @@ export class CardsService {
     }
     else if (data.action === 'card-move-end-bulk') {
       const newCards = data.message['cards'] as iCardData[];
-      console.log(newCards);
-      for(const card of newCards){
+      for (const card of newCards) {
         const cardValue = card.cardValue;
         const idx = this._cardIdxLookup[cardValue];
         Object.assign(this._cards[idx], card);
       }
     }
+  }
+
+  placeInShelf(cardValue: string) {
+    console.log('place in shelf')
+    const cardData = this.getCard(cardValue);
+    const cardPlace = Math.ceil(cardData.x / this._shelfCardSpacing)
+    if (this.shelfCards.indexOf(cardValue) === -1) {
+      if (this.shelfCards.length < cardPlace) {
+        this.shelfCards.push(cardData.cardValue);
+      } else {
+        this.shelfCards.splice(cardPlace, 0, cardData.cardValue);
+      }
+    }
+    this._updateShelfCards();
+  }
+
+  removeFromShelf(cardValue: string) {
+    console.log('remove from shelf')
+    const cardData = this.getCard(cardValue)
+    const idx = this.shelfCards.indexOf(cardData.cardValue);
+    if (idx >= 0) {
+      this.shelfCards.splice(idx, 1);
+    }
+    
+    this._updateShelfCards();
+  }
+
+  _updateShelfCards() {
+    for (let i = 0; i < this.shelfCards.length; i++) {
+      const cardVal = this.shelfCards[i];
+      const curCard = this.getCard(cardVal);
+      curCard.x = Math.round(i * this._shelfCardSpacing);
+      curCard.y = Math.round(this.roomService.getPlayTableNum() + 100);
+      Object.assign(this.getCard(cardVal), curCard);
+    }
+    console.log(this.shelfCards);
+
+  }
+
+  _getShelfCards(): iCardData[] {
+    return this.shelfCards.map(el => {
+      return this.getCard(el);
+    })
   }
 
 
