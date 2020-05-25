@@ -68,7 +68,7 @@ export class CardsService {
   updateCard(updateObj: iCardData) {
     const cardValue = updateObj.cardValue;
     const curCard = this.getCard(cardValue);
-
+    let cardsToWs = [];
     if ('z' in updateObj) {
       const newZ = updateObj['z']
       if (newZ > this._maxZ) {
@@ -76,27 +76,31 @@ export class CardsService {
       }
     }
 
-    if (this.roomService.shelfDrag) {
-      updateObj['ownerId'] = this.playerService.playerId;
+    let placedInShelf = false;
+    //TODO: DRY this up!!!
+    if ('ownerId' in updateObj) {
+      if (this.playerService.playerId === updateObj.ownerId) {
+        this.placeInShelf(cardValue);
+        cardsToWs = cardsToWs.concat(this._getShelfCards());
+        placedInShelf = true;
+      }
+      else if ('' === updateObj.ownerId) {
+        if (curCard.ownerId === this.playerService.playerId) {
+          this.removeFromShelf(cardValue)
+          cardsToWs = cardsToWs.concat(this._getShelfCards());
+        }
+      }
     }
-    else {
-      updateObj['ownerId'] = '';
-    }
-    if (curCard.ownerId !== updateObj.ownerId && updateObj.ownerId === '') {
-      this.removeFromShelf(updateObj.cardValue);
-      return this._getShelfCards().concat(this.getCard(cardValue));
-    }
-    if (this.playerService.playerId === updateObj.ownerId) {
-      this.placeInShelf(updateObj.cardValue);
-      return this._getShelfCards()
-    }
-    else {
-      console.log(updateObj);
+    if (!placedInShelf) {
       Object.assign(this.getCard(cardValue), updateObj);
-      return [this.getCard(cardValue)];
+      cardsToWs.push(this.getCard(cardValue));
     }
 
 
+    console.log(cardsToWs);
+
+
+    this.ws.sendToWs('card-move-end-bulk', { cards: cardsToWs });
   }
 
   _getInitZ() {
@@ -162,7 +166,7 @@ export class CardsService {
     if (idx >= 0) {
       this.shelfCards.splice(idx, 1);
     }
-    
+
     this._updateShelfCards();
   }
 
@@ -172,6 +176,7 @@ export class CardsService {
       const curCard = this.getCard(cardVal);
       curCard.x = Math.round(i * this._shelfCardSpacing);
       curCard.y = Math.round(this.roomService.getPlayTableNum() + 100);
+      curCard.ownerId = this.playerService.playerId;
       Object.assign(this.getCard(cardVal), curCard);
     }
     console.log(this.shelfCards);

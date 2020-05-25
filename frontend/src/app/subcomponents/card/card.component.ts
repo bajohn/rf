@@ -64,9 +64,12 @@ export class CardComponent implements OnInit {
       const cardData = this.getCard();
       const newPosition = { x: cardData.x, y: cardData.y };
       newPosition['z'] = z;
-
-
-
+      if (this.roomService.shelfDrag) {
+        newPosition['ownerId'] = this.playerService.playerId;
+      }
+      else {
+        newPosition['ownerId'] = '';
+      }
       this.updateCard(newPosition);
 
       this.roomService.shelfDrag = false;
@@ -117,6 +120,7 @@ export class CardComponent implements OnInit {
   flipCard() {
     const faceUp = this.getCard().faceUp;
     const z = this.cardService.getMaxZ() + 1;
+    this.renderDrag(event, false);
     this.updateCard({
       faceUp: !faceUp,
       z: z
@@ -127,14 +131,9 @@ export class CardComponent implements OnInit {
   // Update card in both cardService 
   // and in backend via ws.
   updateCard(objIn: iCardData) {
-    const toSend = {};
-    Object.assign(toSend, this.getCard()); //copy
     objIn['cardValue'] = this.cardValue;
+    this.cardService.updateCard(objIn);
 
-    Object.assign(toSend, objIn)
-    console.log(toSend);
-    const cardsToUpdate = this.cardService.updateCard(toSend);
-    this.ws.sendToWs('card-move-end-bulk', { cards: cardsToUpdate });
   }
 
 
