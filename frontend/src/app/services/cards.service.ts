@@ -13,7 +13,11 @@ export class CardsService {
   _cards: iCardData[] = [];
   _cardIdxLookup: { [key: string]: number };
   _maxZ = 51;
-  _shelfCardSpacing = 10;
+  _shelfCardSpacing = 60;
+  _spreadCardSpacing = 20;
+  _shelfCardShift = 100;
+  cardSizeFactor = 1.5;
+  cardClickTime = 100;
 
   shelfCards: string[] = [];
 
@@ -42,13 +46,14 @@ export class CardsService {
     counter = 0;
     const shuffledLocation = 10;
     for (const card of this._cards) {
-      card.x = faceUp ? 10 * zMap[card.cardValue] : shuffledLocation;
+      card.x = faceUp ? this._spreadCardSpacing * zMap[card.cardValue] : shuffledLocation;
       card.y = shuffledLocation;
       card.z = zMap[card.cardValue];
       card.faceUp = faceUp;
       card.ownerId = '';
       counter++;
     }
+    this.shelfCards = [];
     this.ws.sendToWs('card-move-end-bulk', { cards: this._cards });
   }
 
@@ -66,9 +71,7 @@ export class CardsService {
   }
 
   updateCard(updateObj: iCardData) {
-    const cardValue = updateObj.cardValue;
-    const curCard = this.getCard(cardValue);
-    let cardsToWs = [];
+
     if ('z' in updateObj) {
       const newZ = updateObj['z']
       if (newZ > this._maxZ) {
@@ -76,31 +79,36 @@ export class CardsService {
       }
     }
 
+    const cardsToWs = this._updateLocalCards(updateObj);
+    this.ws.sendToWs('card-move-end-bulk', { cards: cardsToWs });
+
+  }
+
+  _updateLocalCards(updateObj: iCardData) {
+    let updatedCards = [];
+    const cardValue = updateObj.cardValue;
+    const curCard = this.getCard(cardValue);
+    console.log(updateObj, curCard);
     let placedInShelf = false;
-    //TODO: DRY this up!!!
     if ('ownerId' in updateObj) {
-      if (this.playerService.playerId === updateObj.ownerId) {
+      if (this._isMyCard(updateObj)) {
         this.placeInShelf(cardValue);
-        cardsToWs = cardsToWs.concat(this._getShelfCards());
+        updatedCards = updatedCards.concat(this._getShelfCards());
         placedInShelf = true;
       }
       else if ('' === updateObj.ownerId) {
-        if (curCard.ownerId === this.playerService.playerId) {
+        if (this._isMyCard(curCard)) {
           this.removeFromShelf(cardValue)
-          cardsToWs = cardsToWs.concat(this._getShelfCards());
+          updatedCards = updatedCards.concat(this._getShelfCards());
         }
       }
     }
     if (!placedInShelf) {
       Object.assign(this.getCard(cardValue), updateObj);
-      cardsToWs.push(this.getCard(cardValue));
+      updatedCards.push(this.getCard(cardValue));
     }
 
-
-    console.log(cardsToWs);
-
-
-    this.ws.sendToWs('card-move-end-bulk', { cards: cardsToWs });
+    return updatedCards;
   }
 
   _getInitZ() {
@@ -134,29 +142,48 @@ export class CardsService {
       this._cards = data.message['cards'];
       this._cardIdxLookup = this._getInitIdxs();
       this._maxZ = this._getInitZ();
+      for (const card of this._cards) {
+        if (this._isMyCard(card)) {
+          this.placeInShelf(card.cardValue)
+        }
+      }
     }
     else if (data.action === 'card-move-end-bulk') {
       const newCards = data.message['cards'] as iCardData[];
       for (const card of newCards) {
         const cardValue = card.cardValue;
         const idx = this._cardIdxLookup[cardValue];
+        this._updateLocalCards(card);
         Object.assign(this._cards[idx], card);
       }
+
     }
   }
 
   placeInShelf(cardValue: string) {
     console.log('place in shelf')
     const cardData = this.getCard(cardValue);
-    const cardPlace = Math.ceil(cardData.x / this._shelfCardSpacing)
-    if (this.shelfCards.indexOf(cardValue) === -1) {
-      if (this.shelfCards.length < cardPlace) {
-        this.shelfCards.push(cardData.cardValue);
-      } else {
-        this.shelfCards.splice(cardPlace, 0, cardData.cardValue);
-      }
+    const shiftedX = cardData.x - this._shelfCardShift;
+    let cardPlace = 0;
+    if (shiftedX > 0) {
+      cardPlace = Math.ceil(shiftedX / this._shelfCardSpacing);
     }
-    this._updateShelfCards();
+
+
+    // temporarily remove card if already in array
+    const curIdx = this.shelfCards.indexOf(cardValue);
+    if (curIdx > -1) {
+      this.shelfCards.splice(curIdx, 1);
+    }
+
+    // insert into correct position
+    if (this.shelfCards.length < cardPlace) {
+      this.shelfCards.push(cardData.cardValue);
+    } else {
+      this.shelfCards.splice(cardPlace, 0, cardData.cardValue);
+    }
+
+    this._orderShelfCards();
   }
 
   removeFromShelf(cardValue: string) {
@@ -167,15 +194,16 @@ export class CardsService {
       this.shelfCards.splice(idx, 1);
     }
 
-    this._updateShelfCards();
+    this._orderShelfCards();
   }
 
-  _updateShelfCards() {
+  _orderShelfCards() {
     for (let i = 0; i < this.shelfCards.length; i++) {
       const cardVal = this.shelfCards[i];
       const curCard = this.getCard(cardVal);
-      curCard.x = Math.round(i * this._shelfCardSpacing);
+      curCard.x = Math.round(this._shelfCardShift + i * this._shelfCardSpacing);
       curCard.y = Math.round(this.roomService.getPlayTableNum() + 100);
+      curCard.z = i + 1;
       curCard.ownerId = this.playerService.playerId;
       Object.assign(this.getCard(cardVal), curCard);
     }
@@ -187,6 +215,10 @@ export class CardsService {
     return this.shelfCards.map(el => {
       return this.getCard(el);
     })
+  }
+
+  _isMyCard(cardData: iCardData) {
+    return this.playerService.playerId === cardData.ownerId
   }
 
 

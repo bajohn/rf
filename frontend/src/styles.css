@@ -18,10 +18,10 @@ position: relative;
 }
 
 .card-default {
-width:75px;
-height:105px;
-position: absolute;
-transform-origin: 100% 0;
+/* width:75px;
+height:105px; */
+/* position: absolute;
+transform-origin: 100% 0; */
 }
 
 

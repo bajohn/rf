@@ -58,7 +58,7 @@ export class CardComponent implements OnInit {
 
   mouseUp(event: MouseEvent) {
     const curTime = (new Date()).getTime();
-    if (this.boxBeingDragged && curTime > this.dragStartTime + 200) {
+    if (this.boxBeingDragged && curTime > this.dragStartTime + this.cardService.cardClickTime) {
       // drag end
       const z = this.cardService.getMaxZ() + 1;
       const cardData = this.getCard();
@@ -77,6 +77,8 @@ export class CardComponent implements OnInit {
       // click and release 
       this.flipCard();
     }
+
+
     this.boxBeingDragged = false;
     this.dragStartTime = Infinity;
   }
@@ -160,22 +162,31 @@ export class CardComponent implements OnInit {
     return thisCard.ownerId === '' || thisCard.ownerId === this.playerService.playerId;
   }
 
+
   getTransform() {
-
-    // from working copy:
-    //     style="z-index: 184; transform: translate3d(493px, 168px, 0px);"
     const position = this.getPosition();
+    return `translate3d(${position.x}px, ${position.y}px, 0px)` //`translateX(${position.x}px) translateY(${position.y}px)`,
 
-    return {
-      transform: `translate3d(${position.x}px, ${position.y}px, 0px)` //`translateX(${position.x}px) translateY(${position.y}px)`,
+  }
+
+  // height/width should be 3.5/2.5,
+  // or 1.4
+  // default is 105px/75px
+  getHeight(){
+    if(this.isVisible()){
+      return `${105 * this.cardService.cardSizeFactor}px`;
+    } else {
+      return `0px`;
     }
 
-
+  }
+  getWidth(){
+    if(this.isVisible()){
+    return `${75 * this.cardService.cardSizeFactor}px`;
+    } else{
+      return `0px`;
+    }
   }
 
 
 }
-
-
-// [ngStyle]="{'transform': 'rotate(45deg) translateX(10px)'}"
-//     (dblclick)="flipCard()"

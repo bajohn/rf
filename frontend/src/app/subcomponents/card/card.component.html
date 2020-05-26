@@ -1,11 +1,24 @@
-<!-- 
-   [cdkDragFreeDragPosition]="getPosition()"
-   [cdkDragDisabled]="!isVisible()"   -->
+<!--
+        [ngStyle]="getTransform()"
+            [style.height]="getHeight()"
+    [style.width]="getWidth()"
+        [class.card-default]="isVisible()"
+    [class.card-hidden]="!isVisible()" 
+-->
 
 
-<div draggable="false" (mouseup)="mouseUp($event)" (mousedown)="dragMoveStarted($event)" [class.card-default]="isVisible()"
-    [class.card-hidden]="!isVisible()" [class.active]="isActive()" [class.inactive]="!isActive()"
-    [style.z-index]="getZ()" [ngStyle]="getTransform()">
+<div draggable="false" 
+    (mouseup)="mouseUp($event)" 
+    (mousedown)="dragMoveStarted($event)" 
+    [style.width]="getWidth()"
+    [style.height]="getHeight()"
+    [style.position]="'absolute'"
+    [style.transform-origin]="'100% 0'"
+    [class.active]="isActive()" 
+    [class.inactive]="!isActive()"
+    [style.z-index]="getZ()" 
+    [style.transform]="getTransform()"
+    >
 
     <div [class.card-overlay]="true" [class.active]="isActive()">
 
