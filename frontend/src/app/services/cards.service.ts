@@ -16,10 +16,12 @@ export class CardsService {
   _shelfCardSpacing = 60;
   _spreadCardSpacing = 20;
   _shelfCardShift = 100;
-  cardSizeFactor = 1.5;
+  cardSizeFactor = 1.2;
   cardClickTime = 100;
 
   shelfCards: string[] = [];
+
+  _groups = [];
 
   constructor(
     private ws: WsService,
@@ -96,14 +98,16 @@ export class CardsService {
         updatedCards = updatedCards.concat(this._getShelfCards());
         placedInShelf = true;
       }
-      else if ('' === updateObj.ownerId) {
+      else if (updateObj.ownerId === '') {
         if (this._isMyCard(curCard)) {
+          // Was formerly my card, but no longer
           this.removeFromShelf(cardValue)
           updatedCards = updatedCards.concat(this._getShelfCards());
         }
       }
     }
     if (!placedInShelf) {
+      // Update to given position, unless placed in shelf
       Object.assign(this.getCard(cardValue), updateObj);
       updatedCards.push(this.getCard(cardValue));
     }

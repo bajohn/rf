@@ -3,7 +3,7 @@ import boto3
 import json
 import traceback
 import random
-
+from uuid import uuid4
 
 from datetime import datetime
 logger = logging.getLogger()
@@ -30,6 +30,7 @@ class Helpers():
         self._connectionId = event['requestContext']['connectionId']
         self._event = event
         self._connectionTable = 'rfConnections'
+        self._groupTable = 'rfGroups'
         self._cardTable = 'rfCards'
         self._playerTable = 'rfPlayers'
         self._cardValues = self._initializeCardValues()
@@ -106,7 +107,30 @@ class Helpers():
                     "S": datetime.now().isoformat()
                 }
             })
-        self.recallAndShuffleDb()
+
+        deckGroup = str(uuid4())
+
+        self._dynamoClient.put_item(
+            TableName=self._groupTable,
+            Item={
+                "gameId": {
+                    "S": self._gameId
+                },
+                "groupId": {
+                    "S": deckGroup
+                },
+                "date": {
+                    "S": datetime.now().isoformat()
+                },
+                "x": {
+                    "N": str(300)
+                },
+                "y": {
+                    "N": str(300)
+                },
+            })
+
+        self.recallAndShuffleDb(deckGroup)
 
     # send msg to everyone and/or self
     # automatically update live connections table
@@ -246,7 +270,7 @@ class Helpers():
             y=int(dbCard['y']['N']),
             z=int(dbCard['z']['N']),
             cardValue=cardValue,
-            # groupId=db['cardValue']
+            groupId=dbCard['cardValue']['S'],
             faceUp=bool(dbCard['faceUp']['BOOL']),
             ownerId=dbCard['ownerId']['S']
         )
@@ -281,7 +305,7 @@ class Helpers():
                 y=int(cardResp['y']['N']),
                 z=int(cardResp['z']['N']),
                 cardValue=cardResp['cardValue']['S'],
-                # groupId=db['cardValue']
+                groupId=cardResp['cardValue']['S'],
                 faceUp=bool(cardResp['faceUp']['BOOL']),
                 ownerId=cardResp['ownerId']['S']
             ) for cardResp in cardResps
@@ -362,7 +386,7 @@ class Helpers():
 
         if 'groupId' in updateObj:
             dbObj['groupId'] = dict(
-                Value=dict(N=str(updateObj['groupId'])),
+                Value=dict(S=str(updateObj['groupId'])),
                 Action='PUT'
             )
 
@@ -412,7 +436,7 @@ class Helpers():
             date=dict(S=datetime.now().isoformat()),
             gameId=dict(S=self._gameId),
             cardValue=dict(S=cardObj['cardValue'])
-            )
+        )
         if 'x' in cardObj:
             ret['x'] = dict(N=str(cardObj['x']))
 
@@ -423,7 +447,7 @@ class Helpers():
             ret['z'] = dict(N=str(cardObj['z']))
 
         if 'groupId' in cardObj:
-            ret['groupId'] = dict(N=str(cardObj['groupId']))
+            ret['groupId'] = dict(S=str(cardObj['groupId']))
 
         if 'ownerId' in cardObj:
             ret['ownerId'] = dict(S=str(cardObj['ownerId']))
@@ -433,12 +457,13 @@ class Helpers():
 
         return ret
 
-    def recallAndShuffleDb(self):
+    def recallAndShuffleDb(self, deckGroup):
 
         cardValues = self._cardValues.copy()
 
         random.shuffle(cardValues)
         i = 0
+        cardsToSend = []
         while len(cardValues) > 0:
             cardValue = cardValues.pop()
             objToSend = dict(
@@ -446,13 +471,14 @@ class Helpers():
                 x=10,
                 y=10,
                 z=i,
-                groupId=0,
+                groupId=deckGroup,
                 faceUp=False,
                 ownerId=''
             )
-            # TODO- this blocks, causing slowness. How do we send all at once?
-            self.updateDbCardPosition(objToSend)
+            cardsToSend.append(objToSend)
             i += 1
+        # refactored to bulk
+        self.updateDbCardPositionBulk(dict(cards=cardsToSend))
 
     def _initializeCardValues(self):
         cardValues = []
