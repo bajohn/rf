@@ -164,6 +164,7 @@ export class CardsService {
       console.error(data);
     }
     else if (data.action === 'initialize-cards') {
+      console.log(data.message);
       this._groups = data.message['groups']
       this._cards = data.message['cards'];
       this._cardIdxLookup = this._getInitCardIdxs();

@@ -64,13 +64,14 @@ class Helpers():
         cards = []
 
         cards = self.getCardMsgFromDbBatch(self._cardValues)
+        groups = self._getGroups()
 
         self.sendMsg(dict(
             action='initialize-cards',
             message=dict(
                 gameId=self._gameId,
-                cards=cards
-            )
+                cards=cards,
+                groups=groups)
         ), toSelf=True)
 
     def _gameIdExists(self):
@@ -90,6 +91,29 @@ class Helpers():
             }
         })
         return gameExists
+
+    def _getGroups(self):
+        dbResp = self._dynamoClient.scan(
+            ExpressionAttributeValues={
+                ':g': {
+                    'S': self._gameId,
+                },
+            },
+            FilterExpression='gameId = :g',
+            TableName=self._groupTable,
+        )
+
+        if 'Items' in dbResp:
+            return [
+                dict(
+                    groupId=item['groupId']['S'],
+                    x=item['x']['N'],
+                    y=item['y']['N'],
+                    date=item['date']['S']
+                ) for item in dbResp['Items']
+            ]
+        else:
+            return []
 
     def createRoom(self):
         initX = 300
@@ -245,6 +269,12 @@ class Helpers():
         self.updateDbCardPosition(message)
         return None
 
+    def endGroupMove(self, eventMsg):
+        groupObj = eventMsg['message']['group']
+
+        self.updateDbGroupPosition(groupObj)
+        return None
+
     def endCardMoveBulk(self, eventMsg):
 
         message = eventMsg['message']
@@ -359,6 +389,37 @@ class Helpers():
             playerName=playerName
         )
         return message
+
+    def updateDbGroupPosition(self, updateObj):
+        groupId = updateObj['groupId']
+        dbObj = dict(date=dict(
+            Value=dict(S=datetime.now().isoformat()),
+            Action='PUT'
+        ))
+
+        if 'x' in updateObj:
+            dbObj['x'] = dict(
+                Value=dict(N=str(updateObj['x'])),
+                Action='PUT'
+            )
+
+        if 'y' in updateObj:
+            dbObj['y'] = dict(
+                Value=dict(N=str(updateObj['y'])),
+                Action='PUT'
+            )
+        if 'text' in updateObj:
+            dbObj['text'] = dict(
+                Value=dict(S=str(updateObj['text'])),
+                Action='PUT'
+            )
+        self._dynamoClient.update_item(
+            TableName=self._groupTable,
+            Key=dict(
+                gameId=dict(S=self._gameId),
+                groupId=dict(S=groupId),
+            ),
+            AttributeUpdates=dbObj)
 
     def updateDbCardPosition(self, updateObj):
         cardValue = updateObj['cardValue']

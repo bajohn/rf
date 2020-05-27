@@ -9,7 +9,7 @@
 [class.active]="groupBeingDragged" 
 [class.inactive]="!groupBeingDragged"
 [style.transform]="getTransform()"
-[style.background-color]="'red'"
+[class.group-default]="true"
 >
 
 <div [class.card-overlay]="true" [class.active]="groupBeingDragged">

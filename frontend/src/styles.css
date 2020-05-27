@@ -72,3 +72,8 @@ position: relative;
     visibility: visible;
 }
 
+.group-default {
+    background-color: lightblue;
+    border-radius: 3px;
+}
+

@@ -129,9 +129,18 @@ module "card_move_end_lambda" {
 }
 
 # endpoint: card-move-end-bulk
-module "card_move_end_lambda-bulk" {
+module "card_move_end_bulk_lambda" {
   source    = "./modules/ws-lambda"
   name      = "card_move_end_bulk"
+  iam_arn   = aws_iam_role.iam_for_rf_role.arn
+  layer_arn = aws_lambda_layer_version.lib_layer.arn
+}
+
+
+# endpoint: card-move-end
+module "group_move_end_lambda" {
+  source    = "./modules/ws-lambda"
+  name      = "group_move_end"
   iam_arn   = aws_iam_role.iam_for_rf_role.arn
   layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
