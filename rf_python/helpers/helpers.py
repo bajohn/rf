@@ -270,7 +270,7 @@ class Helpers():
             y=int(dbCard['y']['N']),
             z=int(dbCard['z']['N']),
             cardValue=cardValue,
-            groupId=dbCard['cardValue']['S'],
+            groupId=dbCard['groupId']['S'],
             faceUp=bool(dbCard['faceUp']['BOOL']),
             ownerId=dbCard['ownerId']['S']
         )
@@ -305,7 +305,7 @@ class Helpers():
                 y=int(cardResp['y']['N']),
                 z=int(cardResp['z']['N']),
                 cardValue=cardResp['cardValue']['S'],
-                groupId=cardResp['cardValue']['S'],
+                groupId=cardResp['groupId']['S'],
                 faceUp=bool(cardResp['faceUp']['BOOL']),
                 ownerId=cardResp['ownerId']['S']
             ) for cardResp in cardResps

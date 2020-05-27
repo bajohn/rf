@@ -15,6 +15,7 @@ import { CardComponent } from './subcomponents/card/card.component';
 import { CreateRoomComponent } from './pagecomponents/createroom/createroom.component';
 import { RoomComponent } from './pagecomponents/room/room.component';
 import { PlayerNameDialogComponent } from './subcomponents/player-name-dialog/player-name-dialog.component';
+import { GroupComponent } from './subcomponents/group/group.component';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { PlayerNameDialogComponent } from './subcomponents/player-name-dialog/pl
     CardComponent,
     CreateRoomComponent,
     RoomComponent,
-    PlayerNameDialogComponent
+    PlayerNameDialogComponent,
+    GroupComponent
   ],
   imports: [
     BrowserModule,

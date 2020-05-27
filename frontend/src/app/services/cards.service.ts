@@ -4,6 +4,7 @@ import { WsService } from './ws.service';
 import { iCardData, iWsMsg } from '../types';
 import { RoomService } from './room.service';
 import { PlayerService } from './player.service';
+import { ParamsService } from './params.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,11 +14,7 @@ export class CardsService {
   _cards: iCardData[] = [];
   _cardIdxLookup: { [key: string]: number };
   _maxZ = 51;
-  _shelfCardSpacing = 60;
-  _spreadCardSpacing = 20;
-  _shelfCardShift = 100;
-  cardSizeFactor = 1.2;
-  cardClickTime = 100;
+
 
   shelfCards: string[] = [];
 
@@ -26,7 +23,8 @@ export class CardsService {
   constructor(
     private ws: WsService,
     private roomService: RoomService,
-    private playerService: PlayerService
+    private playerService: PlayerService,
+    private paramsService: ParamsService
   ) {
     this.ws.getSubscription(this._parseMsgFromWs.bind(this));
   }
@@ -48,7 +46,7 @@ export class CardsService {
     counter = 0;
     const shuffledLocation = 10;
     for (const card of this._cards) {
-      card.x = faceUp ? this._spreadCardSpacing * zMap[card.cardValue] : shuffledLocation;
+      card.x = faceUp ? this.paramsService.spreadCardSpacing * zMap[card.cardValue] : shuffledLocation;
       card.y = shuffledLocation;
       card.z = zMap[card.cardValue];
       card.faceUp = faceUp;
@@ -167,10 +165,10 @@ export class CardsService {
   placeInShelf(cardValue: string) {
     console.log('place in shelf')
     const cardData = this.getCard(cardValue);
-    const shiftedX = cardData.x - this._shelfCardShift;
+    const shiftedX = cardData.x - this.paramsService.shelfCardShift
     let cardPlace = 0;
     if (shiftedX > 0) {
-      cardPlace = Math.ceil(shiftedX / this._shelfCardSpacing);
+      cardPlace = Math.ceil(shiftedX / this.paramsService.shelfCardSpacing);
     }
 
 
@@ -205,7 +203,7 @@ export class CardsService {
     for (let i = 0; i < this.shelfCards.length; i++) {
       const cardVal = this.shelfCards[i];
       const curCard = this.getCard(cardVal);
-      curCard.x = Math.round(this._shelfCardShift + i * this._shelfCardSpacing);
+      curCard.x = Math.round(this.paramsService.shelfCardShift + i * this.paramsService.shelfCardSpacing);
       curCard.y = Math.round(this.roomService.getPlayTableNum() + 100);
       curCard.z = i + 1;
       curCard.ownerId = this.playerService.playerId;

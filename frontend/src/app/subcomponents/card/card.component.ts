@@ -5,6 +5,7 @@ import { endpoint, iWsMsg, iCardData } from './../../types'
 import { CardsService } from 'src/app/services/cards.service';
 import { PlayerService } from 'src/app/services/player.service';
 import { RoomService } from 'src/app/services/room.service';
+import { ParamsService } from 'src/app/services/params.service';
 
 
 @Component({
@@ -28,7 +29,8 @@ export class CardComponent implements OnInit {
     private ws: WsService,
     private cardService: CardsService,
     private playerService: PlayerService,
-    private roomService: RoomService
+    private roomService: RoomService,
+    private paramsService: ParamsService
   ) {
 
   }
@@ -58,7 +60,7 @@ export class CardComponent implements OnInit {
 
   mouseUp(event: MouseEvent) {
     const curTime = (new Date()).getTime();
-    if (this.boxBeingDragged && curTime > this.dragStartTime + this.cardService.cardClickTime) {
+    if (this.boxBeingDragged && curTime > this.dragStartTime + this.paramsService.cardClickTime) {
       // drag end
       const z = this.cardService.getMaxZ() + 1;
       const cardData = this.getCard();
@@ -172,18 +174,18 @@ export class CardComponent implements OnInit {
   // height/width should be 3.5/2.5,
   // or 1.4
   // default is 105px/75px
-  getHeight(){
-    if(this.isVisible()){
-      return `${105 * this.cardService.cardSizeFactor}px`;
+  getHeight() {
+    if (this.isVisible()) {
+      return `${105 * this.paramsService.cardSizeFactor}px`;
     } else {
       return `0px`;
     }
 
   }
-  getWidth(){
-    if(this.isVisible()){
-    return `${75 * this.cardService.cardSizeFactor}px`;
-    } else{
+  getWidth() {
+    if (this.isVisible()) {
+      return `${75 * this.paramsService.cardSizeFactor}px`;
+    } else {
       return `0px`;
     }
   }
