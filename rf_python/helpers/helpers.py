@@ -92,8 +92,9 @@ class Helpers():
         return gameExists
 
     def createRoom(self):
+        initX = 300
+        initY = 300
         newConnObj = {'S': self._connectionId}
-
         self._dynamoClient.put_item(
             TableName=self._connectionTable,
             Item={
@@ -123,14 +124,14 @@ class Helpers():
                     "S": datetime.now().isoformat()
                 },
                 "x": {
-                    "N": str(300)
+                    "N": str(initX)
                 },
                 "y": {
-                    "N": str(300)
+                    "N": str(initY)
                 },
             })
 
-        self.recallAndShuffleDb(deckGroup)
+        self.recallAndShuffleDb(deckGroup, initX, initY)
 
     # send msg to everyone and/or self
     # automatically update live connections table
@@ -457,7 +458,7 @@ class Helpers():
 
         return ret
 
-    def recallAndShuffleDb(self, deckGroup):
+    def recallAndShuffleDb(self, deckGroup, initX, initY):
 
         cardValues = self._cardValues.copy()
 
@@ -468,8 +469,8 @@ class Helpers():
             cardValue = cardValues.pop()
             objToSend = dict(
                 cardValue=cardValue,
-                x=10,
-                y=10,
+                x=initX,
+                y=initY,
                 z=i,
                 groupId=deckGroup,
                 faceUp=False,

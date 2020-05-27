@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { WsService } from './ws.service';
 
-import { iCardData, iWsMsg } from '../types';
+import { iCardData, iWsMsg, iGroupData } from '../types';
 import { RoomService } from './room.service';
 import { PlayerService } from './player.service';
 import { ParamsService } from './params.service';
@@ -13,12 +13,13 @@ export class CardsService {
 
   _cards: iCardData[] = [];
   _cardIdxLookup: { [key: string]: number };
+  _groupIdxLookup: { [key: string]: number };
   _maxZ = 51;
 
 
   shelfCards: string[] = [];
 
-  _groups = [];
+  _groups: iGroupData[] = [];
 
   constructor(
     private ws: WsService,
@@ -58,12 +59,21 @@ export class CardsService {
   }
 
   getCards() {
-    return this._cards
+    return this._cards;
+  }
+
+  getGroups() {
+    return this._groups;
   }
 
   getCard(cardValue: string): iCardData {
     const idx = this._cardIdxLookup[cardValue];
     return this._cards[idx];
+  }
+
+  getGroup(groupId: string): iGroupData {
+    const idx = this._groupIdxLookup[groupId];
+    return this._groups[idx];
   }
 
   getMaxZ() {
@@ -82,6 +92,10 @@ export class CardsService {
     const cardsToWs = this._updateLocalCards(updateObj);
     this.ws.sendToWs('card-move-end-bulk', { cards: cardsToWs });
 
+  }
+
+  updateGroup(updateObj: iGroupData) {
+    this.ws.sendToWs('group-move-end', { group: updateObj });
   }
 
   _updateLocalCards(updateObj: iCardData) {
@@ -124,11 +138,20 @@ export class CardsService {
     return ret;
   }
 
-  _getInitIdxs() {
+  _getInitCardIdxs() {
     const ret: { [key: string]: number } = {};
     for (let i = 0; i < this._cards.length; i++) {
       const curCard = this._cards[i];
       ret[curCard.cardValue] = i;
+    }
+    return ret;
+  }
+
+  _getInitGroupIdxs() {
+    const ret: { [key: string]: number } = {};
+    for (let i = 0; i < this._groups.length; i++) {
+      const curGroup = this._groups[i];
+      ret[curGroup.groupId] = i;
     }
     return ret;
   }
@@ -141,8 +164,11 @@ export class CardsService {
       console.error(data);
     }
     else if (data.action === 'initialize-cards') {
+      this._groups = data.message['groups']
       this._cards = data.message['cards'];
-      this._cardIdxLookup = this._getInitIdxs();
+      this._cardIdxLookup = this._getInitCardIdxs();
+      this._groupIdxLookup = this._getInitGroupIdxs();
+
       this._maxZ = this._getInitZ();
       for (const card of this._cards) {
         if (this._isMyCard(card)) {
@@ -152,13 +178,17 @@ export class CardsService {
     }
     else if (data.action === 'card-move-end-bulk') {
       const newCards = data.message['cards'] as iCardData[];
-      for (const card of newCards) {
-        const cardValue = card.cardValue;
-        const idx = this._cardIdxLookup[cardValue];
-        this._updateLocalCards(card);
-        Object.assign(this._cards[idx], card);
+      for (const newCard of newCards) {
+        const cardValue = newCard.cardValue;
+        const card = this.getCard(cardValue);
+        Object.assign(card, newCard);
       }
 
+    } else if (data.action === 'group-move-end') {
+      const groupObj: iGroupData = data.message['group']
+      const groupId = groupObj.groupId;
+      const group = this.getGroup(groupId);
+      Object.assign(group, groupObj);
     }
   }
 

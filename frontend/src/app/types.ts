@@ -17,6 +17,13 @@ export interface iCardData {
     ownerId?: string
 }
 
+export interface iGroupData {
+    [key: string]: any
+    x?: number 
+    y?: number 
+    groupId?: string
+}
+
 
 
 export type endpoint =

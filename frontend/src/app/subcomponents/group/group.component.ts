@@ -1,4 +1,8 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, HostListener } from '@angular/core';
+import { CardsService } from 'src/app/services/cards.service';
+import { iGroupData } from 'src/app/types';
+import { RoomService } from 'src/app/services/room.service';
+import { ParamsService } from 'src/app/services/params.service';
 
 
 @Component({
@@ -10,12 +14,83 @@ export class GroupComponent implements OnInit {
 
 
   @Input() groupId: string;
+  groupBeingDragged = false; // for styling
+  dragStartTime = Infinity;
 
   constructor(
-
+    private cardService: CardsService,
+    private roomService: RoomService,
+    private paramsService: ParamsService
   ) { }
 
   ngOnInit(): void {
+  }
+
+  @HostListener('window:mousemove', ['$event'])
+  onMove(event: MouseEvent) {
+    this.renderDrag(event);
+  }
+
+  dragMoveStarted(event: MouseEvent) {
+    this.groupBeingDragged = true;
+    this.dragStartTime = (new Date()).getTime();
+
+    this.renderDrag(event);
+  }
+  mouseUp(event: MouseEvent) {
+    const curTime = (new Date()).getTime();
+    if (this.groupBeingDragged && curTime > this.dragStartTime + this.paramsService.cardClickTime) {
+      // drag end
+      const groupData = this.getGroup();
+      const newPosition = { x: groupData.x, y: groupData.y };
+
+      this.updateGroup(newPosition);
+
+    }
+    this.groupBeingDragged = false;
+    this.dragStartTime = Infinity;
+  }
+  renderDrag(event) {
+    if (this.groupBeingDragged) {
+      const groupData = this.getGroup();
+      const newX = event.clientX - 25;
+
+      const headerY = this.roomService.getHeaderNum();
+      const newY = Math.round(event.clientY - headerY - 75 / 2);
+
+      groupData.x = newX;
+      groupData.y = newY;
+    }
+  }
+
+  getGroup(): iGroupData {
+    return this.cardService.getGroup(this.groupId);
+  }
+
+  updateGroup(objIn: iGroupData) {
+    objIn['groupId'] = this.groupId;
+    this.cardService.updateGroup(objIn);
+  }
+
+  getWidth() {
+    return `${150 * this.paramsService.cardSizeFactor}px`;
+  }
+
+  getHeight() {
+    return `${150 * this.paramsService.cardSizeFactor}px`;
+  }
+
+  getPosition(){
+    const groupData = this.getGroup();
+    return {
+      x: groupData.x,
+      y: groupData.y
+    }
+  }
+
+  getTransform() {
+    const position = this.getPosition();
+    return `translate3d(${position.x}px, ${position.y}px, 0px)` //`translateX(${position.x}px) translateY(${position.y}px)`,
   }
 
 

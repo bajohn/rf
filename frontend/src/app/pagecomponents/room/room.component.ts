@@ -78,6 +78,10 @@ export class RoomComponent implements OnInit {
     return this.cardService.getCards();
   }
 
+  getGroups() {
+    return this.cardService.getGroups();
+  }
+
   parseMsgFromWs(data: iWsMsg) {
     if (typeof data.message === 'string') {
       //TODO: handle this

@@ -26,9 +26,13 @@
 
 
 <div [style.height]="roomService.getPlayTablePx()">
-    <app-card *ngFor="let cData of getCards();" [cardValue]="cData.cardValue">
+    <app-card *ngFor="let cData of getCards()" [cardValue]="cData.cardValue">
 
     </app-card>
+
+    <app-group *ngFor="let groupData of getGroups()" [groupdId]="groupData.groupId">
+
+    </app-group>
 </div>
 
 <div [style.height]="roomService.getShelfPx()" [class.shelf]="true" [class.carddrag]="roomService.shelfDrag">
