@@ -20,8 +20,7 @@ export class CardComponent implements OnInit {
   // @Output() dataChange = new EventEmitter<iCardData>();
 
   @Input() cardValue: string;
-
-
+  
   cardBeingDragged = false; // for styling
   dragStartTime = Infinity;
 
@@ -51,29 +50,31 @@ export class CardComponent implements OnInit {
   }
 
   mouseUp(event: MouseEvent) {
-    const curDateObj = new Date();
-    const curTime = (curDateObj).getTime();
-    if (this.cardBeingDragged && curTime > this.dragStartTime + this.paramsService.cardClickTime) {
-      // drag end
-      const z = this.cardService.getMaxZ() + 1;
-      const cardData = this.getCard();
-      const newPosition = {
-        x: cardData.x,
-        y: cardData.y,
-        z: z
-      };
-      if (this.roomService.shelfDrag) {
-        newPosition['ownerId'] = this.playerService.playerId;
-      }
-      else {
-        newPosition['ownerId'] = '';
-      }
-      this.updateCard(newPosition);
+    if (this.cardBeingDragged) {
+      const curDateObj = new Date();
+      const curTime = (curDateObj).getTime();
+      if (curTime > this.dragStartTime + this.paramsService.cardClickTime) {
+        // drag end
+        const z = this.cardService.getMaxZ() + 1;
+        const cardData = this.getCard();
+        const newPosition = {
+          x: cardData.x,
+          y: cardData.y,
+          z: z
+        };
+        if (this.roomService.shelfDrag) {
+          newPosition['ownerId'] = this.playerService.playerId;
+        }
+        else {
+          newPosition['ownerId'] = '';
+        }
+        this.updateCard(newPosition);
 
-      this.roomService.shelfDrag = false;
-    } else {
-      // click and release 
-      this.flipCard();
+        this.roomService.shelfDrag = false;
+      } else {
+        // click and release 
+        this.flipCard();
+      }
     }
 
     this.cardBeingDragged = false;

@@ -73,7 +73,7 @@ position: relative;
 }
 
 .group-default {
-    background-color: lightblue;
+    background-color: rgba(202, 242, 245, 0.3);
     border-radius: 3px;
 }
 

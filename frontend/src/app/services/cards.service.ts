@@ -81,6 +81,35 @@ export class CardsService {
     return this._maxZ;
   }
 
+  // WARNING: This is untested, but could be useful
+  updateCards(cards: iCardData[]) {
+    const otherUpdatedCards = [];
+    for (const card of cards) {
+      if ('z' in card) {
+        const newZ = card['z']
+        if (newZ > this._maxZ) {
+          this._maxZ = newZ;
+        }
+      }
+
+      const updatedCards = this._updateLocalCards(card);
+      for (const uCard of updatedCards) {
+        if (otherUpdatedCards.indexOf(uCard) === -1 && cards.indexOf(uCard) === -1) {
+          otherUpdatedCards.push(uCard);
+        }
+      }
+
+    }
+
+    const cardsToWs = otherUpdatedCards.concat(cards);
+
+    cardsToWs.map(el => {
+      el['date'] = (new Date()).toISOString();
+    })
+    this.ws.sendToWs('card-move-end-bulk', { cards: cardsToWs });
+
+  }
+
   updateCard(updateObj: iCardData) {
 
     if ('z' in updateObj) {
@@ -101,7 +130,32 @@ export class CardsService {
 
   updateGroup(updateObj: iGroupData) {
     updateObj['date'] = (new Date()).toISOString();
+    const cardsToSend = [];
+    for (const card of this._cards) {
+      if (card.groupId === updateObj.groupId) {
+        cardsToSend.push(card);
+      }
+    }
     this.ws.sendToWs('group-move-end', { group: updateObj });
+    this.updateCards(cardsToSend);
+  }
+
+
+  moveGroup(groupData: iGroupData) {
+    this._updateCardsFromGroup(groupData);
+  }
+
+  _updateCardsFromGroup(group: iGroupData) {
+    const groupId = group.groupId;
+    const newX = group.x;
+    const newY = group.y;
+
+    for (const card of this._cards) {
+      if (card.groupId === groupId) {
+        card.x = newX;
+        card.y = newY;
+      }
+    }
   }
 
   _updateLocalCards(updateObj: iCardData) {

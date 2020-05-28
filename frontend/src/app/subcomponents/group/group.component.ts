@@ -32,6 +32,7 @@ export class GroupComponent implements OnInit {
   }
 
   dragMoveStarted(event: MouseEvent) {
+    // TODO: should probably move this to max z while dragging
     this.groupBeingDragged = true;
     this.dragStartTime = (new Date()).getTime();
 
@@ -50,6 +51,7 @@ export class GroupComponent implements OnInit {
     this.groupBeingDragged = false;
     this.dragStartTime = Infinity;
   }
+
   renderDrag(event) {
     if (this.groupBeingDragged) {
       const groupData = this.getGroup();
@@ -60,6 +62,8 @@ export class GroupComponent implements OnInit {
 
       groupData.x = newX;
       groupData.y = newY;
+
+      this.cardService.moveGroup(groupData);
     }
   }
 
@@ -80,7 +84,7 @@ export class GroupComponent implements OnInit {
     return `${150 * this.paramsService.cardSizeFactor}px`;
   }
 
-  getPosition(){
+  getPosition() {
     const groupData = this.getGroup();
     return {
       x: groupData.x,
@@ -91,6 +95,14 @@ export class GroupComponent implements OnInit {
   getTransform() {
     const position = this.getPosition();
     return `translate3d(${position.x}px, ${position.y}px, 0px)` //`translateX(${position.x}px) translateY(${position.y}px)`,
+  }
+
+  getZ() {
+    if (this.groupBeingDragged) {
+      return 100000;
+    } else {
+      return 1;
+    }
   }
 
 
