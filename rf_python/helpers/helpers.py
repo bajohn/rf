@@ -119,6 +119,7 @@ class Helpers():
         initX = 300
         initY = 300
         newConnObj = {'S': self._connectionId}
+        curDate = self._getCurUtcStr()
         self._dynamoClient.put_item(
             TableName=self._connectionTable,
             Item={
@@ -129,7 +130,7 @@ class Helpers():
                     "L": [newConnObj]
                 },
                 "date": {
-                    "S": datetime.utcnow().isoformat()
+                    "S": curDate
                 }
             })
 
@@ -145,7 +146,7 @@ class Helpers():
                     "S": deckGroup
                 },
                 "date": {
-                    "S": datetime.utcnow().isoformat()
+                    "S": curDate
                 },
                 "x": {
                     "N": str(initX)
@@ -155,7 +156,7 @@ class Helpers():
                 },
             })
 
-        self.recallAndShuffleDb(deckGroup, initX, initY)
+        self.recallAndShuffleDb(deckGroup, initX, initY, curDate)
 
     # send msg to everyone and/or self
     # automatically update live connections table
@@ -215,7 +216,7 @@ class Helpers():
                     "L": connIdObjs
                 },
                 "date": {
-                    "S": datetime.utcnow().isoformat()
+                    "S": self._getCurUtcStr()
                 }
             })
 
@@ -351,7 +352,7 @@ class Helpers():
         playerId = updateObj['playerId']
 
         dbObj = dict(date=dict(
-            Value=dict(S=datetime.utcnow().isoformat()),
+            Value=dict(S=self._getCurUtcStr()),
             Action='PUT'
         ))
 
@@ -395,10 +396,7 @@ class Helpers():
 
     def updateDbGroupPosition(self, updateObj):
         groupId = updateObj['groupId']
-        dbObj = dict(date=dict(
-            Value=dict(S=datetime.utcnow().isoformat()),
-            Action='PUT'
-        ))
+        dbObj = dict()
 
         if 'x' in updateObj:
             dbObj['x'] = dict(
@@ -416,6 +414,12 @@ class Helpers():
                 Value=dict(S=str(updateObj['text'])),
                 Action='PUT'
             )
+        if 'date' in updateObj:
+            dbObj['date'] = dict(
+                Value=dict(S=str(updateObj['date'])),
+                Action='PUT'
+            )
+
         self._dynamoClient.update_item(
             TableName=self._groupTable,
             Key=dict(
@@ -426,12 +430,7 @@ class Helpers():
 
     def updateDbCardPosition(self, updateObj):
         cardValue = updateObj['cardValue']
-
-        dbObj = dict(date=dict(
-            Value=dict(S=datetime.utcnow().isoformat()),
-            Action='PUT'
-        ))
-
+        dbObj = dict()
         if 'x' in updateObj:
             dbObj['x'] = dict(
                 Value=dict(N=str(updateObj['x'])),
@@ -529,7 +528,7 @@ class Helpers():
 
         return ret
 
-    def recallAndShuffleDb(self, deckGroup, initX, initY):
+    def recallAndShuffleDb(self, deckGroup, initX, initY, curDate):
 
         cardValues = self._cardValues.copy()
 
@@ -545,8 +544,8 @@ class Helpers():
                 z=i,
                 groupId=deckGroup,
                 faceUp=False,
-                ownerId=''
-            )
+                ownerId='',
+                date=curDate)
             cardsToSend.append(objToSend)
             i += 1
         # refactored to bulk
@@ -560,3 +559,6 @@ class Helpers():
                 cardValues.append(cardValue)
 
         return cardValues
+
+    def _getCurUtcStr(self):
+        return datetime.utcnow().isoformat() + 'Z'

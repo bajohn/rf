@@ -100,6 +100,7 @@ export class CardsService {
   }
 
   updateGroup(updateObj: iGroupData) {
+    updateObj['date'] = (new Date()).toISOString();
     this.ws.sendToWs('group-move-end', { group: updateObj });
   }
 
@@ -187,16 +188,27 @@ export class CardsService {
         console.log(newCard);
         const cardValue = newCard.cardValue;
         const card = this.getCard(cardValue);
-        if ((new Date(card.date)).getTime() < (new Date(newCard.date)).getTime() ) {
+
+        const time = (new Date(card.date)).getTime();
+        const newTime = (new Date(newCard.date)).getTime();
+
+        console.log(card.date, newCard.date);
+        if (time < newTime) {
           Object.assign(card, newCard);
         }
       }
 
     } else if (data.action === 'group-move-end') {
-      const groupObj: iGroupData = data.message['group']
-      const groupId = groupObj.groupId;
+      const newGroup: iGroupData = data.message['group']
+      const groupId = newGroup.groupId;
       const group = this.getGroup(groupId);
-      Object.assign(group, groupObj);
+
+      const time = (new Date(group.date)).getTime();
+      const newTime = (new Date(newGroup.date)).getTime();
+
+      if (time < newTime) {
+        Object.assign(group, newGroup);
+      }
     }
   }
 
