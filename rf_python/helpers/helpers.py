@@ -257,7 +257,7 @@ class Helpers():
                     "N": str(message['z'])
                 },
                 "date": {
-                    "S": datetime.now().isoformat()
+                    "S": str(message['date'])
                 }
             })
         return None
@@ -282,6 +282,8 @@ class Helpers():
         self.updateDbCardPositionBulk(message)
         return None
 
+    # No longer used. Replaced by
+    # getCardMsgFromDbBatch
     def getCardMsgFromDb(self, cardValue):
         getResp = self._dynamoClient.get_item(
             TableName=self._cardTable,
@@ -338,7 +340,8 @@ class Helpers():
                 cardValue=cardResp['cardValue']['S'],
                 groupId=cardResp['groupId']['S'],
                 faceUp=bool(cardResp['faceUp']['BOOL']),
-                ownerId=cardResp['ownerId']['S']
+                ownerId=cardResp['ownerId']['S'],
+                date=cardResp['date']['S']
             ) for cardResp in cardResps
         ]
 
@@ -463,6 +466,11 @@ class Helpers():
                 Value=dict(BOOL=bool(updateObj['faceUp'])),
                 Action='PUT'
             )
+        if 'date' in updateObj:
+            dbObj['date'] = dict(
+                Value=dict(S=str(updateObj['date'])),
+                Action='PUT'
+            )
 
         self._dynamoClient.update_item(
             TableName=self._cardTable,
@@ -495,7 +503,6 @@ class Helpers():
 
     def _getAttrForBulk(self, cardObj):
         ret = dict(
-            date=dict(S=datetime.now().isoformat()),
             gameId=dict(S=self._gameId),
             cardValue=dict(S=cardObj['cardValue'])
         )
@@ -516,6 +523,9 @@ class Helpers():
 
         if 'faceUp' in cardObj:
             ret['faceUp'] = dict(BOOL=bool(cardObj['faceUp']))
+
+        if 'date' in cardObj:
+            ret['date'] = dict(S=str(cardObj['date']))
 
         return ret
 

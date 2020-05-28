@@ -52,6 +52,7 @@ export class CardsService {
       card.z = zMap[card.cardValue];
       card.faceUp = faceUp;
       card.ownerId = '';
+      card.date = (new Date()).toISOString();
       counter++;
     }
     this.shelfCards = [];
@@ -180,9 +181,12 @@ export class CardsService {
     else if (data.action === 'card-move-end-bulk') {
       const newCards = data.message['cards'] as iCardData[];
       for (const newCard of newCards) {
+        console.log(newCard);
         const cardValue = newCard.cardValue;
         const card = this.getCard(cardValue);
-        Object.assign(card, newCard);
+        if( (new Date(card.date)) < (new Date(newCard.date))){
+          Object.assign(card, newCard);
+        }
       }
 
     } else if (data.action === 'group-move-end') {

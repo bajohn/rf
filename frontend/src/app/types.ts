@@ -15,6 +15,7 @@ export interface iCardData {
     groupId?: string
     faceUp?: boolean
     ownerId?: string
+    date?: string
 }
 
 export interface iGroupData {

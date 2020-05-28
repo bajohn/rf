@@ -38,6 +38,7 @@ export class CardComponent implements OnInit {
 
   @HostListener('window:mousemove', ['$event'])
   onMove(event: MouseEvent) {
+    event.preventDefault();
     this.renderDrag(event);
   }
 
@@ -46,17 +47,22 @@ export class CardComponent implements OnInit {
     this.dragStartTime = (new Date()).getTime();
     const z = this.cardService.getMaxZ() + 1;
     this.renderDrag(event, false);
-    this.updateCard({ z: z });
+    this.updateCard({ z: z, date: (new Date()).toISOString() });
   }
 
   mouseUp(event: MouseEvent) {
-    const curTime = (new Date()).getTime();
+    const curDateObj = new Date();
+    const curTime = (curDateObj).getTime();
     if (this.cardBeingDragged && curTime > this.dragStartTime + this.paramsService.cardClickTime) {
       // drag end
       const z = this.cardService.getMaxZ() + 1;
       const cardData = this.getCard();
-      const newPosition = { x: cardData.x, y: cardData.y };
-      newPosition['z'] = z;
+      const newPosition = {
+        x: cardData.x,
+        y: cardData.y,
+        date: curDateObj.toISOString(),
+        z: z
+      };
       if (this.roomService.shelfDrag) {
         newPosition['ownerId'] = this.playerService.playerId;
       }
@@ -117,7 +123,8 @@ export class CardComponent implements OnInit {
     this.renderDrag(event, false);
     this.updateCard({
       faceUp: !faceUp,
-      z: z
+      z: z,
+      date: (new Date()).toISOString()
     });
 
   }
