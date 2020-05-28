@@ -91,6 +91,10 @@ export class CardsService {
     }
 
     const cardsToWs = this._updateLocalCards(updateObj);
+    cardsToWs.map(el => {
+      el['date'] = (new Date()).toISOString();
+    })
+
     this.ws.sendToWs('card-move-end-bulk', { cards: cardsToWs });
 
   }
@@ -103,7 +107,6 @@ export class CardsService {
     let updatedCards = [];
     const cardValue = updateObj.cardValue;
     const curCard = this.getCard(cardValue);
-    console.log(updateObj, curCard);
     let placedInShelf = false;
     if ('ownerId' in updateObj) {
       if (this._isMyCard(updateObj)) {
@@ -184,7 +187,7 @@ export class CardsService {
         console.log(newCard);
         const cardValue = newCard.cardValue;
         const card = this.getCard(cardValue);
-        if( (new Date(card.date)) < (new Date(newCard.date))){
+        if ((new Date(card.date)).getTime() < (new Date(newCard.date)).getTime() ) {
           Object.assign(card, newCard);
         }
       }

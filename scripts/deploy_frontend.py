@@ -35,7 +35,7 @@ def main():
                 'Quantity': 1,
                 'Items': ['/*']
             },
-            'CallerReference': f'invalidation_{datetime.now().isoformat()}'
+            'CallerReference': f'invalidation_{datetime.utcnow().isoformat()}'
         }
     )
 

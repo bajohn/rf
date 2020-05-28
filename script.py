@@ -47,7 +47,7 @@ def put_conn_ids(client, gameId, connIds):
                 "L": connIds
             },
             "date": {
-                "S": datetime.now().isoformat()
+                "S": datetime.utcnow().isoformat()
             }
 
         })
@@ -57,7 +57,7 @@ def post_to_connection(connectionId, api):
 
     gatewayapi = boto3.client("apigatewaymanagementapi", endpoint_url=api)
     data = {'message': 'Hello from backend'}
-    print(datetime.now().isoformat()) # latency ~50-100 ms to cloudfront
+    print(datetime.utcnow().isoformat()) # latency ~50-100 ms to cloudfront
     resp = gatewayapi.post_to_connection(ConnectionId=connectionId,
                                          Data=json.dumps(data))
     return resp

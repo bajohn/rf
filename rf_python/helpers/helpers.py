@@ -129,7 +129,7 @@ class Helpers():
                     "L": [newConnObj]
                 },
                 "date": {
-                    "S": datetime.now().isoformat()
+                    "S": datetime.utcnow().isoformat()
                 }
             })
 
@@ -145,7 +145,7 @@ class Helpers():
                     "S": deckGroup
                 },
                 "date": {
-                    "S": datetime.now().isoformat()
+                    "S": datetime.utcnow().isoformat()
                 },
                 "x": {
                     "N": str(initX)
@@ -215,7 +215,7 @@ class Helpers():
                     "L": connIdObjs
                 },
                 "date": {
-                    "S": datetime.now().isoformat()
+                    "S": datetime.utcnow().isoformat()
                 }
             })
 
@@ -351,7 +351,7 @@ class Helpers():
         playerId = updateObj['playerId']
 
         dbObj = dict(date=dict(
-            Value=dict(S=datetime.now().isoformat()),
+            Value=dict(S=datetime.utcnow().isoformat()),
             Action='PUT'
         ))
 
@@ -396,7 +396,7 @@ class Helpers():
     def updateDbGroupPosition(self, updateObj):
         groupId = updateObj['groupId']
         dbObj = dict(date=dict(
-            Value=dict(S=datetime.now().isoformat()),
+            Value=dict(S=datetime.utcnow().isoformat()),
             Action='PUT'
         ))
 
@@ -428,7 +428,7 @@ class Helpers():
         cardValue = updateObj['cardValue']
 
         dbObj = dict(date=dict(
-            Value=dict(S=datetime.now().isoformat()),
+            Value=dict(S=datetime.utcnow().isoformat()),
             Action='PUT'
         ))
 

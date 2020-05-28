@@ -47,7 +47,7 @@ export class CardComponent implements OnInit {
     this.dragStartTime = (new Date()).getTime();
     const z = this.cardService.getMaxZ() + 1;
     this.renderDrag(event, false);
-    this.updateCard({ z: z, date: (new Date()).toISOString() });
+    this.updateCard({ z: z });
   }
 
   mouseUp(event: MouseEvent) {
@@ -60,7 +60,6 @@ export class CardComponent implements OnInit {
       const newPosition = {
         x: cardData.x,
         y: cardData.y,
-        date: curDateObj.toISOString(),
         z: z
       };
       if (this.roomService.shelfDrag) {
@@ -123,8 +122,7 @@ export class CardComponent implements OnInit {
     this.renderDrag(event, false);
     this.updateCard({
       faceUp: !faceUp,
-      z: z,
-      date: (new Date()).toISOString()
+      z: z
     });
 
   }
@@ -133,6 +131,7 @@ export class CardComponent implements OnInit {
   // and in backend via ws.
   updateCard(objIn: iCardData) {
     objIn['cardValue'] = this.cardValue;
+    objIn['date'] = (new Date()).toISOString();
     this.cardService.updateCard(objIn);
   }
 
