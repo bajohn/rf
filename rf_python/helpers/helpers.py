@@ -116,8 +116,8 @@ class Helpers():
             return []
 
     def createRoom(self):
-        initX = 300
-        initY = 300
+        initX = 100
+        initY = 100
         newConnObj = {'S': self._connectionId}
         curDate = self._getCurUtcStr()
         self._dynamoClient.put_item(
