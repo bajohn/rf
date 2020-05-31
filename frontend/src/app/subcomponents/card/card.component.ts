@@ -20,7 +20,7 @@ export class CardComponent implements OnInit {
   // @Output() dataChange = new EventEmitter<iCardData>();
 
   @Input() cardValue: string;
-  
+
   cardBeingDragged = false; // for styling
   dragStartTime = Infinity;
 
@@ -90,12 +90,11 @@ export class CardComponent implements OnInit {
       const newY = Math.round(event.clientY - headerY - 75 / 2);
 
       this.roomService.shelfDrag = mainTableY < newY + 75 / 2;
-
       if (updateXY) {
         cardData.x = newX;
         cardData.y = newY;
       }
-
+      this.checkGroupDrag(cardData)
     }
   }
 
@@ -153,7 +152,10 @@ export class CardComponent implements OnInit {
   getTransform() {
     const position = this.getPosition();
     return `translate3d(${position.x}px, ${position.y}px, 0px)` //`translateX(${position.x}px) translateY(${position.y}px)`,
+  }
 
+  checkGroupDrag(card: iCardData) {
+    this.cardService.checkGroupDrag(card);
   }
 
   // height/width should be 3.5/2.5,

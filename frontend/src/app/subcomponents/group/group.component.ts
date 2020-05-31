@@ -77,11 +77,11 @@ export class GroupComponent implements OnInit {
   }
 
   getWidth() {
-    return `${150 * this.paramsService.cardSizeFactor}px`;
+    return `${this.paramsService.groupWidth * this.paramsService.cardSizeFactor}px`;
   }
 
   getHeight() {
-    return `${150 * this.paramsService.cardSizeFactor}px`;
+    return `${this.paramsService.groupHeight * this.paramsService.cardSizeFactor}px`;
   }
 
   getPosition() {

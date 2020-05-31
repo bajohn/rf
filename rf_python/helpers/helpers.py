@@ -107,8 +107,8 @@ class Helpers():
             return [
                 dict(
                     groupId=item['groupId']['S'],
-                    x=item['x']['N'],
-                    y=item['y']['N'],
+                    x=int(item['x']['N']),
+                    y=int(item['y']['N']),
                     date=item['date']['S']
                 ) for item in dbResp['Items']
             ]

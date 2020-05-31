@@ -224,7 +224,7 @@ export class CardsService {
     }
     else if (data.action === 'initialize-cards') {
       console.log(data.message);
-      this._groups = data.message['groups']
+      this._groups = data.message['groups'];
       this._cards = data.message['cards'];
       this._cardIdxLookup = this._getInitCardIdxs();
       this._groupIdxLookup = this._getInitGroupIdxs();
@@ -290,6 +290,22 @@ export class CardsService {
     }
 
     this._orderShelfCards();
+  }
+
+  checkGroupDrag(card: iCardData) {
+    for (const group of this._groups) {
+      //console.log(group, card);
+      if (group.x < card.x
+        && group.y < card.y
+        && group.x + this.paramsService.groupWidth > card.x
+        && group.y + this.paramsService.groupHeight > card.y
+      ) {
+        console.log( group.x + this.paramsService.groupWidth)
+        console.log( group.y + this.paramsService.groupHeight)
+        this.getGroup(group.groupId);
+        console.log('light up', group.groupId);
+      }
+    }
   }
 
   removeFromShelf(cardValue: string) {

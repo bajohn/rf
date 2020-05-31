@@ -10,7 +10,8 @@ export class ParamsService {
   readonly shelfCardShift = 100;
   readonly cardSizeFactor = 1.2;
   readonly cardClickTime = 100;
-
+  readonly groupWidth = 150;
+  readonly groupHeight = 150;
 
   constructor() { }
 }
