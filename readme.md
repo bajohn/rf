@@ -4,10 +4,12 @@ Really Fun card game implemented on AWS.
 
 
 ## TODO
-- MAIN TODO: move card data to shared service! Should simplify things a lot.
+
+-!! do not update cardBeingDragged via backend after init!!
 
 - group id: every card starts with group "null", but should also have a settable group id 
 - Concept of stacking: highlight when hovering over a card, then add to stack
+
 - Loading spinners everywhere!
 - Disable "shuffle" buttons for ~1 second. Avoids risk of race conditions from mashing the button
 - Can eventually check a hash via a heartbeat
@@ -20,7 +22,7 @@ Really Fun card game implemented on AWS.
     frontend) updates in the meantime though?
 
 - manage player connections with place on table and shelf
-
+- refactor- there are pythonic dynamo libraries out there.
 
 
 ## Lock logic. Omitting for now, may not be needed

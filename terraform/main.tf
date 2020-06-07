@@ -161,6 +161,14 @@ module "update_player_lambda" {
   layer_arn = aws_lambda_layer_version.lib_layer.arn
 }
 
+# endpoint: heartbeat
+module "heartbeat_lambda" {
+  source    = "./modules/ws-lambda"
+  name      = "heartbeat"
+  iam_arn   = aws_iam_role.iam_for_rf_role.arn
+  layer_arn = aws_lambda_layer_version.lib_layer.arn
+}
+
 
 
 

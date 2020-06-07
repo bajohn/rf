@@ -18,10 +18,16 @@ export interface iCardData {
     date?: string
 }
 
+export interface iLclCardData {
+    //[key: string]: any
+    cardBeingDragged?: boolean
+    cardValue?: string
+}
+
 export interface iGroupData {
     [key: string]: any
-    x?: number 
-    y?: number 
+    x?: number
+    y?: number
     groupId?: string
 }
 
@@ -38,8 +44,9 @@ export type endpoint =
     'group-move-end' |
     'recall-and-shuffle' |
     'test' |
-    'create-room' | 
+    'create-room' |
     'get-player' |
-    'update-player'
+    'update-player' | 
+    'heartbeat'
 export interface position { x: number, y: number };
 

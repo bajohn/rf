@@ -1,7 +1,5 @@
-import { Component, EventEmitter, OnInit, Input, Output, HostListener } from '@angular/core';
-import { WsService } from 'src/app/services/ws.service';
-import { CdkDragStart, CdkDragEnd } from '@angular/cdk/drag-drop';
-import { endpoint, iWsMsg, iCardData, iGroupData } from './../../types'
+import { Component, OnInit, Input, HostListener } from '@angular/core';
+import { iCardData, iLclCardData } from './../../types'
 import { CardsService } from 'src/app/services/cards.service';
 import { PlayerService } from 'src/app/services/player.service';
 import { RoomService } from 'src/app/services/room.service';
@@ -21,7 +19,6 @@ export class CardComponent implements OnInit {
 
   @Input() cardValue: string;
 
-  cardBeingDragged = false; // for styling
   dragStartTime = Infinity;
 
   constructor(
@@ -42,15 +39,17 @@ export class CardComponent implements OnInit {
   }
 
   dragMoveStarted(event: MouseEvent) {
-    this.cardBeingDragged = true;
     this.dragStartTime = (new Date()).getTime();
+    this.cardDragStart();
     const z = this.cardService.getMaxZ() + 1;
     this.renderDrag(event, false);
-    this.updateCard({ z: z });
+    this.updateCard({ 
+      z: z 
+    });
   }
 
   mouseUp(event: MouseEvent) {
-    if (this.cardBeingDragged) {
+    if (this.getCardBeingDragged()) {
       const curDateObj = new Date();
       const curTime = (curDateObj).getTime();
       if (curTime > this.dragStartTime + this.paramsService.cardClickTime) {
@@ -77,12 +76,14 @@ export class CardComponent implements OnInit {
       }
     }
 
-    this.cardBeingDragged = false;
+    this.cardDragRelease();
+    console.log('done!')
+    console.log(this.getCard());
     this.dragStartTime = Infinity;
   }
 
   renderDrag(event, updateXY = true) {
-    if (this.cardBeingDragged) {
+    if (this.getCardBeingDragged()) {
       const cardData = this.getCard();
       const newX = event.clientX - 25;
       const headerY = this.roomService.getHeaderNum();
@@ -116,6 +117,20 @@ export class CardComponent implements OnInit {
     return cardData.faceUp;
   }
 
+  getCardBeingDragged() {
+    const cardData = this.getLocalCard();
+    // console.log(cardData.cardBeingDragged);
+    return cardData.cardBeingDragged;
+  }
+
+  cardDragStart() {
+    this.getLocalCard().cardBeingDragged = true;
+  }
+
+  cardDragRelease(){
+    this.getLocalCard().cardBeingDragged = false;
+  }
+
   flipCard() {
     const faceUp = this.getCard().faceUp;
     const z = this.cardService.getMaxZ() + 1;
@@ -141,6 +156,10 @@ export class CardComponent implements OnInit {
 
   getCard(): iCardData {
     return this.cardService.getCard(this.cardValue);
+  }
+
+  getLocalCard(): iLclCardData {
+    return this.cardService.getLclCard(this.cardValue);
   }
 
   isVisible() {

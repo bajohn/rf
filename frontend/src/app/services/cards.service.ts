@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { WsService } from './ws.service';
 
-import { iCardData, iWsMsg, iGroupData } from '../types';
+import { iCardData, iLclCardData, iWsMsg, iGroupData } from '../types';
 import { RoomService } from './room.service';
 import { PlayerService } from './player.service';
 import { ParamsService } from './params.service';
@@ -12,6 +12,7 @@ import { ParamsService } from './params.service';
 export class CardsService {
 
   _cards: iCardData[] = [];
+  _localCards: iLclCardData[] = [];
   _cardIdxLookup: { [key: string]: number };
   _groupIdxLookup: { [key: string]: number };
   _maxZ = 51;
@@ -52,7 +53,6 @@ export class CardsService {
       card.z = zMap[card.cardValue];
       card.faceUp = faceUp;
       card.ownerId = '';
-      card.date = (new Date()).toISOString();
       counter++;
     }
     this.shelfCards = [];
@@ -72,6 +72,12 @@ export class CardsService {
     return this._cards[idx];
   }
 
+  getLclCard(cardValue: string): iLclCardData {
+    const idx = this._cardIdxLookup[cardValue];
+    return this._localCards[idx];
+  }
+
+
   getGroup(groupId: string): iGroupData {
     const idx = this._groupIdxLookup[groupId];
     return this._groups[idx];
@@ -81,7 +87,6 @@ export class CardsService {
     return this._maxZ;
   }
 
-  // WARNING: This is untested, but could be useful
   updateCards(cards: iCardData[]) {
     const otherUpdatedCards = [];
     for (const card of cards) {
@@ -103,9 +108,6 @@ export class CardsService {
 
     const cardsToWs = otherUpdatedCards.concat(cards);
 
-    cardsToWs.map(el => {
-      el['date'] = (new Date()).toISOString();
-    })
     this.ws.sendToWs('card-move-end-bulk', { cards: cardsToWs });
 
   }
@@ -120,16 +122,12 @@ export class CardsService {
     }
 
     const cardsToWs = this._updateLocalCards(updateObj);
-    cardsToWs.map(el => {
-      el['date'] = (new Date()).toISOString();
-    })
 
     this.ws.sendToWs('card-move-end-bulk', { cards: cardsToWs });
 
   }
 
   updateGroup(updateObj: iGroupData) {
-    updateObj['date'] = (new Date()).toISOString();
     const cardsToSend = [];
     for (const card of this._cards) {
       if (card.groupId === updateObj.groupId) {
@@ -206,6 +204,16 @@ export class CardsService {
     return ret;
   }
 
+  _initLclCards() {
+    for (const card of this._cards) {
+      this._localCards.push({
+        cardBeingDragged: false,
+        cardValue: card.cardValue
+      });
+    }
+  }
+
+
   _getInitGroupIdxs() {
     const ret: { [key: string]: number } = {};
     for (let i = 0; i < this._groups.length; i++) {
@@ -223,9 +231,10 @@ export class CardsService {
       console.error(data);
     }
     else if (data.action === 'initialize-cards') {
-      console.log(data.message);
+
       this._groups = data.message['groups'];
       this._cards = data.message['cards'];
+      this._initLclCards();
       this._cardIdxLookup = this._getInitCardIdxs();
       this._groupIdxLookup = this._getInitGroupIdxs();
 
@@ -239,16 +248,19 @@ export class CardsService {
     else if (data.action === 'card-move-end-bulk') {
       const newCards = data.message['cards'] as iCardData[];
       for (const newCard of newCards) {
-        console.log(newCard);
         const cardValue = newCard.cardValue;
-        const card = this.getCard(cardValue);
+        if (!this.getLclCard(cardValue).cardBeingDragged) {
+          console.log('rendering move from backend');
+          const card = this.getCard(cardValue);
 
-        const time = (new Date(card.date)).getTime();
-        const newTime = (new Date(newCard.date)).getTime();
+          const time = (new Date(card.date)).getTime();
+          const newTime = (new Date(newCard.date)).getTime();
 
-        console.log(card.date, newCard.date);
-        if (time < newTime) {
-          Object.assign(card, newCard);
+          if (time < newTime) {
+            Object.assign(card, newCard);
+          }
+        } else {
+          console.log('SKIPPING move from backend');
         }
       }
 
@@ -294,16 +306,12 @@ export class CardsService {
 
   checkGroupDrag(card: iCardData) {
     for (const group of this._groups) {
-      //console.log(group, card);
       if (group.x < card.x
         && group.y < card.y
         && group.x + this.paramsService.groupWidth > card.x
         && group.y + this.paramsService.groupHeight > card.y
       ) {
-        console.log( group.x + this.paramsService.groupWidth)
-        console.log( group.y + this.paramsService.groupHeight)
         this.getGroup(group.groupId);
-        console.log('light up', group.groupId);
       }
     }
   }
@@ -329,7 +337,6 @@ export class CardsService {
       curCard.ownerId = this.playerService.playerId;
       Object.assign(this.getCard(cardVal), curCard);
     }
-    console.log(this.shelfCards);
 
   }
 
@@ -342,6 +349,5 @@ export class CardsService {
   _isMyCard(cardData: iCardData) {
     return this.playerService.playerId === cardData.ownerId
   }
-
 
 }

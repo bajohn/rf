@@ -6,13 +6,13 @@
     [style.height]="getHeight()"
     [style.position]="'absolute'"
     [style.transform-origin]="'100% 0'"
-    [class.active]="cardBeingDragged" 
-    [class.inactive]="!cardBeingDragged"
+    [class.active]="getCardBeingDragged()" 
+    [class.inactive]="!getCardBeingDragged()"
     [style.z-index]="getZ()" 
     [style.transform]="getTransform()"
     >
 
-    <div [class.card-overlay]="true" [class.active]="cardBeingDragged">
+    <div [class.card-overlay]="true" [class.active]="getCardBeingDragged()">
 
     </div>
 

@@ -153,7 +153,7 @@ class Helpers():
                 },
                 "y": {
                     "N": str(initY)
-                },
+                }
             })
 
         self.recallAndShuffleDb(deckGroup, initX, initY, curDate)
@@ -285,30 +285,30 @@ class Helpers():
 
     # No longer used. Replaced by
     # getCardMsgFromDbBatch
-    def getCardMsgFromDb(self, cardValue):
-        getResp = self._dynamoClient.get_item(
-            TableName=self._cardTable,
-            Key={
-                "gameId": {
-                    "S": self._gameId
-                },
-                "cardValue": {
-                    "S": cardValue
-                }
-            }
-        )
-        dbCard = getResp['Item']
+    # def getCardMsgFromDb(self, cardValue):
+    #     getResp = self._dynamoClient.get_item(
+    #         TableName=self._cardTable,
+    #         Key={
+    #             "gameId": {
+    #                 "S": self._gameId
+    #             },
+    #             "cardValue": {
+    #                 "S": cardValue
+    #             }
+    #         }
+    #     )
+    #     dbCard = getResp['Item']
 
-        message = dict(
-            x=int(dbCard['x']['N']),
-            y=int(dbCard['y']['N']),
-            z=int(dbCard['z']['N']),
-            cardValue=cardValue,
-            groupId=dbCard['groupId']['S'],
-            faceUp=bool(dbCard['faceUp']['BOOL']),
-            ownerId=dbCard['ownerId']['S']
-        )
-        return message
+    #     message = dict(
+    #         x=int(dbCard['x']['N']),
+    #         y=int(dbCard['y']['N']),
+    #         z=int(dbCard['z']['N']),
+    #         cardValue=cardValue,
+    #         groupId=dbCard['groupId']['S'],
+    #         faceUp=bool(dbCard['faceUp']['BOOL']),
+    #         ownerId=dbCard['ownerId']['S']
+    #     )
+    #     return message
 
     def getCardMsgFromDbBatch(self, cardValues):
 
@@ -545,7 +545,8 @@ class Helpers():
                 groupId=deckGroup,
                 faceUp=False,
                 ownerId='',
-                date=curDate)
+                date=curDate
+            )
             cardsToSend.append(objToSend)
             i += 1
         # refactored to bulk
@@ -560,5 +561,9 @@ class Helpers():
 
         return cardValues
 
+    # TODO: delete this!
     def _getCurUtcStr(self):
+        return datetime.utcnow().isoformat() + 'Z'
+
+    def getCurDate(self):
         return datetime.utcnow().isoformat() + 'Z'

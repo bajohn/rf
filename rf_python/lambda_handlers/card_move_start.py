@@ -8,14 +8,23 @@ from rf_python.helpers.helpers import Helpers
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+# THIS IS DEPRECATED- replaced with bulk card move end
 
 def handler(event, context):
     logger.log(logging.INFO, 'Starting card move...')
     logger.log(logging.INFO, json.dumps(event))
 
     helpers = Helpers(event)
-    event_msg = helpers.getEventMsg()
-    helpers.sendMsg(event_msg, toOthers=True)
-    helpers.startCardMove(event_msg)
+    eventMsg = helpers.getEventMsg()
+    eventMsg = _setDates(eventMsg, helpers)
+
+    helpers.sendMsg(eventMsg, toOthers=True)
+    helpers.startCardMove(eventMsg)
 
     return {"statusCode": 200}
+
+
+def _setDates(eventMsg, helpers):
+    message = eventMsg['message']
+    message['date'] = helpers.getCurDate()
+    return eventMsg

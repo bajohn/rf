@@ -15,6 +15,16 @@ def handler(event, context):
 
     helpers = Helpers(event)
     eventMsg = helpers.getEventMsg()
-    helpers.sendMsg(eventMsg, toOthers=True)
+    eventMsg = _setDates(eventMsg, helpers)
+    
+    helpers.sendMsg(eventMsg, toOthers=True, toSelf=True)
     helpers.endCardMoveBulk(eventMsg)
     return {"statusCode": 200}
+
+
+def _setDates(eventMsg, helpers):
+    message = eventMsg['message']
+    cards = message['cards']
+    for card in cards:
+        card['date'] = helpers.getCurDate()
+    return eventMsg
