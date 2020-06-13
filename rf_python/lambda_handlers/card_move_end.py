@@ -19,7 +19,7 @@ def handler(event, context):
     eventMsg = helpers.getEventMsg()
     eventMsg = _setDates(eventMsg, helpers)
     
-    helpers.sendMsg(eventMsg, toOthers=True, toSelf=True)
+    helpers.sendMsg(eventMsg, toOthers=True)
     helpers.endCardMove(eventMsg)
     return {"statusCode": 200}
 

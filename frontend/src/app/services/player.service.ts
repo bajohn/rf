@@ -37,10 +37,10 @@ export class PlayerService {
   calculateOffset(msg) {
 
     const serverTime = new Date(msg['message'].serverTime);
-
     const curTime = new Date();
     curTime.toUTCString();
 
+    // NTP algorithm
     const offset = (2 * serverTime.getTime() - this.lastSendTime.getTime() - curTime.getTime()) / 2;
     if (this.runningOffsets.length >= this.RUNNING_OFFSET_LENGTH) {
       this.runningOffsets.shift();
@@ -50,7 +50,7 @@ export class PlayerService {
     const total = this.runningOffsets.reduce((el, accum) => {
       return accum + el;
     })
-    console.log(total, this.runningOffsets);
+
     return total / this.runningOffsets.length
   }
 
@@ -67,10 +67,7 @@ export class PlayerService {
       }
     }
     else if (data.action === 'heartbeat') {
-      console.log('heart');
       this.calculatedOffset = this.calculateOffset(data.message);
-      console.log(this.calculatedOffset);
-      console.log(this.getServerTime());
     }
 
   }
@@ -80,7 +77,6 @@ export class PlayerService {
     const curTime = new Date();
     const serverTime = curTime.getTime() + this.calculatedOffset;
     const ret = new Date(serverTime);
-    console.log(ret);
     return ret;
   }
 

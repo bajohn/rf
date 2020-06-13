@@ -250,7 +250,7 @@ export class CardsService {
       for (const newCard of newCards) {
         const cardValue = newCard.cardValue;
         if (!this.getLclCard(cardValue).cardBeingDragged) {
-          console.log('rendering move from backend');
+
           const card = this.getCard(cardValue);
 
           const time = (new Date(card.date)).getTime();

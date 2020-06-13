@@ -39,19 +39,19 @@ export class CardComponent implements OnInit {
   }
 
   dragMoveStarted(event: MouseEvent) {
-    this.dragStartTime = (new Date()).getTime();
+    this.dragStartTime = this.playerService.getServerTime().getTime();
     this.cardDragStart();
     const z = this.cardService.getMaxZ() + 1;
     this.renderDrag(event, false);
-    this.updateCard({ 
-      z: z 
+    this.updateCard({
+      z: z
     });
   }
 
   mouseUp(event: MouseEvent) {
     if (this.getCardBeingDragged()) {
-      const curDateObj = new Date();
-      const curTime = (curDateObj).getTime();
+      const curTime = this.playerService.getServerTime().getTime();
+
       if (curTime > this.dragStartTime + this.paramsService.cardClickTime) {
         // drag end
         const z = this.cardService.getMaxZ() + 1;
@@ -77,8 +77,6 @@ export class CardComponent implements OnInit {
     }
 
     this.cardDragRelease();
-    console.log('done!')
-    console.log(this.getCard());
     this.dragStartTime = Infinity;
   }
 
@@ -119,7 +117,6 @@ export class CardComponent implements OnInit {
 
   getCardBeingDragged() {
     const cardData = this.getLocalCard();
-    // console.log(cardData.cardBeingDragged);
     return cardData.cardBeingDragged;
   }
 
@@ -127,7 +124,7 @@ export class CardComponent implements OnInit {
     this.getLocalCard().cardBeingDragged = true;
   }
 
-  cardDragRelease(){
+  cardDragRelease() {
     this.getLocalCard().cardBeingDragged = false;
   }
 
@@ -146,7 +143,7 @@ export class CardComponent implements OnInit {
   // and in backend via ws.
   updateCard(objIn: iCardData) {
     objIn['cardValue'] = this.cardValue;
-    objIn['date'] = (new Date()).toISOString();
+    objIn['date'] = this.playerService.getServerTime().toISOString();
     this.cardService.updateCard(objIn);
   }
 
