@@ -20,6 +20,8 @@ export class CardComponent implements OnInit {
   @Input() cardValue: string;
 
   dragStartTime = Infinity;
+  lastDragUpdateTime = this.playerService.getServerTime();
+  readonly UPDATE_INTERVAL_MS = 100;
 
   constructor(
     private cardService: CardsService,
@@ -81,19 +83,36 @@ export class CardComponent implements OnInit {
   }
 
   renderDrag(event, updateXY = true) {
+
     if (this.getCardBeingDragged()) {
-      const cardData = this.getCard();
+
+
       const newX = event.clientX - 25;
       const headerY = this.roomService.getHeaderNum();
       const mainTableY = this.roomService.getPlayTableNum();
       const newY = Math.round(event.clientY - headerY - 75 / 2);
 
       this.roomService.shelfDrag = mainTableY < newY + 75 / 2;
-      if (updateXY) {
-        cardData.x = newX;
-        cardData.y = newY;
+
+      const dragTime = this.playerService.getServerTime().getTime();
+      const cardData = this.getCard();
+
+      if (dragTime - this.lastDragUpdateTime.getTime() > this.UPDATE_INTERVAL_MS) {
+        this.lastDragUpdateTime = new Date(dragTime);
+        this.updateCard({
+          x: newX,
+          y: newY
+        });
+      } else {
+        //update card locally only.
+        if (updateXY) {
+          cardData.x = newX;
+          cardData.y = newY;
+        }
       }
+
       this.checkGroupDrag(cardData)
+
     }
   }
 
