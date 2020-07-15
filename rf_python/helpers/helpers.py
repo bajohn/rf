@@ -41,7 +41,9 @@ class Helpers():
         # check that game id exists
 
         if self._gameIdExists():
-            self.sendCurrentCards()
+            logger.log(logging.INFO,
+                       f'game id exists')
+            # self.sendCurrentCards()
             connObjs = self._getConnObjs()
             newConnObj = {'S': self._connectionId}
             if newConnObj not in connObjs:

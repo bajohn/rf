@@ -17,7 +17,7 @@ def handler(event, context):
     helpers.createRoom()
     event_msg = helpers.getEventMsg()
     event_msg['message']['success'] = True
-    helpers.messageSelf(event_msg)
+    # helpers.messageSelf(event_msg)
     return {"statusCode": 200}
 
 

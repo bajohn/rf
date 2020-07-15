@@ -70,7 +70,7 @@ export class CreateRoomComponent implements OnInit {
       if (data.action === 'initialize' && this.createInProgress) {
         if (!data.message['gameExists']) {
           console.log('Create!');
-          this.ws.sendToWs('create-room', {});
+          //this.ws.sendToWs('create-room', {});
           console.log('redirect');
         } else {
           // Probably due to random ID collision, try again.
