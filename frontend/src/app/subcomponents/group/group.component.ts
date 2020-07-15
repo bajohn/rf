@@ -14,7 +14,7 @@ export class GroupComponent implements OnInit {
 
 
   @Input() groupId: string;
-  groupBeingDragged = false; // for styling
+  //groupBeingDragged = false; // for styling
   dragStartTime = Infinity;
 
   constructor(
@@ -33,14 +33,14 @@ export class GroupComponent implements OnInit {
 
   dragMoveStarted(event: MouseEvent) {
     // TODO: should probably move this to max z while dragging
-    this.groupBeingDragged = true;
+    this._setIsActive(true);
     this.dragStartTime = (new Date()).getTime();
 
     this.renderDrag(event);
   }
   mouseUp(event: MouseEvent) {
     const curTime = (new Date()).getTime();
-    if (this.groupBeingDragged && curTime > this.dragStartTime + this.paramsService.cardClickTime) {
+    if (this.isActive() && curTime > this.dragStartTime + this.paramsService.cardClickTime) {
       // drag end
       const groupData = this.getGroup();
       const newPosition = { x: groupData.x, y: groupData.y };
@@ -48,12 +48,12 @@ export class GroupComponent implements OnInit {
       this.updateGroup(newPosition);
 
     }
-    this.groupBeingDragged = false;
+    this._setIsActive(false);
     this.dragStartTime = Infinity;
   }
 
   renderDrag(event) {
-    if (this.groupBeingDragged) {
+    if (this.isActive()) {
       const groupData = this.getGroup();
       const newX = event.clientX - 25;
 
@@ -98,11 +98,19 @@ export class GroupComponent implements OnInit {
   }
 
   getZ() {
-    if (this.groupBeingDragged) {
+    if (this.isActive()) {
       return 100000;
     } else {
       return 1;
     }
+  }
+
+  isActive() {
+    return this.cardService.getLclGroup(this.groupId).highlight;
+  }
+
+  _setIsActive(highlight: boolean) {
+    this.cardService.getLclGroup(this.groupId).highlight = highlight;
   }
 
 

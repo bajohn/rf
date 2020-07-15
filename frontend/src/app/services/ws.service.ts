@@ -50,7 +50,9 @@ export class WsService {
 
   getSubscription(callback: (data: any) => any) {
     this.ws.asObservable().subscribe(
-      (data) => { callback(data) });
+
+      (data) => {       console.log('hiii?');
+      callback(data) });
   }
 
 }

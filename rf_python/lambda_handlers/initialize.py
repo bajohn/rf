@@ -15,7 +15,7 @@ def handler(event, context):
 
     helpers = Helpers(event)
     helpers.initiateConnection()
-    helpers.sendConnectionId()
+    # helpers.sendConnectionId()
 
     return {"statusCode": 200}
 

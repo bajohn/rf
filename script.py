@@ -1,67 +1,39 @@
-import boto3
-import json 
-from datetime import datetime
 
-# for local, non-lambda testing!!!
+class MyNumbers:
+    
 
-# def main():
-#     client = boto3.client('dynamodb')
+    def __iter__(self):
+        self.a = 1
+        return self
 
-#     gameId = 'y666'
+    def __next__(self):
+        x = self.a
+        self.a += 1
+        return x
 
-#     get_resp = client.get_item(
-#         TableName='rf_game',
-#         Key={
-#             "gameId": {
-#                 "S": gameId
-#             }
-#         })
+def fileyield():
+    file = open('test.txt')
+    lines = iter(file.readlines())
+    yield next(lines)
+    yield next(lines)
+    print('doing some stuff')
+    yield next(lines)
+    print('doing some stuff')
+    print('even more')
+    yield next(lines)
 
-#     if 'Item' in get_resp:
-#         get_item = get_resp['Item']
-#         if 'connectionIds' in get_item:
-#             conn_ids = get_item['connectionIds']['L']
-#             conn_ids.append({'S': '1234'})
-#             put_resp = put_conn_ids(client, gameId, conn_ids)
-#         else:
-#             raise Exception('Missing connection ids?!')
-#     else:
-#         put_resp = put_conn_ids(client, gameId, [{"S": 'hhhh99999'}])
-
-#     print(put_resp)
 
 
 def main():
-    connectionId = 'K1EcHeDToAMCIyQ=' # hard copied from dynamo db
-    api = 'https://9owex9co2e.execute-api.us-east-1.amazonaws.com/dev_stage'
-    post_to_connection(connectionId, api)
+    y = (x for x in fileyield())
+    itery = iter(y)
+    for i in range(3):
+        print(next(itery))
 
-def put_conn_ids(client, gameId, connIds):
-    put_resp = client.put_item(
-        TableName='rf_game',
-        Item={
-            "gameId": {
-                "S": gameId
-            },
-            "connectionIds": {
-                "L": connIds
-            },
-            "date": {
-                "S": datetime.utcnow().isoformat()
-            }
-
-        })
-    return put_resp
-
-def post_to_connection(connectionId, api):
-
-    gatewayapi = boto3.client("apigatewaymanagementapi", endpoint_url=api)
-    data = {'message': 'Hello from backend'}
-    print(datetime.utcnow().isoformat()) # latency ~50-100 ms to cloudfront
-    resp = gatewayapi.post_to_connection(ConnectionId=connectionId,
-                                         Data=json.dumps(data))
-    return resp
+    print(type(range(3)))
 
 
 if __name__ == "__main__":
     main()
+
+       

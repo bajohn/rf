@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { WsService } from './ws.service';
 
-import { iCardData, iLclCardData, iWsMsg, iGroupData } from '../types';
+import { iCardData, iLclCardData, iWsMsg, iGroupData, iLclGroupData } from '../types';
 import { RoomService } from './room.service';
 import { PlayerService } from './player.service';
 import { ParamsService } from './params.service';
@@ -21,6 +21,7 @@ export class CardsService {
   shelfCards: string[] = [];
 
   _groups: iGroupData[] = [];
+  _localGroups: iLclGroupData[] = [];
 
   constructor(
     private ws: WsService,
@@ -75,6 +76,11 @@ export class CardsService {
   getLclCard(cardValue: string): iLclCardData {
     const idx = this._cardIdxLookup[cardValue];
     return this._localCards[idx];
+  }
+
+  getLclGroup(groupId: string): iLclGroupData {
+    const idx = this._groupIdxLookup[groupId];
+    return this._localGroups[idx];
   }
 
 
@@ -204,13 +210,21 @@ export class CardsService {
     return ret;
   }
 
-  _initLclCards() {
+  _initLclData() {
     for (const card of this._cards) {
       this._localCards.push({
         cardBeingDragged: false,
         cardValue: card.cardValue
       });
     }
+
+    for (const group of this._groups) {
+      this._localGroups.push({
+        highlight: false,
+        groupId: group.groupId
+      });
+    }
+
   }
 
 
@@ -234,7 +248,7 @@ export class CardsService {
 
       this._groups = data.message['groups'];
       this._cards = data.message['cards'];
-      this._initLclCards();
+      this._initLclData();
       this._cardIdxLookup = this._getInitCardIdxs();
       this._groupIdxLookup = this._getInitGroupIdxs();
 
@@ -305,15 +319,21 @@ export class CardsService {
   }
 
   checkGroupDrag(card: iCardData) {
+    let foundGroup = null;
     for (const group of this._groups) {
       if (group.x < card.x
         && group.y < card.y
         && group.x + this.paramsService.groupWidth > card.x
         && group.y + this.paramsService.groupHeight > card.y
       ) {
-        this.getGroup(group.groupId);
+        foundGroup = group;
+        //this.getLclGroup(group.groupId).highlight = true;
+        break;
       }
+
     }
+    console.log(foundGroup);
+
   }
 
   removeFromShelf(cardValue: string) {

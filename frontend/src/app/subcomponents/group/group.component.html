@@ -7,13 +7,13 @@
 [style.position]="'absolute'"
 [style.z-index]="getZ()"
 [style.transform-origin]="'100% 0'"
-[class.active]="groupBeingDragged" 
-[class.inactive]="!groupBeingDragged"
+[class.active]="isActive()" 
+[class.inactive]="!isActive()"
 [style.transform]="getTransform()"
 [class.group-default]="true"
 >
 
-<div [class.card-overlay]="true" [class.active]="groupBeingDragged">
+<div [class.card-overlay]="true" [class.active]="isActive()">
 
 </div>
 

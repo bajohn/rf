@@ -7,11 +7,10 @@ export interface iWsMsg {
 }
 
 export interface iCardData {
-    [key: string]: any
+    cardValue?: string 
     x?: number
     y?: number
     z?: number
-    cardValue?: string
     groupId?: string
     faceUp?: boolean
     ownerId?: string
@@ -20,18 +19,21 @@ export interface iCardData {
 
 export interface iLclCardData {
     //[key: string]: any
-    cardBeingDragged?: boolean
     cardValue?: string
+    cardBeingDragged?: boolean
 }
 
 export interface iGroupData {
-    [key: string]: any
+    groupId?: string
     x?: number
     y?: number
-    groupId?: string
+    date?: string
 }
 
-
+export interface iLclGroupData {
+    groupId?: string
+    highlight?: boolean
+}
 
 export type endpoint =
     'initialize' |

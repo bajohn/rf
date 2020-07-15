@@ -66,6 +66,7 @@ export class CreateRoomComponent implements OnInit {
   // subsequent room creatinos.
 
   parseMsgFromWs(data: iWsMsg) {
+    console.log('there', data);
     try {
       if (data.action === 'initialize' && this.createInProgress) {
         if (!data.message['gameExists']) {
@@ -79,6 +80,7 @@ export class CreateRoomComponent implements OnInit {
           this.click_create();
         }
       } else if (data.action === 'create-room') {
+        console.log('HII')
         if (data.message['success']) {
           this.createInProgress = false;
           const gameId = data.message['gameId'];
